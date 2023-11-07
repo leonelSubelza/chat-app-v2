@@ -1,10 +1,13 @@
-package com.chatapp.chatapp.config;
+package com.chatapp.core.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 @Configuration
 //Esta anotación significa que la aplicación puede admitir comunicación en tiempo real bidireccional entre el servidor y
@@ -40,6 +43,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         //Todos los que quieran establecer una conexión con este webSocket deberán establecer la URL con 'ws'
         //Es decir para establecer la conexión será http:localhost:8080/ws. Se permite que cualquiera se pueda suscribir
-        registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
+        registry
+                .addEndpoint("/ws")
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
+
 }

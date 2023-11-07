@@ -1,18 +1,22 @@
-package com.chatapp.chatapp.controller;
+package com.chatapp.core.controller;
 
-import com.chatapp.chatapp.controller.model.Message;
+import com.chatapp.core.config.WebSocketSessionHandler;
+import com.chatapp.core.controller.model.Message;
+import com.chatapp.core.controller.model.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 @Controller
+@Slf4j
 public class ChatController {
 
     //Cualquier usuario que se quiera conectar a este controlador tendrá que establecer la URL con /app/Loquesea
-
 
     //Para enviar mensajes a alguien en privado
     @Autowired
@@ -28,6 +32,12 @@ public class ChatController {
     //cuando el usuario envía un msj a /app/message, se enviará este msj a aquellos que estén suscritos a /chatroom/public
     @SendTo("/chatroom/public")//se especifica el subdestino al que se enviará el msj. El destino general es /chatroom y el subdestino es /public
     public Message receiveMessage(@Payload Message message){
+        /*
+        System.out.println("se recibe msj global de: "+message.getSenderName()+" de tipo: "+message.getStatus());
+        int activeSessions = WebSocketSessionHandler.getActiveSessionsCount();
+        System.out.println("cantidad de usuarios conectados: "+activeSessions);
+        System.out.println("");
+        */
         return message;
     }
 
@@ -45,15 +55,35 @@ public class ChatController {
         // se utiliza message.getReceiverName() como nombre de usuario para enviar el mensaje,
         // "/private" como destino y el propio objeto message como mensaje.
         simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(),"/private",message);
-        System.out.println("Mensaje privado recibido de: "+message.getSenderName()+" para: "+message.getReceiverName());
         //El cliente para conectarse deberá establecer una URL de tipo /user/David/private
         return message;
     }
 
 
+    /*
     @MessageMapping("/unsubscribe")
     @SendTo("/chatroom/disconnected")
     public Message unsubscribe(@Payload Message message) {
+        System.out.println("se desuscribió: "+message.getSenderName());
+        int activeSessions = WebSocketSessionHandler.getActiveSessionsCount();
+        System.out.println("cantidad de usuarios conectados: "+activeSessions);
+        return message;
+    }
+*/
+
+
+    //de otro video
+    //este endpoint se usa por cada vez que un usuario se conecta
+    @MessageMapping("/chat.user")
+    @SendTo("/chatroom/public")
+    public Message addUser(@Payload Message message, SimpMessageHeaderAccessor headerAccessor){
+        //añade un username en web socket session
+        //hay algo que no entiendo, esta clave senderName se sobreescribe por cada usuario conectado, pero al
+        //momento de pedir un dato, ya sea que se haya sobreescrito o no, lo obtiene igual (arreglar esto)
+        headerAccessor.getSessionAttributes().put("senderName",message.getSenderName());
+        WebSocketSessionHandler.addSession(User.builder().username(message.getSenderName()).build());
+        log.info("User connected!:{}",message.getSenderName());
+        System.out.println("cant de usuarios conectados: "+WebSocketSessionHandler.getActiveSessionsCount());
         return message;
     }
 }

@@ -1,4 +1,4 @@
-package com.chatapp.chatapp.controller.model;
+package com.chatapp.core.controller.model;
 
 public enum Status {
     JOIN,
