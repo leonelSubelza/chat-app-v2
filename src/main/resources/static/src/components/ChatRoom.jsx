@@ -120,6 +120,8 @@ const ChatRoom = () => {
             privateChats.set(payloadData.senderName,list);
             setPrivateChats(new Map(privateChats));
         }
+        console.log("se recibe msj, horario parseado correctamente: ");
+        console.log(convertUTCTimeToLocalTime(getActualDate(payloadData.date)));
     }
 
 
@@ -179,6 +181,7 @@ const ChatRoom = () => {
             if (stompClient) {
               var chatMessage = {
                 senderName: userData.username,
+                date:getActualDate(),
                 message: userData.message,
                 status:"MESSAGE"
               };
@@ -193,6 +196,7 @@ const ChatRoom = () => {
           var chatMessage = {
             senderName: userData.username,
             receiverName:tab,
+            date:getActualDate(),
             message: userData.message,
             status:"MESSAGE"
           };
@@ -204,6 +208,8 @@ const ChatRoom = () => {
             privateChats.get(tab).push(chatMessage);
             setPrivateChats(new Map(privateChats));
           }
+          console.log("se envía msj, horario parseado correctamente: ");
+          convertUTCTimeToLocalTime(getActualDate());
           stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage))
           setUserData({...userData,"message": ""});
         }
@@ -215,6 +221,21 @@ const ChatRoom = () => {
         const {name}=data.username;
         setUserData({...userData,"username": name});
         connect(data)
+    }
+
+    const getActualDate = () => {
+        var fechaHoraActual = new Date();
+        //este formate es universal, por lo que si la otra persona esta en otra region se debe convertir a su
+        //zona respectiva
+        var formatoUTC = fechaHoraActual.toISOString();
+        return formatoUTC;
+    }
+
+    const convertUTCTimeToLocalTime = (UTCFormat)=>{
+        var fechaUTC = new Date(UTCFormat);
+        var opciones = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        var fechaHoraLocal = fechaUTC.toLocaleString(undefined, opciones);
+        console.log("Fecha y hora en zona horaria local2: " + fechaHoraLocal);
     }
 
     useEffect(() => {
