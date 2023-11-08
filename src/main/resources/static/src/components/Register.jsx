@@ -18,7 +18,7 @@ const Register = ({registerUser}) => {
 
     const handleRegisterUser = (e) => {
         e.preventDefault();
-        registerUser(userData);
+        return registerUser(userData);
     }
 
     return (

@@ -74,7 +74,6 @@ const ChatRoom = () => {
     
     const onPrivateMessage = (payload)=>{
         var payloadData = JSON.parse(payload.body);
-        //ahora va a llegar tambien un estado de LEAVE que se desuscribió del chat
         switch(payloadData.status){
             case "JOIN":
                 //Los usuarios que no conzco me dicen quienes son uwu
@@ -131,11 +130,12 @@ const ChatRoom = () => {
     const handleUserLeave = (payloadData) => {
         //ARREGLAR ESTO QUE EL ESTADO tab EN ESTA FUNCION QUEDA SETEADO CON CHATROOM Y NO CAMBIA AUNQUE EL
         //ESTADO SI CAMBIEEEEEEE
-        setTab("CHATROOM");
-        if(tab === payloadData.senderName){
+        //setTab("CHATROOM");
+
+/*        if(tabb === payloadData.senderName){
             console.log("ses deberia setear el tab en chatroom");
             setTab("CHATROOM");
-        }
+        }*/
         privateChats.delete(payloadData.senderName);
         setPrivateChats(new Map(privateChats));
     }
@@ -242,11 +242,14 @@ const ChatRoom = () => {
         connect(data)
     }
 
-    /*
     useEffect(() => {
+
         console.log("tab puesto: "+tab);
+        console.log("existen chats privados con este tab?: "+privateChats.get(tab)!=undefined);
+        if(tab!=="CHATROOM" && privateChats.get(tab)===undefined){
+            setTab("CHATROOM")
+        }
     })
-*/    
 
 
 

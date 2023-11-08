@@ -16,7 +16,7 @@ const ChatRoom = () => {
     
     const [privateChats, setPrivateChats] = useState(new Map());     
     const [publicChats, setPublicChats] = useState([]); 
-    //tab guarda el nombre de cada pestaña, se tendrá el tab pulico y uno con el nombre de cada usuario conectado
+    
     const [tab,setTab] =useState("CHATROOM");
     const [userData, setUserData] = useState({
         username: '',
@@ -24,9 +24,6 @@ const ChatRoom = () => {
         connected: false,
         message: ''
       });
-      //const [userData, setUserData] = useState({});
-
-      //useEffect(()=>{ console.log("usedata: "+JSON.stringify(userData) );},[userData])
 
     const connect =()=>{
         let Sock = new SockJS(serverURL);
@@ -44,7 +41,8 @@ const ChatRoom = () => {
     }
 
     const userJoin=()=>{
-        //Al unirse a la sesion, se envia un msj a todos los usuarios conectados para que les lleguen los datos mios de q me conecté
+        //Al unirse a la sesion, se envia un msj a todos los usuarios conectados para que les 
+        //lleguen los datos mios de q me conecté
           var chatMessage = {
             senderName: userData.username,
             status:"JOIN"
@@ -74,7 +72,6 @@ const ChatRoom = () => {
     
     const onPrivateMessage = (payload)=>{
         var payloadData = JSON.parse(payload.body);
-        //ahora va a llegar tambien un estado de LEAVE que se desuscribió del chat
         switch(payloadData.status){
             case "JOIN":
                 //Los usuarios que no conzco me dicen quienes son uwu
@@ -97,7 +94,6 @@ const ChatRoom = () => {
         }
         //Si no se tiene guardado quien se unio se guarda (tambien nos llega un msj de que este cliente mismo se unio)
         if (!privateChats.get(payloadData.senderName)) {
-            //alert('se recibe un msj de que se unio de: '+JSON.stringify(payloadData))
             privateChats.set(payloadData.senderName, []);
             setPrivateChats(new Map(privateChats));
             //cuando un usuario se une nuevo, éste no conoce quienes están unidos, 
@@ -111,7 +107,6 @@ const ChatRoom = () => {
                 };
                 stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage))
             }
-
         }
     }
 
@@ -129,13 +124,6 @@ const ChatRoom = () => {
 
 
     const handleUserLeave = (payloadData) => {
-        //ARREGLAR ESTO QUE EL ESTADO tab EN ESTA FUNCION QUEDA SETEADO CON CHATROOM Y NO CAMBIA AUNQUE EL
-        //ESTADO SI CAMBIEEEEEEE
-        setTab("CHATROOM");
-        if(tab === payloadData.senderName){
-            console.log("ses deberia setear el tab en chatroom");
-            setTab("CHATROOM");
-        }
         privateChats.delete(payloadData.senderName);
         setPrivateChats(new Map(privateChats));
     }
@@ -149,21 +137,20 @@ const ChatRoom = () => {
         setPrivateChats(new Map(privateChats));
     }
 
-//EL PROBLEMA AHORA ES QUE SI ME DESLOGUEO Y ME VUELVO A LOGUEAR SE ENVÍA UN MSJ AL SERVIDOR CON USUARIOS ANTIGUOS QUE YA NO DEBERÍAN EXISTIR
 
 
 */
     const disconnectChat = () => {
         userData.connected=false;  
-        //setUserData({...userData,"connected": false});
-        //unsubscribeChannels();
         stompClient.disconnect();
         resetValues();
     }
 
+/*
     const unsubscribeChannels = () => {
         Object.keys(stompClient.subscriptions).forEach((s) => stompClient.unsubscribe(s));
     }
+*/
 
     const resetValues = () =>{
         setPrivateChats(new Map());
@@ -175,7 +162,6 @@ const ChatRoom = () => {
             connected: false,
             message: ''
           });
-        //stompClient=null;
     }
 
     const onError = (err) => {
@@ -190,7 +176,6 @@ const ChatRoom = () => {
 
     //Envia msj a todos
     const sendValue=()=>{
-        //console.log('se envia msj global');
             if (stompClient) {
               var chatMessage = {
                 senderName: userData.username,
@@ -221,19 +206,9 @@ const ChatRoom = () => {
           }
           stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage))
           setUserData({...userData,"message": ""});
-
-          //console.log("USER DATA: "+ JSON.stringify(userData));
-          //Vacia el atr mensaje porque se envia el msj y en el input se pone vacio
-          
         }
     }
 
-    /*
-    const handleUsername=(event)=>{
-        const {value}=event.target;
-        setUserData({...userData,"username": value});
-    }
-*/
     const registerUser = (data) =>{
         stompClient=null;
         userData.username=data.username;        
@@ -242,30 +217,11 @@ const ChatRoom = () => {
         connect(data)
     }
 
-    /*
     useEffect(() => {
-        console.log("tab puesto: "+tab);
+        if(tab!=="CHATROOM" && privateChats.get(tab)===undefined){
+            setTab("CHATROOM")
+        }
     })
-*/    
-
-
-
-    /*
-    Esto lo habia hecho para ver si se cerraba la ventana
-    useWindow('beforeunload', (event) => {
-        const message = '¿Está seguro que desea salir?';
-        event.returnValue = message; // Standard para la mayoría de los navegadores
-        if (!window.confirm(message)) {
-            // Si el usuario hace clic en "Cancelar", evita que la página se cierre
-            event.preventDefault();
-          } else {
-            disconnectChat();
-          }
-          return message;
-      });
-    */
-
-      
 
     return (
     <div className="container">
@@ -305,7 +261,7 @@ const ChatRoom = () => {
             </div>}
             {tab!=="CHATROOM" && <div className="chat-content">
                 <ul className="chat-messages">
-                    {(privateChats.size>0) && [...privateChats.get(tab)].map((chat,index)=>(
+                    {(privateChats.size>0 && privateChats.get(tab)!==undefined) && [...privateChats.get(tab)].map((chat,index)=>(
                         <li className={`message ${chat.senderName === userData.username && "self"}`} key={index}>
                             {chat.senderName !== userData.username && <div className="avatar">{chat.senderName}</div>}
                             <div className="message-data">{chat.message}</div>
@@ -321,19 +277,6 @@ const ChatRoom = () => {
             </div>}
         </div>
         :
-        /*<div className="register">
-            <input
-                id="user-name"
-                placeholder="Enter your name"
-                name="userName"
-                value={userData.username}
-                onChange={handleUsername}
-                margin="normal"
-              />
-              <button type="button" onClick={registerUser}>
-                    connect
-              </button> 
-                    </div>*/
         <Register
         registerUser={registerUser}
         />            
