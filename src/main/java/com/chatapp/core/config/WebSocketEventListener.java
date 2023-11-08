@@ -2,6 +2,7 @@ package com.chatapp.core.config;
 
 import com.chatapp.core.controller.model.Message;
 import com.chatapp.core.controller.model.Status;
+import com.chatapp.core.controller.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -23,33 +24,21 @@ public class WebSocketEventListener {
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent disconnectEvent){
+        //Spring sabe identificar especificamente quién se desconectó por lo que siempre obtendremos al usuario correcto
+        //No hace falta borrar ningun objeto de headerAccesor ya que spring lo hace solo
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(disconnectEvent.getMessage());
-        String username = (String) headerAccessor.getSessionAttributes().get("senderName");
-        //ahora no se quien se desconectó, probar si conviene agregar un id al obj headeraccesor por cada usuario conectado
-        if(username!=null){
-            log.info("User disconnected!:{}",username);
-            var chatMessage = Message.builder()
+        String id = headerAccessor.getSessionId();
+        User user = (User) headerAccessor.getSessionAttributes().get("User");
+        if(user!=null){
+            log.info("User disconnected!:{}",user.getUsername());
+            Message chatMessage = Message.builder()
                     .status(Status.LEAVE)
-                    .senderName(username)
+                    .senderName(user.getUsername())
                     .build();
+            WebSocketSessionHandler.removeSession(user.getUsername());
+            log.info("number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
             //informamos a todos los demas que alguien se desconectó
-            WebSocketSessionHandler.removeSession(username);
-            System.out.println("cant de usuarios conectados: "+WebSocketSessionHandler.getActiveSessionsCount());
             this.messageTemplate.convertAndSend("/chatroom/public",chatMessage);
         }
     }
-
-    //si quisera crear un eventListener disitinto habria que ponerle la misma anotacion que arriba
-
-    /*@EventListener
-    public void handleWebSocketConnectListener(SessionConnectEvent event){
-        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        String username = (String) headerAccessor.getSessionAttributes().get("senderName");
-        //String username = (String) headerAccessor.getUser().getName();
-        //SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.wrap(connectEvent.getMessage());
-
-        //String username = headers.getUser().getName();
-        System.out.println("nombre del que se conectó?: "+username);
-    }
-*/
 }

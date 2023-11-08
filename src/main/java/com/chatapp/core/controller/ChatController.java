@@ -32,12 +32,6 @@ public class ChatController {
     //cuando el usuario envía un msj a /app/message, se enviará este msj a aquellos que estén suscritos a /chatroom/public
     @SendTo("/chatroom/public")//se especifica el subdestino al que se enviará el msj. El destino general es /chatroom y el subdestino es /public
     public Message receiveMessage(@Payload Message message){
-        /*
-        System.out.println("se recibe msj global de: "+message.getSenderName()+" de tipo: "+message.getStatus());
-        int activeSessions = WebSocketSessionHandler.getActiveSessionsCount();
-        System.out.println("cantidad de usuarios conectados: "+activeSessions);
-        System.out.println("");
-        */
         return message;
     }
 
@@ -60,30 +54,19 @@ public class ChatController {
     }
 
 
-    /*
-    @MessageMapping("/unsubscribe")
-    @SendTo("/chatroom/disconnected")
-    public Message unsubscribe(@Payload Message message) {
-        System.out.println("se desuscribió: "+message.getSenderName());
-        int activeSessions = WebSocketSessionHandler.getActiveSessionsCount();
-        System.out.println("cantidad de usuarios conectados: "+activeSessions);
-        return message;
-    }
-*/
-
-
-    //de otro video
-    //este endpoint se usa por cada vez que un usuario se conecta
     @MessageMapping("/chat.user")
     @SendTo("/chatroom/public")
     public Message addUser(@Payload Message message, SimpMessageHeaderAccessor headerAccessor){
-        //añade un username en web socket session
-        //hay algo que no entiendo, esta clave senderName se sobreescribe por cada usuario conectado, pero al
-        //momento de pedir un dato, ya sea que se haya sobreescrito o no, lo obtiene igual (arreglar esto)
-        headerAccessor.getSessionAttributes().put("senderName",message.getSenderName());
-        WebSocketSessionHandler.addSession(User.builder().username(message.getSenderName()).build());
+        //añade un User en web socket session de esta session
+        String id = headerAccessor.getSessionId();
+        User userConnected = User.builder()
+                .id(id)
+                .username(message.getSenderName())
+                .build();
+        headerAccessor.getSessionAttributes().put("User",userConnected);
+        WebSocketSessionHandler.addSession(userConnected);
         log.info("User connected!:{}",message.getSenderName());
-        System.out.println("cant de usuarios conectados: "+WebSocketSessionHandler.getActiveSessionsCount());
+        log.info("number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
         return message;
     }
 }
