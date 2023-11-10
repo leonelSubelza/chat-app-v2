@@ -1,24 +1,21 @@
-import React, { useState } from 'react'
+import React, { useContext } from 'react'
+import { Link,useNavigate } from 'react-router-dom';
 
+import { userContext } from '../context/UserDataContext';
+import '../index.css'
 
-
-const Register = ({registerUser}) => {
-
-    const [userData, setUserData] = useState({
-        username: '',
-        receivername: '',
-        connected: false,
-        message: ''
-      });
+const Register = () => {
+    const navigate = useNavigate();
+    const { userData,setUserData } = useContext(userContext);
 
     const handleUsername=(event)=>{
         const {value}=event.target;
         setUserData({...userData,"username": value});
     }
 
-    const handleRegisterUser = (e) => {
+    const handleRegisterUser=(e)=>{
         e.preventDefault();
-        return registerUser(userData);
+        navigate('/chatroom');
     }
 
     return (
@@ -30,10 +27,11 @@ const Register = ({registerUser}) => {
                 value={userData.username}
                 onChange={handleUsername}
                 margin="normal"
-              />
-              <button type="button" onClick={handleRegisterUser}>
-                    connect
-              </button> 
+            />
+            <Link to="/chatroom">
+                <button type="button" onClick={handleRegisterUser}>connect</button> 
+            </Link>
+              
         </div>
     )
 

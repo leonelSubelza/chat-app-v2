@@ -1,4 +1,5 @@
-import React, { useState,useEffect } from 'react'
+import React, { useState,useEffect,useContext,useRef } from 'react'
+import { useNavigate } from 'react-router-dom';
 /*
 Stomp es una biblioteca JavaScript que se utiliza para enviar y recibir 
 mensajes a través del protocolo STOMP (Simple Text Oriented Messaging Protocol).
@@ -8,33 +9,40 @@ import {over} from 'stompjs';
 //Es una librearia de JS. A diferencia de usar la api WebSocket para crear la conexion,
 //Esta sirve para que pueda ser usada en navegadores más viejos.
 import SockJS from 'sockjs-client';
-import Register from './Register';
 import {serverURL} from '../config/chatConfiguration.js';
+import {userContext} from '../context/UserDataContext.jsx';
 
-var stompClient =null;
 const ChatRoom = () => {
-    
+    const navigate = useNavigate();
+
+    const stompClient = useRef(null);
+    const startedConnection = useRef(false);
+
+    const { userData,setUserData } = useContext(userContext);
     const [privateChats, setPrivateChats] = useState(new Map());     
     const [publicChats, setPublicChats] = useState([]); 
     
     const [tab,setTab] =useState("CHATROOM");
-    const [userData, setUserData] = useState({
-        username: '',
-        receivername: '',
-        connected: false,
-        message: ''
-      });
 
     const connect =()=>{
-        let Sock = new SockJS(serverURL);
-        stompClient = over(Sock);
-        stompClient.connect({},onConnected, onError);
+        if(userData.connected){
+            return;
+        }
+
+        if( !startedConnection.current && (
+            userData.username!=='' && !userData.connected 
+        && (stompClient===null || !stompClient.connected))){
+            startedConnection.current = true;
+            let Sock = new SockJS(serverURL);
+            stompClient.current = over(Sock);
+            stompClient.current.connect({},onConnected, onError);
+        }
     }
 
     const onConnected = () => {
         setUserData({...userData,"connected": true});
-        stompClient.subscribe('/chatroom/public', onMessageReceived);
-        stompClient.subscribe('/user/'+userData.username+'/private', onPrivateMessage);
+        stompClient.current.subscribe('/chatroom/public', onMessageReceived);
+        stompClient.current.subscribe('/user/'+userData.username+'/private', onPrivateMessage);
         //escuchamos el canal que nos envía quién se desconectó
         //stompClient.subscribe('/chatroom/disconnected', onUserDisconnected);
         userJoin();
@@ -49,7 +57,7 @@ const ChatRoom = () => {
           };
           //Se envia un msj al servidor, el cual se envia a todos los usuarios conectados
           //stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
-          stompClient.send("/app/chat.user", {}, JSON.stringify(chatMessage));
+          stompClient.current.send("/app/chat.user", {}, JSON.stringify(chatMessage));
     }
 
     //llega un msj publico
@@ -92,6 +100,8 @@ const ChatRoom = () => {
         if (payloadData.senderName === userData.username) {
             return;
         }
+        console.log("private chats:");
+        console.log(privateChats);
         //Si no se tiene guardado quien se unio se guarda (tambien nos llega un msj de que este cliente mismo se unio)
         if (!privateChats.get(payloadData.senderName)) {
             privateChats.set(payloadData.senderName, []);
@@ -105,7 +115,7 @@ const ChatRoom = () => {
                     receiverName: payloadData.senderName,
                     status: "JOIN"
                 };
-                stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage))
+                stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
             }
         }
     }
@@ -131,6 +141,8 @@ const ChatRoom = () => {
     }
 
     /*
+    Ahora cuando un usuario se desconecta el servidor maneja el evento y envia un msj global para
+    que todos sepan quien fue y se maneja acá en handleMessegeReceived
     const onUserDisconnected = (payload) => {
         //borrar de la lista de chats al que se desconectó
         var payloadData = JSON.parse(payload.body);
@@ -144,7 +156,8 @@ const ChatRoom = () => {
 */
     const disconnectChat = () => {
         userData.connected=false;  
-        stompClient.disconnect();
+        stompClient.current.disconnect();
+        //setStompClient(null);
         resetValues();
     }
 
@@ -167,8 +180,10 @@ const ChatRoom = () => {
     }
 
     const onError = (err) => {
-        console.log("Error: "+err);
-        alert(err)
+        console.log("Error conectando al wb: "+err);
+        alert(err);
+        //se vuelve a la pagina de registro:
+        navigate('/');
     }
 
     const handleMessage =(event)=>{
@@ -178,21 +193,20 @@ const ChatRoom = () => {
 
     //Envia msj a todos
     const sendValue=()=>{
-            if (stompClient) {
+            if (stompClient.current) {
               var chatMessage = {
                 senderName: userData.username,
                 date:getActualDate(),
                 message: userData.message,
                 status:"MESSAGE"
               };
-              stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
+              stompClient.current.send("/app/message", {}, JSON.stringify(chatMessage));
               setUserData({...userData,"message": ""});
             }
     }
 
     const sendPrivateValue=()=>{
-        //console.log('se envia msj privado');
-        if (stompClient) {
+        if (stompClient.current) {
           var chatMessage = {
             senderName: userData.username,
             receiverName:tab,
@@ -210,11 +224,12 @@ const ChatRoom = () => {
           }
           console.log("se envía msj, horario parseado correctamente: ");
           convertUTCTimeToLocalTime(getActualDate());
-          stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage))
+          stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
           setUserData({...userData,"message": ""});
         }
     }
 
+    /*
     const registerUser = (data) =>{
         stompClient=null;
         userData.username=data.username;        
@@ -222,6 +237,7 @@ const ChatRoom = () => {
         setUserData({...userData,"username": name});
         connect(data)
     }
+    */
 
     const getActualDate = () => {
         var fechaHoraActual = new Date();
@@ -238,7 +254,20 @@ const ChatRoom = () => {
         console.log("Fecha y hora en zona horaria local2: " + fechaHoraLocal);
     }
 
+    
+
     useEffect(() => {
+        //se ejecuta solo cuando se monta el componente una vez
+        connect();
+    },[])
+
+    useEffect(() => {
+        //se ejecuta por cada renderizado
+        if(!userData.connected && userData.username === ''){
+            navigate('/');
+            return;
+        }
+
         if(tab!=="CHATROOM" && privateChats.get(tab)===undefined){
             setTab("CHATROOM")
         }
@@ -246,7 +275,6 @@ const ChatRoom = () => {
 
     return (
     <div className="container">
-        {userData.connected?
         <div className="chat-box">
             <div className="member-list">
                 <ul>
@@ -296,12 +324,7 @@ const ChatRoom = () => {
                     <button type="button" className="send-button" onClick={sendPrivateValue}>send</button>
                 </div>
             </div>}
-        </div>
-        :
-        <Register
-        registerUser={registerUser}
-        />            
-        }
+        </div>          
     </div>
     )
 }
