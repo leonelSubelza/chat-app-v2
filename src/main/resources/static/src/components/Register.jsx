@@ -15,6 +15,11 @@ const Register = () => {
 
     const handleRegisterUser=(e)=>{
         e.preventDefault();
+        if(userData.username==='' || userData.URLSessionid===''){
+            alert('se debe poner un nombre de usuario o poner una la clave de una sala')
+            return;
+        }
+
         navigate(`/chatroom/${userData.URLSessionid}`);
     }
 
