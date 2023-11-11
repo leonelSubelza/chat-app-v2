@@ -15,7 +15,7 @@ const Register = () => {
 
     const handleRegisterUser=(e)=>{
         e.preventDefault();
-        navigate('/chatroom');
+        navigate(`/chatroom/${userData.URLSessionid}`);
     }
 
     return (
@@ -28,7 +28,7 @@ const Register = () => {
                 onChange={handleUsername}
                 margin="normal"
             />
-            <Link to="/chatroom">
+            <Link to={`/chatroom/${userData.URLSessionid}`}>
                 <button type="button" onClick={handleRegisterUser}>connect</button> 
             </Link>
               

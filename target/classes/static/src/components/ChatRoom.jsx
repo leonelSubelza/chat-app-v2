@@ -12,54 +12,38 @@ import SockJS from 'sockjs-client';
 import {serverURL} from '../config/chatConfiguration.js';
 import {userContext} from '../context/UserDataContext.jsx';
 
-
 const ChatRoom = () => {
     const navigate = useNavigate();
 
     const stompClient = useRef(null);
+    const startedConnection = useRef(false);
 
     const { userData,setUserData } = useContext(userContext);
     const [privateChats, setPrivateChats] = useState(new Map());     
     const [publicChats, setPublicChats] = useState([]); 
     
     const [tab,setTab] =useState("CHATROOM");
-    //receiver name creo que no va
-    /*
-    const [userData, setUserData] = useState({
-        username: '',
-        receivername: '',
-        connected: false,
-        message: ''
-      });
-      */
 
     const connect =()=>{
-        console.log("se ejecuta funcion connect, stompClient conectado: "+stompClient.current+", userData:");
-        console.log(userData);
         if(userData.connected){
             return;
         }
 
-        /*
-        if((stompClient==null || stompClient==undefined) && userData.username!=='' && !userData.connected){
-            stompClient.connect({},onConnected, onError);
-            return;
-        }
-        */
-        if(userData.username!=='' && !userData.connected 
-        && (stompClient.current===null || !stompClient.current.connected)){
-            console.log("se comienza a establcer la conexion")
+        if( !startedConnection.current && (
+            userData.username!=='' && !userData.connected 
+        && (stompClient===null || !stompClient.connected))){
+            startedConnection.current = true;
             let Sock = new SockJS(serverURL);
             stompClient.current = over(Sock);
             stompClient.current.connect({},onConnected, onError);
-            return;
         }
     }
 
     const onConnected = () => {
         setUserData({...userData,"connected": true});
         stompClient.current.subscribe('/chatroom/public', onMessageReceived);
-        stompClient.current.subscribe('/user/'+userData.username+'/private', onPrivateMessage);
+        stompClient.current.subscribe('/user/'+userData.username+"/"+userData.URLSessionid+'/private', onPrivateMessage);
+        console.log("canal al que se suscribe para msj prv: "+'/user/'+userData.username+"/"+userData.URLSessionid+'/private');
         //escuchamos el canal que nos envía quién se desconectó
         //stompClient.subscribe('/chatroom/disconnected', onUserDisconnected);
         userJoin();
@@ -70,6 +54,7 @@ const ChatRoom = () => {
         //lleguen los datos mios de q me conecté
           var chatMessage = {
             senderName: userData.username,
+            urlSessionId:userData.URLSessionid,
             status:"JOIN"
           };
           //Se envia un msj al servidor, el cual se envia a todos los usuarios conectados
@@ -130,6 +115,7 @@ const ChatRoom = () => {
                 var chatMessage = {
                     senderName: userData.username,
                     receiverName: payloadData.senderName,
+                    urlSessionId:userData.URLSessionid,
                     status: "JOIN"
                 };
                 stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
@@ -158,6 +144,8 @@ const ChatRoom = () => {
     }
 
     /*
+    Ahora cuando un usuario se desconecta el servidor maneja el evento y envia un msj global para
+    que todos sepan quien fue y se maneja acá en handleMessegeReceived
     const onUserDisconnected = (payload) => {
         //borrar de la lista de chats al que se desconectó
         var payloadData = JSON.parse(payload.body);
@@ -221,14 +209,14 @@ const ChatRoom = () => {
     }
 
     const sendPrivateValue=()=>{
-        //console.log('se envia msj privado');
         if (stompClient.current) {
           var chatMessage = {
             senderName: userData.username,
             receiverName:tab,
             date:getActualDate(),
             message: userData.message,
-            status:"MESSAGE"
+            status:"MESSAGE",
+            urlSessionId:userData.URLSessionid
           };
         //si se envia un msj a alguien que no sea yo mismo
           if(userData.username !== tab){
@@ -270,9 +258,15 @@ const ChatRoom = () => {
         console.log("Fecha y hora en zona horaria local2: " + fechaHoraLocal);
     }
 
-    connect();
+    
 
     useEffect(() => {
+        //se ejecuta solo cuando se monta el componente una vez
+        connect();
+    },[])
+
+    useEffect(() => {
+        //se ejecuta por cada renderizado
         if(!userData.connected && userData.username === ''){
             navigate('/');
             return;

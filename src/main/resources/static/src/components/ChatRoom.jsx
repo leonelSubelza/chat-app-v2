@@ -42,7 +42,7 @@ const ChatRoom = () => {
     const onConnected = () => {
         setUserData({...userData,"connected": true});
         stompClient.current.subscribe('/chatroom/public', onMessageReceived);
-        stompClient.current.subscribe('/user/'+userData.username+'/private', onPrivateMessage);
+        stompClient.current.subscribe('/user/'+userData.username+"/"+userData.URLSessionid+'/private', onPrivateMessage);
         //escuchamos el canal que nos envía quién se desconectó
         //stompClient.subscribe('/chatroom/disconnected', onUserDisconnected);
         userJoin();
@@ -53,6 +53,7 @@ const ChatRoom = () => {
         //lleguen los datos mios de q me conecté
           var chatMessage = {
             senderName: userData.username,
+            urlSessionId:userData.URLSessionid,
             status:"JOIN"
           };
           //Se envia un msj al servidor, el cual se envia a todos los usuarios conectados
@@ -113,6 +114,7 @@ const ChatRoom = () => {
                 var chatMessage = {
                     senderName: userData.username,
                     receiverName: payloadData.senderName,
+                    urlSessionId:userData.URLSessionid,
                     status: "JOIN"
                 };
                 stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
@@ -212,7 +214,8 @@ const ChatRoom = () => {
             receiverName:tab,
             date:getActualDate(),
             message: userData.message,
-            status:"MESSAGE"
+            status:"MESSAGE",
+            urlSessionId:userData.URLSessionid
           };
         //si se envia un msj a alguien que no sea yo mismo
           if(userData.username !== tab){

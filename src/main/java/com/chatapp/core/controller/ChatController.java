@@ -48,8 +48,13 @@ public class ChatController {
         // el nombre del usuario, el destino y el mensaje. En este caso,
         // se utiliza message.getReceiverName() como nombre de usuario para enviar el mensaje,
         // "/private" como destino y el propio objeto message como mensaje.
-        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(),"/private",message);
+        //simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(),"/"+message.getReceiverName()+"/"+message.getUrlSessionId()+"/private",message);
+        simpMessagingTemplate.convertAndSend(
+                "/user/"+message.getReceiverName()+"/"+message.getUrlSessionId()+"/private",message);
         //El cliente para conectarse deberá establecer una URL de tipo /user/David/private
+
+        //'/user/'+userData.username+"/"+userData.URLSessionid+'/private'
+
         return message;
     }
 
