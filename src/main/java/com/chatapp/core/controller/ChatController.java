@@ -1,7 +1,9 @@
 package com.chatapp.core.controller;
 
+import com.chatapp.core.config.WebSocketRoomHandler;
 import com.chatapp.core.config.WebSocketSessionHandler;
 import com.chatapp.core.controller.model.Message;
+import com.chatapp.core.controller.model.Room;
 import com.chatapp.core.controller.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,8 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+
+import java.util.HashSet;
 
 @Controller
 @Slf4j
@@ -58,9 +62,26 @@ public class ChatController {
         return message;
     }
 
+    /*AMBAS FUNCIONES SON IGUALES*/
+
+    //En esta función se tiene un control más programático del envío del mensaje
+    @MessageMapping("/group-message")
+    public Message recGroupMessage(@Payload Message message){
+        simpMessagingTemplate.convertAndSend("/chatroom/"+message.getUrlSessionId(),message);
+        return message;
+    }
+
+    //Esta funcion usa SpEL (Lenguaje de Expresión de Spring) en la url
+    /*
+    @MessageMapping("/group-message")
+    @SendTo("/chatroom/{urlSessionId}")
+    public Message recGroupMessageV2(@Payload Message message){
+        return message;
+    }
+*/
 
     @MessageMapping("/chat.user")
-    @SendTo("/chatroom/public")
+    //@SendTo("/chatroom/{urlSessionId}")
     public Message addUser(@Payload Message message, SimpMessageHeaderAccessor headerAccessor){
         //añade un User en web socket session de esta session
         String id = headerAccessor.getSessionId();
@@ -72,6 +93,19 @@ public class ChatController {
         WebSocketSessionHandler.addSession(userConnected);
         log.info("User connected!:{}",message.getSenderName());
         log.info("number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
+
+        //SE UNIÓ UN USUARIO, ENTONCES CREAMOS LA ROOM O NO
+        if(WebSocketRoomHandler.activeRooms.get(message.getUrlSessionId()) == null){
+            Room newRoom = Room.builder()
+                    .id(message.getUrlSessionId())
+                    .users(new HashSet<>())
+                    .build();
+            newRoom.getUsers().add(userConnected);
+            WebSocketRoomHandler.addRoom(newRoom);
+            log.info("New Room created!:{}",newRoom.getId());
+            log.info("number of rooms created:{}",WebSocketRoomHandler.getActiveRoomsCount());
+        }
+        simpMessagingTemplate.convertAndSend("/chatroom/"+message.getUrlSessionId(),message);
         return message;
     }
 }

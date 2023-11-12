@@ -42,8 +42,8 @@ const ChatRoom = () => {
     const onConnected = () => {
         setUserData({...userData,"connected": true});
         stompClient.current.subscribe('/chatroom/public', onMessageReceived);
+        stompClient.current.subscribe('/chatroom/'+userData.URLSessionid, onMessageReceived);
         stompClient.current.subscribe('/user/'+userData.username+"/"+userData.URLSessionid+'/private', onPrivateMessage);
-        console.log("canal al que se suscribe para msj prv: "+'/user/'+userData.username+"/"+userData.URLSessionid+'/private');
         //escuchamos el canal que nos envía quién se desconectó
         //stompClient.subscribe('/chatroom/disconnected', onUserDisconnected);
         userJoin();
@@ -102,8 +102,6 @@ const ChatRoom = () => {
         if (payloadData.senderName === userData.username) {
             return;
         }
-        console.log("private chats:");
-        console.log(privateChats);
         //Si no se tiene guardado quien se unio se guarda (tambien nos llega un msj de que este cliente mismo se unio)
         if (!privateChats.get(payloadData.senderName)) {
             privateChats.set(payloadData.senderName, []);
@@ -203,7 +201,10 @@ const ChatRoom = () => {
                 message: userData.message,
                 status:"MESSAGE"
               };
-              stompClient.current.send("/app/message", {}, JSON.stringify(chatMessage));
+              //stompClient.current.send("/app/message", {}, JSON.stringify(chatMessage));
+              //Ahora enviamos un 'msj grupal' solo a los que esten en nuestra sala
+              stompClient.current.send("/app/group-message", {}, JSON.stringify(chatMessage));
+              
               setUserData({...userData,"message": ""});
             }
     }
