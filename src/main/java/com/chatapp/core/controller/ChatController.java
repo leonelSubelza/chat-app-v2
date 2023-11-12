@@ -61,7 +61,7 @@ public class ChatController {
         simpMessagingTemplate.convertAndSend(
                 "/user/"+message.getReceiverName()+"/"+message.getUrlSessionId()+"/private",message);
         //El cliente para conectarse deberá establecer una URL de tipo /user/David/private
-
+        //System.out.println("se envia mensaje privado a "+"/user/"+message.getReceiverName()+"/"+message.getUrlSessionId()+"/private");
         //'/user/'+userData.username+"/"+userData.URLSessionid+'/private'
 
         return message;
@@ -72,6 +72,7 @@ public class ChatController {
     //En esta función se tiene un control más programático del envío del mensaje
     @MessageMapping("/group-message")
     public Message recGroupMessage(@Payload Message message){
+        //System.out.println("se envia mensaje grupal a "+"/chatroom/"+message.getUrlSessionId()  );
         simpMessagingTemplate.convertAndSend("/chatroom/"+message.getUrlSessionId(),message);
         return message;
     }
@@ -99,10 +100,11 @@ public class ChatController {
     @MessageMapping("/check-channel")
     public void checkIfChannelExists(@Payload Message message){
         Room roomExist = WebSocketRoomHandler.activeRooms.get(message.getUrlSessionId());
+        //System.out.println("existe una room con id:"+message.getUrlSessionId()+"?,: "+roomExist);
         if(roomExist!=null){
             message.setStatus(Status.EXISTS);
         }else {
-            message.setStatus(Status.ERROR);
+            message.setStatus(Status.NOT_EXISTS);
         }
         simpMessagingTemplate.convertAndSendToUser(message.getSenderName(),"/exists-channel",message);
     }

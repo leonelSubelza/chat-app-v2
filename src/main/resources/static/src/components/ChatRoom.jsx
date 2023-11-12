@@ -17,7 +17,7 @@ const ChatRoom = () => {
 
     const stompClient = useRef(null);
     const startedConnection = useRef(false);
-    const channelExists = useRef(false);
+    const [channelExists,setChannelExists] = useState(false);
 
     const { userData,setUserData } = useContext(userContext);
     const [privateChats, setPrivateChats] = useState(new Map());     
@@ -44,25 +44,22 @@ const ChatRoom = () => {
         setUserData({...userData,"connected": true});
 
         //primero checkeamos que el canal al que se quiere unir existe
-        if(userData.status === 'JOIN'){
-            checkIfChannelExistis();  
-        }else{
-            //sino seria CREATE
-            channelExists.current = true;
-            subscribeRoomChannels();
-        }
+        //o si se quiere crear una sala que ya existe
+        checkIfChannelExists();  
     }
 
-    const checkIfChannelExistis = ()=>{
+    const checkIfChannelExists = ()=>{
         stompClient.current.subscribe('/user/'+userData.username+'/exists-channel', (payload)=>{
             var payloadData = JSON.parse(payload.body);
-            if(payloadData.status==='ERROR'){
+            if( (payloadData.status==='NOT_EXISTS' && userData.status==='JOIN') || 
+            (payloadData.status==='EXISTS' && userData.status==='CREATE') ){
                 alert('el canal al que se intenta conectar no existe');
                 disconnectChat();
                 //se vuelve a la pagina de registro:
                 navigate('/');
             }else{
-                channelExists.current = true;
+                console.log("se pasa a suscribirse a canales");
+                setChannelExists(true);
                 subscribeRoomChannels();
             }
         });
@@ -73,6 +70,15 @@ const ChatRoom = () => {
         };
         stompClient.current.send("/app/check-channel", {}, JSON.stringify(chatMessage))
 
+    }
+
+    const subscribeRoomChannels = () => {
+        stompClient.current.subscribe('/chatroom/public', onMessageReceived);
+        stompClient.current.subscribe('/chatroom/'+userData.URLSessionid, onMessageReceived);
+        stompClient.current.subscribe('/user/'+userData.username+"/"+userData.URLSessionid+'/private', onPrivateMessage);
+        //escuchamos el canal que nos envía quién se desconectó
+        //stompClient.subscribe('/chatroom/disconnected', onUserDisconnected);
+        userJoin();
     }
 
     const userJoin=()=>{
@@ -88,15 +94,6 @@ const ChatRoom = () => {
           stompClient.current.send("/app/chat.join", {}, JSON.stringify(chatMessage));
     }
 
-    const subscribeRoomChannels = () => {
-        stompClient.current.subscribe('/chatroom/public', onMessageReceived);
-        stompClient.current.subscribe('/chatroom/'+userData.URLSessionid, onMessageReceived);
-        stompClient.current.subscribe('/user/'+userData.username+"/"+userData.URLSessionid+'/private', onPrivateMessage);
-        //escuchamos el canal que nos envía quién se desconectó
-        //stompClient.subscribe('/chatroom/disconnected', onUserDisconnected);
-        userJoin();
-    }
-
     //llega un msj publico
     const onMessageReceived = (payload)=>{
         var payloadData = JSON.parse(payload.body);
@@ -110,6 +107,11 @@ const ChatRoom = () => {
                 break;
             case "LEAVE":
                 handleUserLeave(payloadData);
+                break;
+            case "ERROR":
+                alert('Error conectando al chat. Nose que pudo haber sido, se enviaron mal los datos xD');
+                navigate('/');
+                break;
             default:
                 break;
         }
@@ -167,7 +169,7 @@ const ChatRoom = () => {
             setPrivateChats(new Map(privateChats));
         }
         console.log("se recibe msj, horario parseado correctamente: ");
-        console.log(convertUTCTimeToLocalTime(getActualDate(payloadData.date)));
+        convertUTCTimeToLocalTime(getActualDate(payloadData.date));
     }
 
 
@@ -210,6 +212,7 @@ const ChatRoom = () => {
         setUserData({
             username: '',
             connected: false,
+            receivername: '',
             message: '',
             URLSessionid:'pene',
             status:'JOIN'
@@ -235,7 +238,8 @@ const ChatRoom = () => {
                 senderName: userData.username,
                 date:getActualDate(),
                 message: userData.message,
-                status:"MESSAGE"
+                status:"MESSAGE",
+                urlSessionId:userData.URLSessionid
               };
               //stompClient.current.send("/app/message", {}, JSON.stringify(chatMessage));
               //Ahora enviamos un 'msj grupal' solo a los que esten en nuestra sala
@@ -316,7 +320,7 @@ const ChatRoom = () => {
 
     return (
     <div className="container">
-        {channelExists.current&&startedConnection.current ? 
+        { channelExists&&startedConnection.current ?
         <div className="chat-box">
             <div className="member-list">
                 <ul>

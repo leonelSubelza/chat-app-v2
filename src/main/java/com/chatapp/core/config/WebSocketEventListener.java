@@ -30,6 +30,7 @@ public class WebSocketEventListener {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(disconnectEvent.getMessage());
         String id = headerAccessor.getSessionId();
         User user = (User) headerAccessor.getSessionAttributes().get("User");
+        System.out.println("se desconecta el usuario: "+user);
         if(user==null) return;
         Room userRoom = WebSocketRoomHandler.activeRooms.get(user.getRoomId());
         if(user!=null){
@@ -52,7 +53,8 @@ public class WebSocketEventListener {
             }
             if(userRoom.getUsers().size() == 0){
                 WebSocketRoomHandler.removeRoom(userRoom);
-                log.info("Room with id:{} deleted, number of rooms actives: {}",userRoom.getId(),WebSocketSessionHandler.getActiveSessionsCount());
+                log.info("Room with id:{} deleted, number of rooms actives: {}",
+                        userRoom.getId(),WebSocketSessionHandler.getActiveSessionsCount());
             }
         }
     }

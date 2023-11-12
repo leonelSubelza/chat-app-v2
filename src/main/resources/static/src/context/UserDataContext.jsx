@@ -5,6 +5,7 @@ export function UserDataContext({children}) {
     const [userData, setUserData] = useState({
         username: '',
         connected: false,
+        receivername: '',
         message: '',
         URLSessionid:'pene',
         status:'JOIN'

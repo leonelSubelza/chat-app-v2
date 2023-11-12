@@ -6,5 +6,6 @@ public enum Status {
     LEAVE,
     CREATE,
     EXISTS,
+    NOT_EXISTS,
     ERROR
 }

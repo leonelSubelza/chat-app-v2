@@ -36,6 +36,8 @@ public class ChatService {
                 return false;
             }else{
                 WebSocketRoomHandler.activeRooms.get(message.getUrlSessionId()).getUsers().add(newUser);
+                log.info("User added to room!:{}",room.getId());
+                log.info("All the rooms:{}",WebSocketRoomHandler.activeRooms);
             }
         }
         saveUser(newUser,headerAccessor);

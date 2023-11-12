@@ -15,7 +15,7 @@ public class WebSocketRoomHandler {
     }
 
     public static void removeRoom(Room room) {
-        activeRooms.remove(room);
+        activeRooms.remove(room.getId());
     }
 
     public static void removeRoom(String roomId){
