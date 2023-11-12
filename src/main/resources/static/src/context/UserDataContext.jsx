@@ -6,7 +6,8 @@ export function UserDataContext({children}) {
         username: '',
         connected: false,
         message: '',
-        URLSessionid:'pene'
+        URLSessionid:'pene',
+        status:'JOIN'
       });
 
     return (

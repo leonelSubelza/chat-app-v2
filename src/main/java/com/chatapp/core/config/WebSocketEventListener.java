@@ -30,6 +30,7 @@ public class WebSocketEventListener {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(disconnectEvent.getMessage());
         String id = headerAccessor.getSessionId();
         User user = (User) headerAccessor.getSessionAttributes().get("User");
+        if(user==null) return;
         Room userRoom = WebSocketRoomHandler.activeRooms.get(user.getRoomId());
         if(user!=null){
             log.info("User disconnected!:{}",user.getUsername());
@@ -40,7 +41,8 @@ public class WebSocketEventListener {
             WebSocketSessionHandler.removeSession(user.getUsername());
             log.info("number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
             //informamos a todos los demas que alguien se desconectó
-            this.messageTemplate.convertAndSend("/chatroom/public",chatMessage);
+            //this.messageTemplate.convertAndSend("/chatroom/public",chatMessage);
+            this.messageTemplate.convertAndSend("/chatroom/"+user.getRoomId(),chatMessage);
 
             //checkeo si la room a la que pertenecía ya no existe
             boolean remove = WebSocketRoomHandler.activeRooms.get(user.getRoomId()).getUsers().remove(user);
@@ -50,6 +52,7 @@ public class WebSocketEventListener {
             }
             if(userRoom.getUsers().size() == 0){
                 WebSocketRoomHandler.removeRoom(userRoom);
+                log.info("Room with id:{} deleted, number of rooms actives: {}",userRoom.getId(),WebSocketSessionHandler.getActiveSessionsCount());
             }
         }
     }

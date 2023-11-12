@@ -17,6 +17,7 @@ const ChatRoom = () => {
 
     const stompClient = useRef(null);
     const startedConnection = useRef(false);
+    const channelExists = useRef(false);
 
     const { userData,setUserData } = useContext(userContext);
     const [privateChats, setPrivateChats] = useState(new Map());     
@@ -41,12 +42,37 @@ const ChatRoom = () => {
 
     const onConnected = () => {
         setUserData({...userData,"connected": true});
-        stompClient.current.subscribe('/chatroom/public', onMessageReceived);
-        stompClient.current.subscribe('/chatroom/'+userData.URLSessionid, onMessageReceived);
-        stompClient.current.subscribe('/user/'+userData.username+"/"+userData.URLSessionid+'/private', onPrivateMessage);
-        //escuchamos el canal que nos envía quién se desconectó
-        //stompClient.subscribe('/chatroom/disconnected', onUserDisconnected);
-        userJoin();
+
+        //primero checkeamos que el canal al que se quiere unir existe
+        if(userData.status === 'JOIN'){
+            checkIfChannelExistis();  
+        }else{
+            //sino seria CREATE
+            channelExists.current = true;
+            subscribeRoomChannels();
+        }
+    }
+
+    const checkIfChannelExistis = ()=>{
+        stompClient.current.subscribe('/user/'+userData.username+'/exists-channel', (payload)=>{
+            var payloadData = JSON.parse(payload.body);
+            if(payloadData.status==='ERROR'){
+                alert('el canal al que se intenta conectar no existe');
+                disconnectChat();
+                //se vuelve a la pagina de registro:
+                navigate('/');
+            }else{
+                channelExists.current = true;
+                subscribeRoomChannels();
+            }
+        });
+
+        var chatMessage = {
+            senderName: userData.username,
+            urlSessionId:userData.URLSessionid,
+        };
+        stompClient.current.send("/app/check-channel", {}, JSON.stringify(chatMessage))
+
     }
 
     const userJoin=()=>{
@@ -55,11 +81,20 @@ const ChatRoom = () => {
           var chatMessage = {
             senderName: userData.username,
             urlSessionId:userData.URLSessionid,
-            status:"JOIN"
+            status:userData.status
           };
           //Se envia un msj al servidor, el cual se envia a todos los usuarios conectados
           //stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
-          stompClient.current.send("/app/chat.user", {}, JSON.stringify(chatMessage));
+          stompClient.current.send("/app/chat.join", {}, JSON.stringify(chatMessage));
+    }
+
+    const subscribeRoomChannels = () => {
+        stompClient.current.subscribe('/chatroom/public', onMessageReceived);
+        stompClient.current.subscribe('/chatroom/'+userData.URLSessionid, onMessageReceived);
+        stompClient.current.subscribe('/user/'+userData.username+"/"+userData.URLSessionid+'/private', onPrivateMessage);
+        //escuchamos el canal que nos envía quién se desconectó
+        //stompClient.subscribe('/chatroom/disconnected', onUserDisconnected);
+        userJoin();
     }
 
     //llega un msj publico
@@ -174,9 +209,10 @@ const ChatRoom = () => {
         setTab("CHATROOM");
         setUserData({
             username: '',
-            receivername: '',
             connected: false,
-            message: ''
+            message: '',
+            URLSessionid:'pene',
+            status:'JOIN'
           });
     }
 

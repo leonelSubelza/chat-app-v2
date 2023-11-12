@@ -4,7 +4,9 @@ import com.chatapp.core.config.WebSocketRoomHandler;
 import com.chatapp.core.config.WebSocketSessionHandler;
 import com.chatapp.core.controller.model.Message;
 import com.chatapp.core.controller.model.Room;
+import com.chatapp.core.controller.model.Status;
 import com.chatapp.core.controller.model.User;
+import com.chatapp.core.service.ChatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -25,6 +27,9 @@ public class ChatController {
     //Para enviar mensajes a alguien en privado
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
+
+    @Autowired
+    private ChatService chatService;
 
     //la anotación @Payload se utiliza para indicar qué parámetro o campo de una clase es
     // el cuerpo de un mensaje, lo que permite que Spring convierta automáticamente el contenido del
@@ -79,33 +84,26 @@ public class ChatController {
         return message;
     }
 */
-
-    @MessageMapping("/chat.user")
+    @MessageMapping("/chat.join")
     //@SendTo("/chatroom/{urlSessionId}")
-    public Message addUser(@Payload Message message, SimpMessageHeaderAccessor headerAccessor){
-        //añade un User en web socket session de esta session
-        String id = headerAccessor.getSessionId();
-        User userConnected = User.builder()
-                .id(id)
-                .username(message.getSenderName())
-                .build();
-        headerAccessor.getSessionAttributes().put("User",userConnected);
-        WebSocketSessionHandler.addSession(userConnected);
-        log.info("User connected!:{}",message.getSenderName());
-        log.info("number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
-
-        //SE UNIÓ UN USUARIO, ENTONCES CREAMOS LA ROOM O NO
-        if(WebSocketRoomHandler.activeRooms.get(message.getUrlSessionId()) == null){
-            Room newRoom = Room.builder()
-                    .id(message.getUrlSessionId())
-                    .users(new HashSet<>())
-                    .build();
-            newRoom.getUsers().add(userConnected);
-            WebSocketRoomHandler.addRoom(newRoom);
-            log.info("New Room created!:{}",newRoom.getId());
-            log.info("number of rooms created:{}",WebSocketRoomHandler.getActiveRoomsCount());
+    public Message userJoin(@Payload Message message, SimpMessageHeaderAccessor headerAccessor){
+        boolean userJoinCorrect = this.chatService.handleUserJoin(message,headerAccessor);
+        //si hubo un error intentando conectar
+        if(!userJoinCorrect){
+            message.setStatus(Status.ERROR);
         }
         simpMessagingTemplate.convertAndSend("/chatroom/"+message.getUrlSessionId(),message);
         return message;
+    }
+
+    @MessageMapping("/check-channel")
+    public void checkIfChannelExists(@Payload Message message){
+        Room roomExist = WebSocketRoomHandler.activeRooms.get(message.getUrlSessionId());
+        if(roomExist!=null){
+            message.setStatus(Status.EXISTS);
+        }else {
+            message.setStatus(Status.ERROR);
+        }
+        simpMessagingTemplate.convertAndSendToUser(message.getSenderName(),"/exists-channel",message);
     }
 }
