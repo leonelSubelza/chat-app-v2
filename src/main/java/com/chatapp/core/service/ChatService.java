@@ -23,7 +23,6 @@ public class ChatService {
         if(message.getStatus().equals(Status.CREATE)){
             if(room==null){
                 room = createNewRoom(newUser);
-                System.out.println("room creada: "+room.getId());
                 saveRoom(room);
             }else{
                 log.error("The Room with the key:{} already exists!",newUser.getRoomId());

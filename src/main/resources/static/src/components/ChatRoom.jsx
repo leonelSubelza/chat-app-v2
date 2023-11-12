@@ -316,6 +316,7 @@ const ChatRoom = () => {
 
     return (
     <div className="container">
+        {channelExists.current&&startedConnection.current ? 
         <div className="chat-box">
             <div className="member-list">
                 <ul>
@@ -366,6 +367,8 @@ const ChatRoom = () => {
                 </div>
             </div>}
         </div>          
+        :
+        <div>Cargando...</div>}
     </div>
     )
 }
