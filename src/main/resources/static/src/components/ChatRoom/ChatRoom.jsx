@@ -9,8 +9,9 @@ import {over} from 'stompjs';
 //Es una librearia de JS. A diferencia de usar la api WebSocket para crear la conexion,
 //Esta sirve para que pueda ser usada en navegadores más viejos.
 import SockJS from 'sockjs-client';
-import {serverURL} from '../config/chatConfiguration.js';
-import {userContext} from '../context/UserDataContext.jsx';
+import {serverURL} from '../../config/chatConfiguration.js';
+import {userContext} from '../../context/UserDataContext.jsx';
+import MembersList from "./MembersList.jsx";
 
 const ChatRoom = () => {
     const navigate = useNavigate();
@@ -362,22 +363,12 @@ const ChatRoom = () => {
     <div className="container">
         { channelExists&&startedConnection.current ?
         <div className="chat-box">
-            <div className="member-list">
-                <ul>
-                    <li onClick={()=>setTab("CHATROOM")} className={`member ${tab==="CHATROOM" && "active"}`}>Chatroom</li>
-                    {privateChats.size>0 && [...privateChats.keys()].map((name,index)=>(
-                        <li onClick={()=>{setTab(name)}} className={`member ${tab===name && "active"}`} key={index}>{name}</li>
-                    ))}
-                </ul>
-                <div className='user-info-container'>
-                    <div className="user-info">
-                        <img src='https://cdn-icons-png.flaticon.com/128/666/666201.png' alt="icon"/>
-                        <p>{userData.username}</p>
-                    </div>
-                    <button type="button" className="leave-button" onClick={disconnectChat}>Leave</button>
-                </div>
-                
-            </div>
+            <MembersList setTab={setTab}
+                         tab={tab}
+                         privateChats={privateChats}
+                         userData={userData}
+                         disconnectChat={disconnectChat}/>
+
             {tab==="CHATROOM" && <div className="chat-content">
                 <ul className="chat-messages">
                     {publicChats.map((chat,index)=>(
@@ -410,7 +401,10 @@ const ChatRoom = () => {
                     <button type="button" className="send-button" onClick={sendPrivateValue}>send</button>
                 </div>
             </div>}
-        </div>          
+        </div>
+
+
+
         :
         <div>Cargando...</div>}
     </div>
