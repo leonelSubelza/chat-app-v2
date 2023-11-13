@@ -12,7 +12,9 @@ import SockJS from 'sockjs-client';
 import {serverURL} from '../../config/chatConfiguration.js';
 import {userContext} from '../../context/UserDataContext.jsx';
 import MembersList from "./MemberList/MembersList.jsx";
-import ChatGeneral from "./ChatGeneral/ChatGeneral.jsx";
+import ChatGeneral from "./Chat/ChatGeneral/ChatGeneral.jsx";
+import ChatPrivate from "./Chat/ChatPrivate/ChatPrivate.jsx";
+import MessageInput from "./MessageInput/MessageInput.jsx";
 
 const ChatRoom = () => {
     const navigate = useNavigate();
@@ -382,23 +384,22 @@ const ChatRoom = () => {
             }
 
             {tab!=="CHATROOM" &&
-                <div className="chat-content">
-                    <ul className="chat-messages">
-                        {(privateChats.size>0 && privateChats.get(tab)!==undefined) && [...privateChats.get(tab)].map((chat,index)=>(
-                            <li className={`message ${chat.senderName === userData.username && "self"}`} key={index}>
-                                {chat.senderName !== userData.username && <div className="avatar">{chat.senderName}</div>}
-                                <div className="message-data">{chat.message}</div>
-                                {chat.senderName === userData.username && <div className="avatar self">{chat.senderName}</div>}
-                            </li>
-                        ))}
-                    </ul>
-
-                    <div className="send-message">
-                        <input type="text" className="input-message" placeholder="enter the message" value={userData.message} onChange={handleMessage} />
-                        <button type="button" className="send-button" onClick={sendPrivateValue}>send</button>
-                    </div>
-                </div>
+               <ChatPrivate
+                   privateChats={privateChats}
+                   tab={tab}
+                   sendPrivateValue={sendPrivateValue}
+                   userData={userData}
+                   handleMessage={handleMessage}
+               />
             }
+
+            <MessageInput
+                value={userData.message}
+                onChange={handleMessage}
+                onSend={tab === 'CHATROOM' ? sendValue : sendPrivateValue}
+                tab={tab}
+            />
+
         </div>
 
 
