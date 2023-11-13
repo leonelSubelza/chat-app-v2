@@ -1,4 +1,5 @@
-import React, { useState,useEffect } from 'react'
+import React, { useState,useEffect,useContext,useRef } from 'react'
+import { useNavigate,useLocation  } from 'react-router-dom';
 /*
 Stomp es una biblioteca JavaScript que se utiliza para enviar y recibir 
 mensajes a través del protocolo STOMP (Simple Text Oriented Messaging Protocol).
@@ -8,33 +9,106 @@ import {over} from 'stompjs';
 //Es una librearia de JS. A diferencia de usar la api WebSocket para crear la conexion,
 //Esta sirve para que pueda ser usada en navegadores más viejos.
 import SockJS from 'sockjs-client';
-import Register from './Register';
 import {serverURL} from '../config/chatConfiguration.js';
+import {userContext} from '../context/UserDataContext.jsx';
 
-var stompClient =null;
 const ChatRoom = () => {
-    
+    const navigate = useNavigate();
+    const location = useLocation();
+    const stompClient = useRef(null);
+    const startedConnection = useRef(false);
+    const [channelExists,setChannelExists] = useState(false);
+
+    const { userData,setUserData } = useContext(userContext);
     const [privateChats, setPrivateChats] = useState(new Map());     
     const [publicChats, setPublicChats] = useState([]); 
     
     const [tab,setTab] =useState("CHATROOM");
-    const [userData, setUserData] = useState({
-        username: '',
-        receivername: '',
-        connected: false,
-        message: ''
-      });
 
     const connect =()=>{
-        let Sock = new SockJS(serverURL);
-        stompClient = over(Sock);
-        stompClient.connect({},onConnected, onError);
+        if(userData.connected){
+            return;
+        }
+        if(userData.username===''){
+            let nombre = prompt("Ingrese un nombre de usuario");
+            setUserData({...userData,"username": nombre});
+            userData.username=nombre;
+        }
+
+        //FALTA PODER CONECTARSE A LA SALA POR URL SIN TENER NOMBRE PUESTO
+        //GUARDAR EN LOCALSTORAGE LOS DATOS PERSISTIBLES DEL USUARIO
+        //CREAR CANAL PARA SABER QUIEN ESTA ESCRIBIENDO
+        //
+        /*
+        console.log("el if es valido?: ");
+        console.log("!startedConnection.current: "+!startedConnection.current);
+        console.log(", !userData.connected: "+!userData.connected);
+        console.log(", stompClient===null: ");
+        console.log(stompClient.current===null);
+        */
+
+        if( !startedConnection.current 
+            //&& userData.username!=='' 
+            && !userData.connected 
+            && (stompClient.current===null)){
+
+            startedConnection.current = true;
+            let Sock = new SockJS(serverURL);
+            stompClient.current = over(Sock);
+            stompClient.current.connect({},onConnected, onError);
+        }
     }
 
     const onConnected = () => {
+        console.log('se ejecuta oncconected');
         setUserData({...userData,"connected": true});
-        stompClient.subscribe('/chatroom/public', onMessageReceived);
-        stompClient.subscribe('/user/'+userData.username+'/private', onPrivateMessage);
+        console.log("url actual: ");
+        console.log(location);
+        if(userData.URLSessionid===''){
+            let urlSessionIdAux = location.pathname.split(serverURL+'/chatroom/');;
+            console.log("no hay url entonces se toma como contra: "+urlSessionIdAux);
+            setUserData({...userData,"URLSessionid": urlSessionIdAux});
+            if(urlSessionIdAux===''){
+                alert('no se puso ningun id ni en el userdata ni en la url');
+                disconnectChat();
+            }
+        }
+        //primero checkeamos que el canal al que se quiere unir existe
+        //o si se quiere crear una sala que ya existe
+        checkIfChannelExists();  
+    }
+
+    const checkIfChannelExists = ()=>{
+        stompClient.current.subscribe('/user/'+userData.username+'/exists-channel', (payload)=>{
+            var payloadData = JSON.parse(payload.body);
+
+            //este caso es raro que pase
+            if((payloadData.status==='EXISTS' && userData.status==='CREATE')){
+                alert('Se intenta crear una sala con un id que ya existe');
+                disconnectChat();
+                return;
+            }
+            if( (payloadData.status==='NOT_EXISTS' && userData.status==='JOIN')){
+                alert('el canal al que se intenta conectar no existe');
+                disconnectChat();
+                return;
+            }
+            setChannelExists(true);
+            subscribeRoomChannels()
+        });
+
+        var chatMessage = {
+            senderName: userData.username,
+            urlSessionId:userData.URLSessionid,
+        };
+        stompClient.current.send("/app/check-channel", {}, JSON.stringify(chatMessage))
+
+    }
+
+    const subscribeRoomChannels = () => {
+        stompClient.current.subscribe('/chatroom/public', onMessageReceived);
+        stompClient.current.subscribe('/chatroom/'+userData.URLSessionid, onMessageReceived);
+        stompClient.current.subscribe('/user/'+userData.username+"/"+userData.URLSessionid+'/private', onPrivateMessage);
         //escuchamos el canal que nos envía quién se desconectó
         //stompClient.subscribe('/chatroom/disconnected', onUserDisconnected);
         userJoin();
@@ -45,11 +119,12 @@ const ChatRoom = () => {
         //lleguen los datos mios de q me conecté
           var chatMessage = {
             senderName: userData.username,
-            status:"JOIN"
+            urlSessionId:userData.URLSessionid,
+            status:userData.status
           };
           //Se envia un msj al servidor, el cual se envia a todos los usuarios conectados
           //stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
-          stompClient.send("/app/chat.user", {}, JSON.stringify(chatMessage));
+          stompClient.current.send("/app/chat.join", {}, JSON.stringify(chatMessage));
     }
 
     //llega un msj publico
@@ -65,6 +140,11 @@ const ChatRoom = () => {
                 break;
             case "LEAVE":
                 handleUserLeave(payloadData);
+                break;
+            case "ERROR":
+                alert('Error conectando al chat. Nose que pudo haber sido, se enviaron mal los datos xD');
+                disconnectChat()
+                break;
             default:
                 break;
         }
@@ -103,9 +183,10 @@ const ChatRoom = () => {
                 var chatMessage = {
                     senderName: userData.username,
                     receiverName: payloadData.senderName,
+                    urlSessionId:userData.URLSessionid,
                     status: "JOIN"
                 };
-                stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage))
+                stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
             }
         }
     }
@@ -121,7 +202,7 @@ const ChatRoom = () => {
             setPrivateChats(new Map(privateChats));
         }
         console.log("se recibe msj, horario parseado correctamente: ");
-        console.log(convertUTCTimeToLocalTime(getActualDate(payloadData.date)));
+        convertUTCTimeToLocalTime(getActualDate(payloadData.date));
     }
 
 
@@ -131,6 +212,8 @@ const ChatRoom = () => {
     }
 
     /*
+    Ahora cuando un usuario se desconecta el servidor maneja el evento y envia un msj global para
+    que todos sepan quien fue y se maneja acá en handleMessegeReceived
     const onUserDisconnected = (payload) => {
         //borrar de la lista de chats al que se desconectó
         var payloadData = JSON.parse(payload.body);
@@ -143,9 +226,14 @@ const ChatRoom = () => {
 
 */
     const disconnectChat = () => {
-        userData.connected=false;  
-        stompClient.disconnect();
+        userData.connected=false; 
+        if(stompClient.current!==null) {
+            stompClient.current.disconnect();
+            navigate('/');
+        }
+        //setStompClient(null);
         resetValues();
+        navigate('/');
     }
 
 /*
@@ -159,16 +247,20 @@ const ChatRoom = () => {
         setPublicChats([]);
         setTab("CHATROOM");
         setUserData({
-            username: '',
-            receivername: '',
             connected: false,
-            message: ''
+            receivername: '',
+            message: '',
+            URLSessionid:'pene',
+            status:'JOIN'
           });
     }
 
     const onError = (err) => {
-        console.log("Error: "+err);
-        alert(err)
+        console.log("Error conectando al wb: "+err);
+        alert(err);
+        //se vuelve a la pagina de registro:
+        disconnectChat()
+        
     }
 
     const handleMessage =(event)=>{
@@ -178,27 +270,31 @@ const ChatRoom = () => {
 
     //Envia msj a todos
     const sendValue=()=>{
-            if (stompClient) {
+            if (stompClient.current) {
               var chatMessage = {
                 senderName: userData.username,
                 date:getActualDate(),
                 message: userData.message,
-                status:"MESSAGE"
+                status:"MESSAGE",
+                urlSessionId:userData.URLSessionid
               };
-              stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
+              //stompClient.current.send("/app/message", {}, JSON.stringify(chatMessage));
+              //Ahora enviamos un 'msj grupal' solo a los que esten en nuestra sala
+              stompClient.current.send("/app/group-message", {}, JSON.stringify(chatMessage));
+              
               setUserData({...userData,"message": ""});
             }
     }
 
     const sendPrivateValue=()=>{
-        //console.log('se envia msj privado');
-        if (stompClient) {
+        if (stompClient.current) {
           var chatMessage = {
             senderName: userData.username,
             receiverName:tab,
             date:getActualDate(),
             message: userData.message,
-            status:"MESSAGE"
+            status:"MESSAGE",
+            urlSessionId:userData.URLSessionid
           };
         //si se envia un msj a alguien que no sea yo mismo
           if(userData.username !== tab){
@@ -210,11 +306,12 @@ const ChatRoom = () => {
           }
           console.log("se envía msj, horario parseado correctamente: ");
           convertUTCTimeToLocalTime(getActualDate());
-          stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage))
+          stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
           setUserData({...userData,"message": ""});
         }
     }
 
+    /*
     const registerUser = (data) =>{
         stompClient=null;
         userData.username=data.username;        
@@ -222,6 +319,7 @@ const ChatRoom = () => {
         setUserData({...userData,"username": name});
         connect(data)
     }
+    */
 
     const getActualDate = () => {
         var fechaHoraActual = new Date();
@@ -238,7 +336,23 @@ const ChatRoom = () => {
         console.log("Fecha y hora en zona horaria local2: " + fechaHoraLocal);
     }
 
+    
+
     useEffect(() => {
+        //se ejecuta solo cuando se monta el componente una vez
+        connect();
+    },[])
+
+    useEffect(() => {
+        //se ejecuta por cada renderizado
+        /*
+        if(!userData.connected && userData.username === ''){
+            disconnectChat()
+            navigate('/');
+            return;
+        }
+        */
+
         if(tab!=="CHATROOM" && privateChats.get(tab)===undefined){
             setTab("CHATROOM")
         }
@@ -246,7 +360,7 @@ const ChatRoom = () => {
 
     return (
     <div className="container">
-        {userData.connected?
+        { channelExists&&startedConnection.current ?
         <div className="chat-box">
             <div className="member-list">
                 <ul>
@@ -296,12 +410,9 @@ const ChatRoom = () => {
                     <button type="button" className="send-button" onClick={sendPrivateValue}>send</button>
                 </div>
             </div>}
-        </div>
+        </div>          
         :
-        <Register
-        registerUser={registerUser}
-        />            
-        }
+        <div>Cargando...</div>}
     </div>
     )
 }

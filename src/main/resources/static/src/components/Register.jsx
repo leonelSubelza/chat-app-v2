@@ -1,25 +1,37 @@
-import React, { useState } from 'react'
+import React, { useContext } from 'react'
+import { Link,useNavigate } from 'react-router-dom';
 
+import { userContext } from '../context/UserDataContext';
+import '../index.css'
 
-
-const Register = ({registerUser}) => {
-
-    const [userData, setUserData] = useState({
-        username: '',
-        receivername: '',
-        connected: false,
-        message: ''
-      });
+const Register = () => {
+    const navigate = useNavigate();
+    const { userData,setUserData } = useContext(userContext);
 
     const handleUsername=(event)=>{
         const {value}=event.target;
         setUserData({...userData,"username": value});
     }
 
-    const handleRegisterUser = (e) => {
+    const handleJoinChat=(e,status)=>{
         e.preventDefault();
-        return registerUser(userData);
+        if( (userData.username==='' || userData.URLSessionid==='')&&status!=='CREATE'){
+            alert('se debe poner un nombre de usuario o poner una la clave de una sala')
+            return;
+        }
+        //borrar luego
+        let urlSessionIdAux;
+        if(status==='CREATE'){
+            setUserData({...userData,"URLSessionid": 'pene'});    
+            urlSessionIdAux='pene';
+        }
+        
+        setUserData({...userData,"status": status});
+        localStorage.setItem('username',userData.username);
+        navigate(`/chatroom/${urlSessionIdAux}`);
     }
+
+
 
     return (
         <div className="register">
@@ -30,10 +42,14 @@ const Register = ({registerUser}) => {
                 value={userData.username}
                 onChange={handleUsername}
                 margin="normal"
-              />
-              <button type="button" onClick={handleRegisterUser}>
-                    connect
-              </button> 
+            />
+            <Link to={`/chatroom/${userData.URLSessionid}`}>
+                <button type="button" onClick={(e)=>handleJoinChat(e,"JOIN")}>Connect a chat</button> 
+            </Link>
+            <Link to={`/chatroom/${userData.URLSessionid}`}>
+                <button type="button" onClick={(e)=>handleJoinChat(e,"CREATE")}>Create Room</button> 
+            </Link>
+              
         </div>
     )
 

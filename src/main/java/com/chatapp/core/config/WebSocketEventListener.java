@@ -1,6 +1,7 @@
 package com.chatapp.core.config;
 
 import com.chatapp.core.controller.model.Message;
+import com.chatapp.core.controller.model.Room;
 import com.chatapp.core.controller.model.Status;
 import com.chatapp.core.controller.model.User;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,12 @@ public class WebSocketEventListener {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(disconnectEvent.getMessage());
         String id = headerAccessor.getSessionId();
         User user = (User) headerAccessor.getSessionAttributes().get("User");
+        System.out.println("se desconecta el usuario: "+user);
+
+        //Esto pasa cuando un usuario se quiere conectar a una room invalida, no se guarda al usuario por lo que se desconeta alguien null
+        if(user==null) return;
+
+        Room userRoom = WebSocketRoomHandler.activeRooms.get(user.getRoomId());
         if(user!=null){
             log.info("User disconnected!:{}",user.getUsername());
             Message chatMessage = Message.builder()
@@ -38,7 +45,20 @@ public class WebSocketEventListener {
             WebSocketSessionHandler.removeSession(user.getUsername());
             log.info("number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
             //informamos a todos los demas que alguien se desconectó
-            this.messageTemplate.convertAndSend("/chatroom/public",chatMessage);
+            //this.messageTemplate.convertAndSend("/chatroom/public",chatMessage);
+            this.messageTemplate.convertAndSend("/chatroom/"+user.getRoomId(),chatMessage);
+
+            //checkeo si la room a la que pertenecía ya no existe
+            boolean remove = WebSocketRoomHandler.activeRooms.get(user.getRoomId()).getUsers().remove(user);
+            if(!remove){
+                log.warn("SE INTENTO BORRAR UN USUARIO DE UNA ROOM INEXISTENTE");
+                return;
+            }
+            if(userRoom.getUsers().size() == 0){
+                WebSocketRoomHandler.removeRoom(userRoom);
+                log.info("Room with id:{} deleted, number of rooms actives: {}",
+                        userRoom.getId(),WebSocketSessionHandler.getActiveSessionsCount());
+            }
         }
     }
 }

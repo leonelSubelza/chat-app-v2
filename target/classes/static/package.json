@@ -12,6 +12,8 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router": "^6.8.1",
+    "react-router-dom": "^6.18.0",
     "sockjs-client": "^1.6.1",
     "stompjs": "^2.3.3"
   },
