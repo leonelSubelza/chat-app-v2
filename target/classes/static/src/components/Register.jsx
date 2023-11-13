@@ -20,6 +20,7 @@ const Register = () => {
             return;
         }
         setUserData({...userData,"status": status});
+        localStorage.setItem('username',userData.username);
         navigate(`/chatroom/${userData.URLSessionid}`);
     }
 

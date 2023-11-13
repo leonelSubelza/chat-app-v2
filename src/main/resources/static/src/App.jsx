@@ -12,7 +12,7 @@ function App() {
     <Router>
         <Routes>
           <Route path="/" element={<Register/>} />
-          <Route path={`/chatroom/${userData.URLSessionid}`} element={<ChatRoom />} />
+          <Route path={`/chatroom/*`} element={<ChatRoom />} />
           <Route path='*' element={<Register/>} />
         </Routes>
       </Router>

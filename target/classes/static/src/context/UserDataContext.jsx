@@ -3,7 +3,7 @@ export const userContext = React.createContext();
 
 export function UserDataContext({children}) {
     const [userData, setUserData] = useState({
-        username: '',
+        username: localStorage.getItem('username')===null ? '' : localStorage.getItem('username'),
         connected: false,
         receivername: '',
         message: '',

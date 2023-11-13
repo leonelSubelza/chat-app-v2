@@ -1,5 +1,5 @@
 import React, { useState,useEffect,useContext,useRef } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useLocation  } from 'react-router-dom';
 /*
 Stomp es una biblioteca JavaScript que se utiliza para enviar y recibir 
 mensajes a través del protocolo STOMP (Simple Text Oriented Messaging Protocol).
@@ -14,7 +14,7 @@ import {userContext} from '../context/UserDataContext.jsx';
 
 const ChatRoom = () => {
     const navigate = useNavigate();
-
+    const location = useLocation();
     const stompClient = useRef(null);
     const startedConnection = useRef(false);
     const [channelExists,setChannelExists] = useState(false);
@@ -30,9 +30,14 @@ const ChatRoom = () => {
             return;
         }
 
-        if( !startedConnection.current && (
-            userData.username!=='' && !userData.connected 
-        && (stompClient===null || !stompClient.connected))){
+        //FALTA PODER CONECTARSE A LA SALA POR URL SIN TENER NOMBRE PUESTO
+        //GUARDAR EN LOCALSTORAGE LOS DATOS PERSISTIBLES DEL USUARIO
+        //CREAR CANAL PARA SABER QUIEN ESTA ESCRIBIENDO
+        //MOSTRAR MENSAJITO PARA VER QUIEN SE FUE UWU
+
+        if( !startedConnection.current 
+            && (userData.username!=='' && !userData.connected )
+            && (stompClient===null || !stompClient.connected)){
             startedConnection.current = true;
             let Sock = new SockJS(serverURL);
             stompClient.current = over(Sock);
@@ -42,6 +47,19 @@ const ChatRoom = () => {
 
     const onConnected = () => {
         setUserData({...userData,"connected": true});
+        console.log("url actual: ");
+        console.log(location);
+        if(userData.URLSessionid===''){
+            let location = useLocation();
+        }
+        if(userData.urlSessionId===''){
+            userData.urlSessionId = getIdFromURL();
+        }
+        if(userData.urlSessionId===''){
+            alert('no se puso ningun id ni en el userdata ni en la url');
+            disconnectChat();
+            navigate('/');
+        }
 
         //primero checkeamos que el canal al que se quiere unir existe
         //o si se quiere crear una sala que ya existe
@@ -51,17 +69,22 @@ const ChatRoom = () => {
     const checkIfChannelExists = ()=>{
         stompClient.current.subscribe('/user/'+userData.username+'/exists-channel', (payload)=>{
             var payloadData = JSON.parse(payload.body);
-            if( (payloadData.status==='NOT_EXISTS' && userData.status==='JOIN') || 
-            (payloadData.status==='EXISTS' && userData.status==='CREATE') ){
+
+            //este caso es raro que pase
+            if((payloadData.status==='EXISTS' && userData.status==='CREATE')){
+                alert('Se intenta crear una sala con un id que ya existe');
+                disconnectChat();
+                navigate('/');
+                return;
+            }
+            if( (payloadData.status==='NOT_EXISTS' && userData.status==='JOIN')){
                 alert('el canal al que se intenta conectar no existe');
                 disconnectChat();
-                //se vuelve a la pagina de registro:
                 navigate('/');
-            }else{
-                console.log("se pasa a suscribirse a canales");
-                setChannelExists(true);
-                subscribeRoomChannels();
+                return;
             }
+            setChannelExists(true);
+            subscribeRoomChannels()
         });
 
         var chatMessage = {
@@ -107,8 +130,10 @@ const ChatRoom = () => {
                 break;
             case "LEAVE":
                 handleUserLeave(payloadData);
+                break;
             case "ERROR":
                 alert('Error conectando al chat. Nose que pudo haber sido, se enviaron mal los datos xD');
+                disconnectChat()
                 navigate('/');
                 break;
             default:
@@ -192,8 +217,10 @@ const ChatRoom = () => {
 
 */
     const disconnectChat = () => {
-        userData.connected=false;  
-        stompClient.current.disconnect();
+        userData.connected=false; 
+        if(stompClient.current!==null) {
+            stompClient.current.disconnect();
+        }
         //setStompClient(null);
         resetValues();
     }
@@ -222,6 +249,7 @@ const ChatRoom = () => {
         console.log("Error conectando al wb: "+err);
         alert(err);
         //se vuelve a la pagina de registro:
+        disconnectChat()
         navigate('/');
     }
 
@@ -308,6 +336,7 @@ const ChatRoom = () => {
     useEffect(() => {
         //se ejecuta por cada renderizado
         if(!userData.connected && userData.username === ''){
+            disconnectChat()
             navigate('/');
             return;
         }

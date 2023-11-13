@@ -31,7 +31,10 @@ public class WebSocketEventListener {
         String id = headerAccessor.getSessionId();
         User user = (User) headerAccessor.getSessionAttributes().get("User");
         System.out.println("se desconecta el usuario: "+user);
+
+        //Esto pasa cuando un usuario se quiere conectar a una room invalida, no se guarda al usuario por lo que se desconeta alguien null
         if(user==null) return;
+
         Room userRoom = WebSocketRoomHandler.activeRooms.get(user.getRoomId());
         if(user!=null){
             log.info("User disconnected!:{}",user.getUsername());

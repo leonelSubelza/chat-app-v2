@@ -15,12 +15,20 @@ const Register = () => {
 
     const handleJoinChat=(e,status)=>{
         e.preventDefault();
-        if(userData.username==='' || userData.URLSessionid===''){
+        if( (userData.username==='' || userData.URLSessionid==='')&&status!=='CREATE'){
             alert('se debe poner un nombre de usuario o poner una la clave de una sala')
             return;
         }
+        //borrar luego
+        let urlSessionIdAux;
+        if(status==='CREATE'){
+            setUserData({...userData,"URLSessionid": 'pene'});    
+            urlSessionIdAux='pene';
+        }
+        
         setUserData({...userData,"status": status});
-        navigate(`/chatroom/${userData.URLSessionid}`);
+        localStorage.setItem('username',userData.username);
+        navigate(`/chatroom/${urlSessionIdAux}`);
     }
 
 
