@@ -1,0 +1,194 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css");
+
+:root {
+    --avatar-0:url('https://stopots.com/images/avatares/0.svg');
+    --avatar-1:url('https://stopots.com/images/avatares/1.svg');
+    --avatar-2:url('https://stopots.com/images/avatares/2.svg');
+    --avatar-3:url('https://stopots.com/images/avatares/3.svg');
+    --avatar-4:url('https://stopots.com/images/avatares/4.svg');
+    --avatar-5:url('https://stopots.com/images/avatares/5.svg');
+    --avatar-6:url('https://stopots.com/images/avatares/6.svg');
+    --avatar-7:url('https://stopots.com/images/avatares/7.svg');
+    --avatar-8:url('https://stopots.com/images/avatares/8.svg');
+    --avatar-9:url('https://stopots.com/images/avatares/9.svg');
+    --avatar-10:url('https://stopots.com/images/avatares/10.svg');
+    --avatar-11:url('https://stopots.com/images/avatares/11.svg');
+    --avatar-12:url('https://stopots.com/images/avatares/12.svg');
+    --avatar-13:url('https://stopots.com/images/avatares/13.svg');
+    --avatar-14:url('https://stopots.com/images/avatares/14.svg');
+    --avatar-15:url('https://stopots.com/images/avatares/15.svg');
+    --avatar-16:url('https://stopots.com/images/avatares/16.svg');
+    --avatar-17:url('https://stopots.com/images/avatares/17.svg');
+    --avatar-18:url('https://stopots.com/images/avatares/18.svg');
+    --avatar-19:url('https://stopots.com/images/avatares/19.svg');
+    --avatar-20:url('https://stopots.com/images/avatares/20.svg');
+    --avatar-21:url('https://stopots.com/images/avatares/21.svg');
+    --avatar-22:url('https://stopots.com/images/avatares/22.svg');
+    --avatar-23:url('https://stopots.com/images/avatares/23.svg');
+    --avatar-24:url('https://stopots.com/images/avatares/24.svg');
+    --avatar-25:url('https://stopots.com/images/avatares/25.svg');
+    --avatar-26:url('https://stopots.com/images/avatares/26.svg');
+    --avatar-27:url('https://stopots.com/images/avatares/27.svg');
+    --avatar-28:url('https://stopots.com/images/avatares/28.svg');
+    --avatar-29:url('https://stopots.com/images/avatares/29.svg');
+    --avatar-30:url('https://stopots.com/images/avatares/30.svg');
+    --avatar-31:url('https://stopots.com/images/avatares/31.svg');
+    --avatar-32:url('https://stopots.com/images/avatares/32.svg');
+    --avatar-33:url('https://stopots.com/images/avatares/33.svg');
+    --avatar-34:url('https://stopots.com/images/avatares/34.svg');
+    --avatar-35:url('https://stopots.com/images/avatares/35.svg');
+    --avatar-36:url('https://stopots.com/images/avatares/36.svg');
+
+  }
+
+.register-container{
+    /*background-color: #E0E0E0;*/
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+
+.register{
+    height: 90%;
+    /*width: 30%;*/
+    width:335px;
+    margin:auto;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border:1px solid rgb(219, 219, 219);
+    border-radius: 5px;
+}
+
+.register-title{
+    width: 100%;
+    text-align: center;
+    font-size: 50px;
+    margin:20px 5px;
+    color:#38394D;
+}
+
+.register-icon-container{
+    width: 120px;
+    height: 120px;
+    margin: auto;
+    position: relative;
+    display:flex;
+}
+
+.icon-img-contenedor{
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    background-image: var(--avatar-0);
+    border: transparent;
+}
+
+.icon-edit-btn{
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    position:absolute;
+    top: 0;
+    right: 0;
+    background-color: #424698;
+    border: 2px solid white;
+}
+
+
+.icon-edit-btn:hover{
+    border:2px solid #424698;
+
+}
+
+.icon-edit-btn:hover, .icon-edit-btn:hover i{
+    background-color: white;
+    color:#424698;
+    
+}
+
+.icon-edit-btn i{
+    color:white;
+    font-weight: bold;
+    font-size: 17px;
+}
+
+.register-input__container{
+    margin: auto 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name{
+    margin: 0 auto 2% auto;
+    width: 80%;
+	background: transparent;
+    color:#38394D;
+    text-align: center;
+    border-top: transparent;
+    border-left: transparent;
+    border-right: transparent;
+	border-bottom: 2px solid #38394D;
+	height: 45px;
+	line-height: 45px;
+	padding: 0 40px 0 10px;
+	transition: .3s ease all;
+}
+
+.user-name:focus{
+    outline: none;
+}
+
+.button{
+    margin: 5px auto;
+    width: 80%;
+    height: 40px;
+    background-color: #fff;
+    border: 2px solid #38394D;
+    color:#38394D;
+    border-radius: 20px;
+    padding: 8px 16px;
+    position:relative;
+    font-weight: bold;
+    transition: .3s ease all;
+}
+
+.button:hover, .button:focus{
+    width: 82%;
+}
+
+
+.button:hover,.button:focus, .button:hover i,.button:focus i{
+    background-color: #38394D;
+    color:#fff;
+}
+
+.button i{
+    position:absolute;
+    left: 2%;
+    top:1%;
+    bottom: 50%;
+    color: black;
+    font-weight: bold;
+    font-size: 30px;
+    
+}
+.button i::before{
+    vertical-align: 0;
+}
+
+
+.btn-create-room i{
+    font-size: 25px;
+    left: 3%;
+    top:15%;
+}
+
+@media screen and (max-width: 768px) and (min-width: 376px) {
+
+}
+@media (max-width: 376px){
+    .register{
+        width: 100%;
+    }
+}

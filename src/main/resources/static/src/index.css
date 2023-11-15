@@ -5,6 +5,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  min-width: 100%;
+  min-width: 100%;
 }
 
 code {
@@ -12,24 +15,26 @@ code {
     monospace;
 }
 
-input {
-  padding: 10px;
-  font-size: 1.2em;
-}
-button{
-  border: none;
-  padding: 10px;
-  background: green;
-  color:#fff;
-  font-size: 1.2em;
-  font-weight: bold;
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+#root{
+  height: 100vh;
+  min-width: 100%;
+  min-width: 100%;
+}
 
 .container{
   position: relative;
+  display: flex;
+  height: 100%;
 }
 
+/*
 .register{
   position: fixed;
   padding:30px;
@@ -39,6 +44,7 @@ button{
   display: flex;
   flex-direction: row;
 }
+*/
 .chat-box{
   box-shadow:0 2.8px 2.2px rgba(0, 0, 0, 0.034),0 6.7px 5.3px rgba(0, 0, 0, 0.048),0 12.5px 10px rgba(0, 0, 0, 0.06),0 22.3px 17.9px rgba(0, 0, 0, 0.072),0 41.8px 33.4px rgba(0, 0, 0, 0.086),0 100px 80px rgba(0, 0, 0, 0.12);
   margin:40px 50px;

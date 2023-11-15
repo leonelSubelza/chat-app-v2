@@ -3,7 +3,9 @@ export const userContext = React.createContext();
 
 export function UserDataContext({children}) {
     const [userData, setUserData] = useState({
-        username: localStorage.getItem('username')===null ? '' : localStorage.getItem('username'),
+        username: localStorage.getItem('username')=='undefined'
+                    ? '' 
+                    : localStorage.getItem('username'),
         connected: false,
         receivername: '',
         message: '',
@@ -11,7 +13,7 @@ export function UserDataContext({children}) {
         status:'JOIN'
       });
 
-    return (
+      return (
         <userContext.Provider
             value={{
                 userData,setUserData
