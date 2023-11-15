@@ -3,7 +3,6 @@ import { Link,useNavigate } from 'react-router-dom';
 
 import { userContext } from '../../context/UserDataContext';
 import ModalIconChooser from './modals/ModalIconChooser.jsx';
-
 //import '../index.css'
 import './Register.css'
 
@@ -48,7 +47,7 @@ const Register = () => {
                 <div className="register">
                     <h1 className='register-title'>CHAT ROOM</h1>
                     <div className='register-icon-container'>
-                        <div className='icon-img-contenedor'></div>
+                        <div className='icon-img-contenedor' style={{ backgroundImage: `url(${localStorage.getItem('avatarImg')})`}}></div>
                         <button className='icon-edit-btn' onClick={handleShow}><i className="bi bi-pencil"></i></button>
                     </div>
 

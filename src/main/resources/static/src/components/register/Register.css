@@ -1,46 +1,5 @@
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css");
 
-:root {
-    --avatar-0:url('https://stopots.com/images/avatares/0.svg');
-    --avatar-1:url('https://stopots.com/images/avatares/1.svg');
-    --avatar-2:url('https://stopots.com/images/avatares/2.svg');
-    --avatar-3:url('https://stopots.com/images/avatares/3.svg');
-    --avatar-4:url('https://stopots.com/images/avatares/4.svg');
-    --avatar-5:url('https://stopots.com/images/avatares/5.svg');
-    --avatar-6:url('https://stopots.com/images/avatares/6.svg');
-    --avatar-7:url('https://stopots.com/images/avatares/7.svg');
-    --avatar-8:url('https://stopots.com/images/avatares/8.svg');
-    --avatar-9:url('https://stopots.com/images/avatares/9.svg');
-    --avatar-10:url('https://stopots.com/images/avatares/10.svg');
-    --avatar-11:url('https://stopots.com/images/avatares/11.svg');
-    --avatar-12:url('https://stopots.com/images/avatares/12.svg');
-    --avatar-13:url('https://stopots.com/images/avatares/13.svg');
-    --avatar-14:url('https://stopots.com/images/avatares/14.svg');
-    --avatar-15:url('https://stopots.com/images/avatares/15.svg');
-    --avatar-16:url('https://stopots.com/images/avatares/16.svg');
-    --avatar-17:url('https://stopots.com/images/avatares/17.svg');
-    --avatar-18:url('https://stopots.com/images/avatares/18.svg');
-    --avatar-19:url('https://stopots.com/images/avatares/19.svg');
-    --avatar-20:url('https://stopots.com/images/avatares/20.svg');
-    --avatar-21:url('https://stopots.com/images/avatares/21.svg');
-    --avatar-22:url('https://stopots.com/images/avatares/22.svg');
-    --avatar-23:url('https://stopots.com/images/avatares/23.svg');
-    --avatar-24:url('https://stopots.com/images/avatares/24.svg');
-    --avatar-25:url('https://stopots.com/images/avatares/25.svg');
-    --avatar-26:url('https://stopots.com/images/avatares/26.svg');
-    --avatar-27:url('https://stopots.com/images/avatares/27.svg');
-    --avatar-28:url('https://stopots.com/images/avatares/28.svg');
-    --avatar-29:url('https://stopots.com/images/avatares/29.svg');
-    --avatar-30:url('https://stopots.com/images/avatares/30.svg');
-    --avatar-31:url('https://stopots.com/images/avatares/31.svg');
-    --avatar-32:url('https://stopots.com/images/avatares/32.svg');
-    --avatar-33:url('https://stopots.com/images/avatares/33.svg');
-    --avatar-34:url('https://stopots.com/images/avatares/34.svg');
-    --avatar-35:url('https://stopots.com/images/avatares/35.svg');
-    --avatar-36:url('https://stopots.com/images/avatares/36.svg');
-
-  }
-
 .register-container{
     /*background-color: #E0E0E0;*/
     width: 100%;
@@ -80,7 +39,6 @@
     border-radius: 50%;
     width: 100%;
     height: 100%;
-    background-image: var(--avatar-0);
     border: transparent;
 }
 
@@ -162,6 +120,9 @@
     background-color: #38394D;
     color:#fff;
 }
+.button:hover i,.button:focus i{
+    background-color: transparent;
+}
 
 .button i{
     position:absolute;
@@ -171,6 +132,7 @@
     color: black;
     font-weight: bold;
     font-size: 30px;
+    background-color: transparent;
     
 }
 .button i::before{

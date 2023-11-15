@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import {imageLinks} from '../services/avatarsLinks.js';
+
 export const userContext = React.createContext();
 
 export function UserDataContext({children}) {
@@ -10,8 +12,22 @@ export function UserDataContext({children}) {
         receivername: '',
         message: '',
         URLSessionid:'pene',
-        status:'JOIN'
+        status:'JOIN',
+        avatarImg: ''
       });
+
+      const setAvatarImage = () => {
+        if(localStorage.getItem('avatarImg')===null){
+            localStorage.setItem('avatarImg',imageLinks[0]);
+            return imageLinks[0];
+        }else{
+            return localStorage.getItem('avatarImg')
+        }
+      }
+
+      useEffect(() => {
+        setAvatarImage();  
+      },[])
 
       return (
         <userContext.Provider
