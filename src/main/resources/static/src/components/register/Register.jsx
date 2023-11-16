@@ -14,7 +14,10 @@ const Register = () => {
     //MOdal icon chooser
     const [show, setShow] = useState(false);
 
-    const handleClose = () => setShow(false);
+    const handleClose = (iconChoosed) => {
+        setShow(false)
+        setUserData({...userData,"avatarImg": iconChoosed});
+    };
     const handleShow = () => setShow(true);
 
 
@@ -40,6 +43,10 @@ const Register = () => {
         localStorage.setItem('username',userData.username);
         navigate(`/chatroom/${urlSessionIdAux}`);
     }
+
+    useContext(() => {
+        console.log("se actualiza el componente Register");
+    })
 
     return (
         <>

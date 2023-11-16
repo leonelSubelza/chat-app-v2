@@ -40,6 +40,8 @@
     width: 100%;
     height: 100%;
     border: transparent;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 .icon-edit-btn{

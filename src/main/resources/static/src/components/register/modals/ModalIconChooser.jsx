@@ -3,10 +3,26 @@ import Modal from 'react-bootstrap/Modal';
 import '../Register.css';
 import './ModalIconChooser.css';
 import {imageLinks} from '../../../services/avatarsLinks.js';
+import { useState } from 'react';
+import ItemAvatar from './ItemAvatar.jsx';
 
 const ModalIconChooser = ({show, handleClose}) => {
+
+    const [iconChoosed, setIconChoosed] = useState(localStorage.getItem('avatarImg'));
+    const [itemActiveIndex, setItemActiveIndex] = useState(null);
+
+    const handleItemChoosed = (urlIcon,index) => {
+      setItemActiveIndex(index)
+      setIconChoosed(urlIcon);
+    }
+
+    const handleConfirmItemChoosed = () => {
+      localStorage.setItem('avatarImg',iconChoosed)
+      return handleClose(iconChoosed);
+    }
+
     return(
-        <Modal show={show} onHide={handleClose}>
+        <Modal show={show} >
         <Modal.Header closeButton>
           <Modal.Title>Choose Avatar</Modal.Title>
         </Modal.Header>
@@ -15,7 +31,7 @@ const ModalIconChooser = ({show, handleClose}) => {
             <div className='scroll'>
                 <ul>
                   {imageLinks.map( (url,i)=> (
-                    <li><div key={i} className='avatar' style={{ backgroundImage: `url(${url})`}}></div></li>
+                    <li><ItemAvatar url={url} i={i} active={i===itemActiveIndex} handleItemChoosed={handleItemChoosed} /></li>
                   ))
                   }
                   
@@ -26,7 +42,7 @@ const ModalIconChooser = ({show, handleClose}) => {
 
         </Modal.Body>
         <Modal.Footer>
-          <button className='button button-chooser' onClick={handleClose}>
+          <button className='button button-chooser' onClick={handleConfirmItemChoosed}>
             Confirm
           </button>
         </Modal.Footer>

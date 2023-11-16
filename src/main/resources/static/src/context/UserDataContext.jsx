@@ -17,7 +17,7 @@ export function UserDataContext({children}) {
       });
 
       const setAvatarImage = () => {
-        if(localStorage.getItem('avatarImg')===null){
+        if(localStorage.getItem('avatarImg')===null || localStorage.getItem('avatarImg')==='undefined'){
             localStorage.setItem('avatarImg',imageLinks[0]);
             return imageLinks[0];
         }else{
@@ -27,7 +27,7 @@ export function UserDataContext({children}) {
 
       useEffect(() => {
         setAvatarImage();  
-      },[])
+      })
 
       return (
         <userContext.Provider
