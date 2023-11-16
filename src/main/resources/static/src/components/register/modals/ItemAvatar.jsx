@@ -1,7 +1,7 @@
 import { useState } from "react";
 import './ModalIconChooser.css'
 
-const ItemAvatar = ({ url,i, active,handleItemChoosed }) => {
+const ItemAvatar = ({ url,i,handleItemChoosed }) => {
 
     const handleClickAvatar = () => {
         return handleItemChoosed(url,i);
@@ -9,7 +9,7 @@ const ItemAvatar = ({ url,i, active,handleItemChoosed }) => {
 
     return (
         <div key={i} 
-        className={`avatar ${active ? 'active' : ''}`} 
+        className={`avatar`}
         onClick={handleClickAvatar} 
         style={{ backgroundImage: `url(${url})` }}></div>
     )

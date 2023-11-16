@@ -16,7 +16,10 @@ const Register = () => {
 
     const handleClose = (iconChoosed) => {
         setShow(false)
-        setUserData({...userData,"avatarImg": iconChoosed});
+        if(iconChoosed!==''){
+            setUserData({...userData,"avatarImg": iconChoosed});
+
+        }
     };
     const handleShow = () => setShow(true);
 

@@ -42,7 +42,7 @@
     height: 100%;
 }
 
-.list-chooser-container li{
+.list-item-item{
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -51,7 +51,14 @@
     border:5px solid transparent;
 }
 
-.list-chooser-container li:active{
+/*
+.list-item-item:active{
+    border:5px solid red;
+    border-radius: 50%;
+}
+*/
+
+.item-active{
     border:5px solid #38394D;
     border-radius: 50%;
 }
@@ -66,9 +73,7 @@
     cursor: pointer;
 }
 
-.avatar.active{
-    border:5px solid #38394D;
-}
+
 
 .button-chooser{
 
