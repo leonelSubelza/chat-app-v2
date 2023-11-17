@@ -5,9 +5,7 @@ export const userContext = React.createContext();
 
 export function UserDataContext({children}) {
     const [userData, setUserData] = useState({
-        username: localStorage.getItem('username')=='undefined'
-                    ? '' 
-                    : localStorage.getItem('username'),
+        username: '',
         connected: false,
         receivername: '',
         message: '',
@@ -16,18 +14,30 @@ export function UserDataContext({children}) {
         avatarImg: ''
       });
 
-      const setAvatarImage = () => {
+      const loadUserDataValues = () => {
+        //setAvatarImage
+        let urlImg = '';
         if(localStorage.getItem('avatarImg')===null || localStorage.getItem('avatarImg')==='undefined'){
             localStorage.setItem('avatarImg',imageLinks[0]);
-            return imageLinks[0];
+            urlImg = imageLinks[0];
         }else{
-            return localStorage.getItem('avatarImg')
+            urlImg = localStorage.getItem('avatarImg')
         }
+        //setUserName
+        let username='';
+        if(localStorage.getItem('username')=='undefined' || localStorage.getItem('username')===null
+        ||localStorage.getItem('username')===undefined){
+            username='';
+        }else{
+            username=localStorage.getItem('username');
+        }
+        setUserData({...userData,"avatarImg": urlImg,"username":username});
+
       }
 
       useEffect(() => {
-        setAvatarImage();  
-      })
+        loadUserDataValues();  
+      },[])
 
       return (
         <userContext.Provider

@@ -1,50 +1,60 @@
-import React, { useContext,useState } from 'react'
-import { Link,useNavigate } from 'react-router-dom';
+import React, { useContext, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom';
 
 import { userContext } from '../../context/UserDataContext';
-import ModalIconChooser from './modals/ModalIconChooser.jsx';
+import ModalIconChooser from './modals/item-chooser/ModalIconChooser.jsx';
+import ModalJoinChat from './modals/join-chat/ModalJoinChat.jsx';
+
 //import '../index.css'
 import './Register.css'
 
 const Register = () => {
     const navigate = useNavigate();
-    const { userData,setUserData } = useContext(userContext);
+    const { userData, setUserData } = useContext(userContext);
 
 
     //MOdal icon chooser
-    const [show, setShow] = useState(false);
+    const [showModalIconChooser, setShowModalIconChooser] = useState(false);
+    //Modal join chat
+    const [showModalJoinChat, setShowModalJoinChat] = useState(false);
 
-    const handleClose = (iconChoosed) => {
-        setShow(false)
-        if(iconChoosed!==''){
-            setUserData({...userData,"avatarImg": iconChoosed});
+    const handleCloseModalIconChooser = (iconChoosed) => {
+        setShowModalIconChooser(false)
+        if (iconChoosed !== '') {
+            setUserData({ ...userData, "avatarImg": iconChoosed });
 
         }
     };
-    const handleShow = () => setShow(true);
+    const handleShowModalIconChooser = () => setShowModalIconChooser(true);
 
 
-    const handleUsername=(event)=>{
-        const {value}=event.target;
-        setUserData({...userData,"username": value});
+    const handleUsername = (event) => {
+        const { value } = event.target;
+        setUserData({ ...userData, "username": value });
     }
 
-    const handleJoinChat=(e,status)=>{
+    const handleJoinChat = (e, status) => {
+        if(e===undefined && status===undefined){
+            //se hizo click en la x del modal (no hay evento creo)
+            setShowModalJoinChat(false);
+            return; 
+        }
         e.preventDefault();
-        if( (userData.username==='' || userData.URLSessionid==='')&&status!=='CREATE'){
+        if ((userData.username === '' || userData.URLSessionid === '') && status !== 'CREATE') {
             alert('se debe poner un nombre de usuario o poner una la clave de una sala')
             return;
         }
         //borrar luego
         let urlSessionIdAux;
-        if(status==='CREATE'){
-            setUserData({...userData,"URLSessionid": 'pene'});    
-            urlSessionIdAux='pene';
+        if (status === 'CREATE') {
+            setUserData({ ...userData, "URLSessionid": 'pene' });
+            urlSessionIdAux = 'pene';
         }
-        
-        setUserData({...userData,"status": status});
-        localStorage.setItem('username',userData.username);
-        navigate(`/chatroom/${urlSessionIdAux}`);
+
+        setUserData({ ...userData, "status": status });
+        localStorage.setItem('username', userData.username);
+        setShowModalJoinChat(false)
+        //navigate(`/chatroom/${urlSessionIdAux}`);
     }
 
     useContext(() => {
@@ -57,8 +67,8 @@ const Register = () => {
                 <div className="register">
                     <h1 className='register-title'>CHAT ROOM</h1>
                     <div className='register-icon-container'>
-                        <div className='icon-img-contenedor' style={{ backgroundImage: `url(${localStorage.getItem('avatarImg')})`}}></div>
-                        <button className='icon-edit-btn' onClick={handleShow}><i className="bi bi-pencil"></i></button>
+                        <div className='icon-img-contenedor' style={{ backgroundImage: `url(${localStorage.getItem('avatarImg')})` }}></div>
+                        <button className='icon-edit-btn' onClick={handleShowModalIconChooser}><i className="bi bi-pencil"></i></button>
                     </div>
 
                     <div className='register-input__container'>
@@ -67,7 +77,7 @@ const Register = () => {
                             className="user-name"
                             placeholder="Enter a username"
                             name="userName"
-                            value={userData.username}
+                            value={localStorage.getItem('username')}
                             onChange={handleUsername}
                             margin="normal"
                         />
@@ -79,16 +89,17 @@ const Register = () => {
                             <button type="button" className='button btn-create-room' onClick={(e)=>handleJoinChat(e,"CREATE")}>CREATE A ROOM</button>
                         </Link>
                         */}
-                        <button type="button" className='button btn-join-chat' onClick={(e)=>handleJoinChat(e,"JOIN")}>
+                        <button type="button" className='button btn-join-chat' onClick={()=> setShowModalJoinChat(true)}>
                             <i className="bi bi-box-arrow-in-right"></i>JOIN A CHAT
-                        </button> 
-                        <button type="button" className='button btn-create-room' onClick={(e)=>handleJoinChat(e,"CREATE")}>
+                        </button>
+                        <button type="button" className='button btn-create-room' onClick={(e) => handleJoinChat(e, "CREATE")}>
                             <i className="bi bi-pencil-square"></i>CREATE A ROOM
-                            </button>
-                        </div>
+                        </button>
+                    </div>
                 </div>
             </div>
-            <ModalIconChooser show={show} handleClose={handleClose}/>
+            <ModalIconChooser showModalIconChooser={showModalIconChooser} handleCloseModalIconChooser={handleCloseModalIconChooser} />
+            <ModalJoinChat showModalJoinChat={showModalJoinChat} handleCloseModalJoinChat={handleJoinChat} />
         </>
     )
 
