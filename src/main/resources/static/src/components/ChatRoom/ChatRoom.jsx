@@ -5,6 +5,9 @@ Stomp es una biblioteca JavaScript que se utiliza para enviar y recibir
 mensajes a través del protocolo STOMP (Simple Text Oriented Messaging Protocol).
 */
 import {over} from 'stompjs';
+import './ChatRoom.css';
+
+import menuHamburger from '../../assets/menu-burger.svg'
 
 //Es una librearia de JS. A diferencia de usar la api WebSocket para crear la conexion,
 //Esta sirve para que pueda ser usada en navegadores más viejos.
@@ -366,46 +369,60 @@ const ChatRoom = () => {
     <div className="container">
         { channelExists&&startedConnection.current ?
         <div className="chat-box">
-            <MembersList
-                setTab={setTab}
-                tab={tab}
-                privateChats={privateChats}
-                userData={userData}
-                disconnectChat={disconnectChat}
-            />
 
-            {tab==="CHATROOM" &&
-                <ChatGeneral
-                    publicChats={publicChats}
-                    handleMessage={handleMessage}
-                    sendValue={sendValue}
-                    userData={userData}
+            <div className="sidebar">
+                <div className="menu-details">
+                    <img className="menu-hamburger" src={menuHamburger} alt="menu" />
+                    <span className="logo_name">Chat-App</span>
+                    <button className="btn-leave" onClick={disconnectChat}>Leave</button>
+                </div>
+
+
+                <MembersList
+                    setTab={setTab}
+                    tab={tab}
+                    privateChats={privateChats}
                 />
-            }
-
-            {tab!=="CHATROOM" &&
-               <ChatPrivate
-                   privateChats={privateChats}
-                   tab={tab}
-                   sendPrivateValue={sendPrivateValue}
-                   userData={userData}
-                   handleMessage={handleMessage}
-               />
-            }
-
-            <MessageInput
-                value={userData.message}
-                onChange={handleMessage}
-                onSend={tab === 'CHATROOM' ? sendValue : sendPrivateValue}
-                tab={tab}
-            />
-
-        </div>
 
 
+                <li>
+                    <div className="profile-details">
+                        <img className="profile_img" src='https://cdn-icons-png.flaticon.com/128/666/666201.png' alt="icon"/>
+                        <div className="profile_name">{userData.username}</div>
+                    </div>
+                </li>
+            </div>
 
-        :
-        <div>Cargando...</div>}
+
+            <div className="chat-text-button">
+
+                {tab==="CHATROOM" &&
+                    <ChatGeneral
+                        publicChats={publicChats}
+                        handleMessage={handleMessage}
+                        sendValue={sendValue}
+                        userData={userData}
+                    />
+                }
+
+                {tab!=="CHATROOM" &&
+                   <ChatPrivate
+                       privateChats={privateChats}
+                       tab={tab}
+                       sendPrivateValue={sendPrivateValue}
+                       userData={userData}
+                       handleMessage={handleMessage}
+                   />
+                }
+
+                <MessageInput
+                    value={userData.message}
+                    onChange={handleMessage}
+                    onSend={tab === 'CHATROOM' ? sendValue : sendPrivateValue}
+                    tab={tab}
+                />
+            </div>
+        </div>:<div>Cargando...</div>}
     </div>
     )
 }

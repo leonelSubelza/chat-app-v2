@@ -16,19 +16,6 @@ input {
   padding: 10px;
   font-size: 1.2em;
 }
-button{
-  border: none;
-  padding: 10px;
-  background: green;
-  color:#fff;
-  font-size: 1.2em;
-  font-weight: bold;
-}
-
-
-.container{
-  position: relative;
-}
 
 .register{
   position: fixed;
@@ -38,20 +25,6 @@ button{
   left:32%;
   display: flex;
   flex-direction: row;
-}
-.chat-box{
-  box-shadow:0 2.8px 2.2px rgba(0, 0, 0, 0.034),0 6.7px 5.3px rgba(0, 0, 0, 0.048),0 12.5px 10px rgba(0, 0, 0, 0.06),0 22.3px 17.9px rgba(0, 0, 0, 0.072),0 41.8px 33.4px rgba(0, 0, 0, 0.086),0 100px 80px rgba(0, 0, 0, 0.12);
-  margin:40px 50px;
-  height: 600px;
-  padding: 10px;
-  display: flex;
-  flex-direction: row;
-}
-
-.member-list{
-  width: 20%;
-  display: flex;
-  flex-direction: column;
 }
 
 .chat-content{
@@ -81,13 +54,6 @@ ul {
 }
 .send-button{
   width:10%;
-  border-radius: 50px;
-  margin-left: 5px;
-  cursor: pointer;
-}
-
-.leave-button{
-  width:50%;
   border-radius: 50px;
   margin-left: 5px;
   cursor: pointer;
@@ -133,25 +99,4 @@ ul {
 }
 .message.self{
   justify-content: end;
-}
-
-.user-info-container{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: auto 0 20px 0;
-}
-.user-info{
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.user-info img{
-  width: 50%;
-  height: 50%;
-  margin: auto 0;
-}
-.user-info p{
-  text-align: center;
 }

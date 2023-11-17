@@ -1,0 +1,122 @@
+.chat-box{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.chat-text-button{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 15rem; /*260px*/
+    background: #38394D;
+    z-index: 100;
+    transition: all 0.5s ease;
+}
+
+.sidebar .menu-details{
+    height: 60px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background-color: #6A6B7A;
+}
+
+.sidebar .menu-details .menu-hamburger{
+    font-size: 30px;
+    color: #fff;
+    height: 20px;
+    min-width: 20px;
+    text-align: center;
+    line-height: 50px;
+    cursor: pointer;
+    margin: 10px;
+}
+.sidebar .menu-details .btn-leave{
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    color: #fff;
+    background-color: #38394D;
+    border-radius:10px;
+    border: 0;
+    cursor: pointer;
+    padding: 4px;
+    margin-right: 10px;
+    margin-left: auto;
+}
+.sidebar .menu-details .btn-leave:hover{
+    background-color: #58596f;
+}
+
+.sidebar .menu-details .logo_name {
+    font-size: 22px;
+    color: #fff;
+    font-weight: 600;
+    transition: 0.3s ease;
+    transition-delay: 0.1s;
+}
+
+.sidebar.close .menu-details .logo_name,
+.sidebar.close .menu-details .btn-leave {
+    transition-delay: 0s;
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+
+/*
+  DETALLE DEL PERFIL PARTE DE ABAJO DEL SIDEBAR
+*/
+
+
+
+.sidebar .profile-details {
+    position: fixed;
+    bottom: 0;
+    width: 15rem;
+    display: flex;
+    flex-direction: column; /* Cambiado a dirección de columna */
+    align-items: center;
+    justify-content: center; /* Cambiado a justificación centrada */
+    background: #383258;
+    padding: 12px 0;
+    transition: all 0.5s ease;
+}
+
+.sidebar.close .profile-details {
+    background: none;
+}
+
+.sidebar.close .profile-details {
+    width: 78px;
+}
+
+.sidebar .profile-details .profile_img{
+    width: 5rem;
+    margin-bottom: 1rem;
+}
+
+.sidebar .profile-details .profile_name{
+    color: #fff;
+    font-size: 18px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.sidebar.close .profile-details .profile_name {
+    display: none;
+}
+
+
+
+
+
