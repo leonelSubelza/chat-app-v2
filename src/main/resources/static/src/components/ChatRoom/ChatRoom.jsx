@@ -377,7 +377,7 @@ const ChatRoom = () => {
         <div className="chat-box">
 
             <div className={`sidebar ${sidebarOpen ? 'close' : ''}`}>
-                    <div className="menu-details">
+                <div className="menu-details">
                     <img className="menu-hamburger" src={menuHamburger} onClick={toggleSidebar} alt="menu" />
                     <span className="logo_name">Chat-App</span>
                     <button className="btn-leave" onClick={disconnectChat}>Leave</button>

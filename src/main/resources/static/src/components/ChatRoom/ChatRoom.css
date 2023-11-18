@@ -143,11 +143,13 @@
 }
 
 .sidebar.close .menu-details .logo_name,
-.sidebar.close .menu-details .btn-leave,
-.sidebar.close .nav-links .info-sidebar p {
-    transition-delay: 0s;
-    opacity: 0;
+.sidebar.close .menu-details .btn-leave{
     pointer-events: none;
+    display: none;
+    transition: all 0.5s ease;
+}
+.sidebar.close .menu-details img{
+    margin: auto;
 }
 
 .sidebar.close .profile-details .profile_name {
