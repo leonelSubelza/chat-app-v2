@@ -80,7 +80,9 @@
 .sidebar.close .nav-links li a .link_name {
     opacity: 0;
     pointer-events: none;
+    display: none;
 }
+
 
 
 /*

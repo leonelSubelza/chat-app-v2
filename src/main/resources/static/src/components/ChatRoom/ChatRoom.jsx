@@ -372,7 +372,7 @@ const ChatRoom = () => {
     };
 
     return (
-    <div className="container">
+    <>
         { channelExists&&startedConnection.current ?
         <div className="chat-box">
 
@@ -400,12 +400,11 @@ const ChatRoom = () => {
 
             </div>
 
-            <div className="chat-text-button">
-                <section className="home-section">
-                    <div className="home-content">
-                        <span className="text">CHAT GENERAL</span>
-                    </div>
-                </section>
+            <div className={`chat-text-button ${sidebarOpen ? 'close' : ''}`}>
+                <div className="home-content">
+                    <span className="text">CHAT GENERAL</span>
+                </div>
+
                 {tab!=="CHATROOM" ? <ChatPrivate
                     privateChats={privateChats}
                     tab={tab}
@@ -428,7 +427,7 @@ const ChatRoom = () => {
             </div>
 
         </div>:<div>Cargando...</div>}
-    </div>
+    </>
     )
 }
 

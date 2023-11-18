@@ -1,14 +1,6 @@
-.chat-box{
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-}
 
-.chat-text-button{
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-}
+
+
 
 .sidebar{
     position: fixed;
@@ -98,38 +90,37 @@
     white-space: nowrap;
 }
 
-
-
 .chat-text-button{
     display: flex;
     flex-direction: column;
+    margin-left: 15rem;
 }
 
+.chat-text-button.close{
+    margin-left: 4rem;
+}
 
-
-.home-section{
+.home-content{
     background: #E4E9F7;
     height: 4rem;
-    margin-left: 15rem;
-    width: calc(100%);
     transition: all 0.5s ease;
 }
 
-.home-section .home-content{
+.home-content{
     height: 60px;
     display: flex;
     align-items: center;
 }
-.home-section .home-content .bx-menu,
-.home-section .home-content .text{
+.home-content .bx-menu,
+.home-content .text{
     color: #11101d;
     font-size: 35px;
 }
-.home-section .home-content .bx-menu{
+.home-content .bx-menu{
     margin: 0 15px;
     cursor: pointer;
 }
-.home-section .home-content .text{
+.home-content .text{
     font-size: 26px;
     font-weight: 600;
 }
@@ -161,9 +152,4 @@
 
 .sidebar.close .profile-details .profile_name {
     display: none;
-}
-
-.sidebar.close ~ .home-section{
-    left: 78px;
-    width: calc(100% - 78px);
 }

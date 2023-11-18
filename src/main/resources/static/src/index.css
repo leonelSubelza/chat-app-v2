@@ -28,18 +28,14 @@ input {
 }
 
 .chat-content{
-  width:100%;
   margin-left: 10px;
 }
 
 .chat-messages{
-  height: 80%;
   border: 1px solid #000;
 }
 
-
 .input-message{
-  width:90%;
   border-radius: 50px;
 }
 
