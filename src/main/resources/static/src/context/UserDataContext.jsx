@@ -10,14 +10,21 @@ export function UserDataContext({children}) {
         receivername: '',
         message: '',
         URLSessionid:'pene',
+        //el estado indica luego en el chatroom qué hay que hacer, si unirse auna sala o crear una
         status:'JOIN',
         avatarImg: ''
       });
 
+      const [messageData, setMessageData] = useState({
+        receivername: '',
+        message: '',
+        status:'JOIN'
+      })
+
       const loadUserDataValues = () => {
         //setAvatarImage
         let urlImg = '';
-        if(localStorage.getItem('avatarImg')===null || localStorage.getItem('avatarImg')==='undefined'){
+        if(localStorage.getItem('avatarImg')===null){
             localStorage.setItem('avatarImg',imageLinks[0]);
             urlImg = imageLinks[0];
         }else{
@@ -25,8 +32,7 @@ export function UserDataContext({children}) {
         }
         //setUserName
         let username='';
-        if(localStorage.getItem('username')=='undefined' || localStorage.getItem('username')===null
-        ||localStorage.getItem('username')===undefined){
+        if(localStorage.getItem('username')===null){
             username='';
         }else{
             username=localStorage.getItem('username');
