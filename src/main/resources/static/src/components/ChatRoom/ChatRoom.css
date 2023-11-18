@@ -16,7 +16,7 @@
     left: 0;
     display: flex;
     flex-direction: column;
-    height: 90%;
+    height: 100%;
     width: 15rem; /*260px*/
     background: #38394D;
     z-index: 100;
@@ -66,14 +66,6 @@
     transition-delay: 0.1s;
 }
 
-.sidebar.close .menu-details .logo_name,
-.sidebar.close .menu-details .btn-leave {
-    transition-delay: 0s;
-    opacity: 0;
-    pointer-events: none;
-}
-
-
 
 /*
   DETALLE DEL PERFIL PARTE DE ABAJO DEL SIDEBAR
@@ -94,14 +86,6 @@
     transition: all 0.5s ease;
 }
 
-.sidebar.close .profile-details {
-    background: none;
-}
-
-.sidebar.close .profile-details {
-    width: 78px;
-}
-
 .sidebar .profile-details .profile_img{
     width: 5rem;
     margin-bottom: 1rem;
@@ -113,11 +97,6 @@
     font-weight: 500;
     white-space: nowrap;
 }
-
-.sidebar.close .profile-details .profile_name {
-    display: none;
-}
-
 
 
 
@@ -135,10 +114,7 @@
     width: calc(100%);
     transition: all 0.5s ease;
 }
-.sidebar.close ~ .home-section{
-    left: 78px;
-    width: calc(100% - 78px);
-}
+
 .home-section .home-content{
     height: 60px;
     display: flex;
@@ -156,4 +132,38 @@
 .home-section .home-content .text{
     font-size: 26px;
     font-weight: 600;
+}
+
+
+/*
+            SIDEBAR CLOSE
+ */
+
+.sidebar.close{
+    width: 4rem;
+}
+
+.sidebar.close .profile-details img{
+    width: 3rem;
+}
+
+.sidebar.close .profile-details {
+    width: 4rem;
+}
+
+.sidebar.close .menu-details .logo_name,
+.sidebar.close .menu-details .btn-leave,
+.sidebar.close .nav-links .info-sidebar p {
+    transition-delay: 0s;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sidebar.close .profile-details .profile_name {
+    display: none;
+}
+
+.sidebar.close ~ .home-section{
+    left: 78px;
+    width: calc(100% - 78px);
 }
