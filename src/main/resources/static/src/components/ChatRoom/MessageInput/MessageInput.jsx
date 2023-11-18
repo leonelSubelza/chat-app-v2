@@ -1,5 +1,5 @@
 import React from 'react';
-
+import './MessageInput.css'
 const MessageInput = ({ value, onChange, onSend }) => {
     return (
         <div className="send-message">

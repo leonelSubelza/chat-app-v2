@@ -1,0 +1,112 @@
+.member{
+
+}
+.member.active{
+    background: #4E4F5B;
+    color:#fff;
+    padding: 5px;
+    border-radius: 10px;
+}
+.member:hover{
+    background: grey;
+    color:#fff;
+}
+
+.sidebar .nav-links {
+    height: 100%;
+    overflow: auto;
+    margin: 20px auto;
+}
+
+.sidebar.close .nav-links {
+    overflow: visible;
+}
+
+.sidebar .nav-links::-webkit-scrollbar {
+    display: none;
+}
+
+.sidebar .nav-links li {
+    position: relative;
+    list-style: none;
+    transition: all 0.4s ease;
+}
+
+.sidebar .nav-links li:hover {
+    background: #1d1b31;
+}
+
+.sidebar .nav-links li .iocn-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sidebar .nav-links li{
+    margin-bottom: 20px;
+}
+
+.sidebar.close .nav-links li .iocn-link {
+    display: block
+}
+
+.sidebar .nav-links li img {
+    height: 50px;
+    min-width: 50px;
+    text-align: center;
+    line-height: 50px;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    background-color: #58596f;
+    margin-left: 13px;
+}
+
+.sidebar .nav-links li a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.sidebar .nav-links li a .link_name {
+    font-size: 18px;
+    font-weight: 400;
+    color: #fff;
+    transition: all 0.4s ease;
+}
+
+.sidebar.close .nav-links li a .link_name {
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+/*
+        TEXTO DIVISORIO "CHAT PRIVATE -----------"
+ */
+
+
+
+.info-sidebar {
+    width: 90%;
+    margin: 20px auto;
+    display: flex;
+}
+
+.info-sidebar p {
+    width: 55%;
+    font-size: 10px;
+    color: #dee2e6;
+    font-weight: 600;
+}
+
+.separator-sidebar {
+    width: 65%;
+    height: 1px;
+    border: 1px solid #dee2e6;
+    background-color: #dee2e6;
+    margin: auto;
+    margin-right: 15px;
+}

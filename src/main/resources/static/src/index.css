@@ -28,7 +28,7 @@ input {
 }
 
 .chat-content{
-  width:80%;
+  width:100%;
   margin-left: 10px;
 }
 
@@ -37,11 +37,6 @@ input {
   border: 1px solid #000;
 }
 
-.send-message{
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-}
 
 .input-message{
   width:90%;
@@ -52,29 +47,8 @@ ul {
   padding: 0;
   list-style-type: none;
 }
-.send-button{
-  width:10%;
-  border-radius: 50px;
-  margin-left: 5px;
-  cursor: pointer;
-}
 
-.member{
-  padding: 10px;
-  background: #eee;
-  border:#000;
-  cursor: pointer;
-  margin: 5px 2px;
-  box-shadow: 0 8px 8px -4px lightblue;
-}
-.member.active{
-  background: blueviolet;
-  color:#fff;
-}
-.member:hover{
-  background: grey;
-  color:#fff;
-}
+
 
 .avatar{
   background-color: cornflowerblue;
@@ -82,10 +56,12 @@ ul {
   border-radius: 5px;
   color:#fff;
 }
+
 .avatar.self{
   color:#000;
   background-color: greenyellow;
 }
+
 .message{
   padding:5px;
   width: auto;
@@ -94,6 +70,7 @@ ul {
   box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
   margin: 5px 10px;
 }
+
 .message-data{
   padding:5px;
 }

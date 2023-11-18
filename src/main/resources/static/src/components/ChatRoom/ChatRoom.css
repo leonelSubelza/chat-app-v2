@@ -14,7 +14,9 @@
     position: fixed;
     top: 0;
     left: 0;
-    height: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 90%;
     width: 15rem; /*260px*/
     background: #38394D;
     z-index: 100;
@@ -119,4 +121,39 @@
 
 
 
+.chat-text-button{
+    display: flex;
+    flex-direction: column;
+}
 
+
+
+.home-section{
+    background: #E4E9F7;
+    height: 4rem;
+    margin-left: 15rem;
+    width: calc(100%);
+    transition: all 0.5s ease;
+}
+.sidebar.close ~ .home-section{
+    left: 78px;
+    width: calc(100% - 78px);
+}
+.home-section .home-content{
+    height: 60px;
+    display: flex;
+    align-items: center;
+}
+.home-section .home-content .bx-menu,
+.home-section .home-content .text{
+    color: #11101d;
+    font-size: 35px;
+}
+.home-section .home-content .bx-menu{
+    margin: 0 15px;
+    cursor: pointer;
+}
+.home-section .home-content .text{
+    font-size: 26px;
+    font-weight: 600;
+}

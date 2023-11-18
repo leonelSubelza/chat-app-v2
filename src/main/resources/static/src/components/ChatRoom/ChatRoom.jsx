@@ -371,7 +371,7 @@ const ChatRoom = () => {
         <div className="chat-box">
 
             <div className="sidebar">
-                <div className="menu-details">
+                    <div className="menu-details">
                     <img className="menu-hamburger" src={menuHamburger} alt="menu" />
                     <span className="logo_name">Chat-App</span>
                     <button className="btn-leave" onClick={disconnectChat}>Leave</button>
@@ -391,29 +391,27 @@ const ChatRoom = () => {
                         <div className="profile_name">{userData.username}</div>
                     </div>
                 </li>
+
             </div>
 
-
             <div className="chat-text-button">
-
-                {tab==="CHATROOM" &&
-                    <ChatGeneral
-                        publicChats={publicChats}
-                        handleMessage={handleMessage}
-                        sendValue={sendValue}
-                        userData={userData}
-                    />
-                }
-
-                {tab!=="CHATROOM" &&
-                   <ChatPrivate
-                       privateChats={privateChats}
-                       tab={tab}
-                       sendPrivateValue={sendPrivateValue}
-                       userData={userData}
-                       handleMessage={handleMessage}
-                   />
-                }
+                <section className="home-section">
+                    <div className="home-content">
+                        <span className="text">CHAT GENERAL</span>
+                    </div>
+                </section>
+                {tab!=="CHATROOM" ? <ChatPrivate
+                    privateChats={privateChats}
+                    tab={tab}
+                    sendPrivateValue={sendPrivateValue}
+                    userData={userData}
+                    handleMessage={handleMessage}
+                /> :<ChatGeneral
+                    publicChats={publicChats}
+                    handleMessage={handleMessage}
+                    sendValue={sendValue}
+                    userData={userData}
+                />}
 
                 <MessageInput
                     value={userData.message}
@@ -422,6 +420,7 @@ const ChatRoom = () => {
                     tab={tab}
                 />
             </div>
+
         </div>:<div>Cargando...</div>}
     </div>
     )
