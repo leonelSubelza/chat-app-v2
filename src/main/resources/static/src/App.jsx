@@ -1,14 +1,14 @@
 import React, { useState,useEffect,useContext } from 'react'
 
 import ChatRoom from "./components/ChatRoom/ChatRoom.jsx";
-import Register from "./components/Register";
+import Register from "./components/register/Register.jsx";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { userContext } from './context/UserDataContext';
 
 function App() {
   const { userData } = useContext(userContext);
   return (
-    <div className='container'>
+    <div className='chatRoom-global'>
     <Router>
         <Routes>
           <Route path="/" element={<Register/>} />

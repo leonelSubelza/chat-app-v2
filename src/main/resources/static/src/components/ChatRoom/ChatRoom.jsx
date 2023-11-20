@@ -391,7 +391,7 @@ const ChatRoom = () => {
 
                 <li>
                     <div className="profile-details">
-                        <img className="profile_img" src='https://cdn-icons-png.flaticon.com/128/666/666201.png' alt="icon"/>
+                        <img className="profile_img" src={`${userData.avatarImg}`} alt="icon"/>
                         <div className="profile_name">{userData.username}</div>
                     </div>
                 </li>
@@ -413,7 +413,6 @@ const ChatRoom = () => {
                     publicChats={publicChats}
                     handleMessage={handleMessage}
                     sendValue={sendValue}
-                    userData={userData}
                 />}
 
                 <MessageInput

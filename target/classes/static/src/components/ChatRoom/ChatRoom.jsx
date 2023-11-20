@@ -5,12 +5,19 @@ Stomp es una biblioteca JavaScript que se utiliza para enviar y recibir
 mensajes a través del protocolo STOMP (Simple Text Oriented Messaging Protocol).
 */
 import {over} from 'stompjs';
+import './ChatRoom.css';
+
+import menuHamburger from '../../assets/menu-burger.svg'
 
 //Es una librearia de JS. A diferencia de usar la api WebSocket para crear la conexion,
 //Esta sirve para que pueda ser usada en navegadores más viejos.
 import SockJS from 'sockjs-client';
-import {serverURL} from '../config/chatConfiguration.js';
-import {userContext} from '../context/UserDataContext.jsx';
+import {serverURL} from '../../config/chatConfiguration.js';
+import {userContext} from '../../context/UserDataContext.jsx';
+import MembersList from "./MemberList/MembersList.jsx";
+import ChatGeneral from "./Chat/ChatGeneral/ChatGeneral.jsx";
+import ChatPrivate from "./Chat/ChatPrivate/ChatPrivate.jsx";
+import MessageInput from "./MessageInput/MessageInput.jsx";
 
 const ChatRoom = () => {
     const navigate = useNavigate();
@@ -29,15 +36,29 @@ const ChatRoom = () => {
         if(userData.connected){
             return;
         }
+        if(userData.username===''){
+            let nombre = prompt("Ingrese un nombre de usuario");
+            setUserData({...userData,"username": nombre});
+            userData.username=nombre;
+        }
 
         //FALTA PODER CONECTARSE A LA SALA POR URL SIN TENER NOMBRE PUESTO
         //GUARDAR EN LOCALSTORAGE LOS DATOS PERSISTIBLES DEL USUARIO
         //CREAR CANAL PARA SABER QUIEN ESTA ESCRIBIENDO
-        //MOSTRAR MENSAJITO PARA VER QUIEN SE FUE UWU
+        //
+        /*
+        console.log("el if es valido?: ");
+        console.log("!startedConnection.current: "+!startedConnection.current);
+        console.log(", !userData.connected: "+!userData.connected);
+        console.log(", stompClient===null: ");
+        console.log(stompClient.current===null);
+        */
 
         if( !startedConnection.current 
-            && (userData.username!=='' && !userData.connected )
-            && (stompClient===null || !stompClient.connected)){
+            //&& userData.username!=='' 
+            && !userData.connected 
+            && (stompClient.current===null)){
+
             startedConnection.current = true;
             let Sock = new SockJS(serverURL);
             stompClient.current = over(Sock);
@@ -46,21 +67,19 @@ const ChatRoom = () => {
     }
 
     const onConnected = () => {
+        console.log('se ejecuta oncconected');
         setUserData({...userData,"connected": true});
         console.log("url actual: ");
         console.log(location);
         if(userData.URLSessionid===''){
-            let location = useLocation();
+            let urlSessionIdAux = location.pathname.split(serverURL+'/chatroom/');;
+            console.log("no hay url entonces se toma como contra: "+urlSessionIdAux);
+            setUserData({...userData,"URLSessionid": urlSessionIdAux});
+            if(urlSessionIdAux===''){
+                alert('no se puso ningun id ni en el userdata ni en la url');
+                disconnectChat();
+            }
         }
-        if(userData.urlSessionId===''){
-            userData.urlSessionId = getIdFromURL();
-        }
-        if(userData.urlSessionId===''){
-            alert('no se puso ningun id ni en el userdata ni en la url');
-            disconnectChat();
-            navigate('/');
-        }
-
         //primero checkeamos que el canal al que se quiere unir existe
         //o si se quiere crear una sala que ya existe
         checkIfChannelExists();  
@@ -74,13 +93,11 @@ const ChatRoom = () => {
             if((payloadData.status==='EXISTS' && userData.status==='CREATE')){
                 alert('Se intenta crear una sala con un id que ya existe');
                 disconnectChat();
-                navigate('/');
                 return;
             }
             if( (payloadData.status==='NOT_EXISTS' && userData.status==='JOIN')){
                 alert('el canal al que se intenta conectar no existe');
                 disconnectChat();
-                navigate('/');
                 return;
             }
             setChannelExists(true);
@@ -134,7 +151,6 @@ const ChatRoom = () => {
             case "ERROR":
                 alert('Error conectando al chat. Nose que pudo haber sido, se enviaron mal los datos xD');
                 disconnectChat()
-                navigate('/');
                 break;
             default:
                 break;
@@ -220,9 +236,11 @@ const ChatRoom = () => {
         userData.connected=false; 
         if(stompClient.current!==null) {
             stompClient.current.disconnect();
+            navigate('/');
         }
         //setStompClient(null);
         resetValues();
+        navigate('/');
     }
 
 /*
@@ -235,14 +253,11 @@ const ChatRoom = () => {
         setPrivateChats(new Map());
         setPublicChats([]);
         setTab("CHATROOM");
-        setUserData({
-            username: '',
-            connected: false,
-            receivername: '',
-            message: '',
-            URLSessionid:'pene',
-            status:'JOIN'
-          });
+        setUserData({ ...userData, 
+            "connected": false,
+            "receivername": '',
+            "message": '',
+            });
     }
 
     const onError = (err) => {
@@ -250,7 +265,7 @@ const ChatRoom = () => {
         alert(err);
         //se vuelve a la pagina de registro:
         disconnectChat()
-        navigate('/');
+        
     }
 
     const handleMessage =(event)=>{
@@ -335,73 +350,82 @@ const ChatRoom = () => {
 
     useEffect(() => {
         //se ejecuta por cada renderizado
+        /*
         if(!userData.connected && userData.username === ''){
             disconnectChat()
             navigate('/');
             return;
         }
+        */
 
         if(tab!=="CHATROOM" && privateChats.get(tab)===undefined){
             setTab("CHATROOM")
         }
     })
 
+
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const toggleSidebar = () => {
+        setSidebarOpen(!sidebarOpen);
+    };
+
     return (
-    <div className="container">
+    <>
         { channelExists&&startedConnection.current ?
         <div className="chat-box">
-            <div className="member-list">
-                <ul>
-                    <li onClick={()=>setTab("CHATROOM")} className={`member ${tab==="CHATROOM" && "active"}`}>Chatroom</li>
-                    {privateChats.size>0 && [...privateChats.keys()].map((name,index)=>(
-                        <li onClick={()=>{setTab(name)}} className={`member ${tab===name && "active"}`} key={index}>{name}</li>
-                    ))}
-                </ul>
-                <div className='user-info-container'>
-                    <div className="user-info">
-                        <img src='https://cdn-icons-png.flaticon.com/128/666/666201.png' alt="icon"/>
-                        <p>{userData.username}</p>
+
+            <div className={`sidebar ${sidebarOpen ? 'close' : ''}`}>
+                <div className="menu-details">
+                    <img className="menu-hamburger" src={menuHamburger} onClick={toggleSidebar} alt="menu" />
+                    <span className="logo_name">Chat-App</span>
+                    <button className="btn-leave" onClick={disconnectChat}>Leave</button>
+                </div>
+
+
+                <MembersList
+                    setTab={setTab}
+                    tab={tab}
+                    privateChats={privateChats}
+                />
+
+
+                <li>
+                    <div className="profile-details">
+                        <img className="profile_img" src='https://cdn-icons-png.flaticon.com/128/666/666201.png' alt="icon"/>
+                        <div className="profile_name">{userData.username}</div>
                     </div>
-                    <button type="button" className="leave-button" onClick={disconnectChat}>Leave</button>
-                </div>
-                
+                </li>
+
             </div>
-            {tab==="CHATROOM" && <div className="chat-content">
-                <ul className="chat-messages">
-                    {publicChats.map((chat,index)=>(
-                        <li className={`message ${chat.senderName === userData.username && "self"}`} key={index}>
-                            {chat.senderName !== userData.username && <div className="avatar">{chat.senderName}</div>}
-                            <div className="message-data">{chat.message}</div>
-                            {chat.senderName === userData.username && <div className="avatar self">{chat.senderName}</div>}
-                        </li>
-                    ))}
-                </ul>
 
-                <div className="send-message">
-                    <input type="text" className="input-message" placeholder="enter the message" value={userData.message} onChange={handleMessage} /> 
-                    <button type="button" className="send-button" onClick={sendValue}>send</button>
+            <div className={`chat-text-button ${sidebarOpen ? 'close' : ''}`}>
+                <div className="home-content">
+                    <span className="text">CHAT GENERAL</span>
                 </div>
-            </div>}
-            {tab!=="CHATROOM" && <div className="chat-content">
-                <ul className="chat-messages">
-                    {(privateChats.size>0 && privateChats.get(tab)!==undefined) && [...privateChats.get(tab)].map((chat,index)=>(
-                        <li className={`message ${chat.senderName === userData.username && "self"}`} key={index}>
-                            {chat.senderName !== userData.username && <div className="avatar">{chat.senderName}</div>}
-                            <div className="message-data">{chat.message}</div>
-                            {chat.senderName === userData.username && <div className="avatar self">{chat.senderName}</div>}
-                        </li>
-                    ))}
-                </ul>
 
-                <div className="send-message">
-                    <input type="text" className="input-message" placeholder="enter the message" value={userData.message} onChange={handleMessage} /> 
-                    <button type="button" className="send-button" onClick={sendPrivateValue}>send</button>
-                </div>
-            </div>}
-        </div>          
-        :
-        <div>Cargando...</div>}
-    </div>
+                {tab!=="CHATROOM" ? <ChatPrivate
+                    privateChats={privateChats}
+                    tab={tab}
+                    sendPrivateValue={sendPrivateValue}
+                    userData={userData}
+                    handleMessage={handleMessage}
+                /> :<ChatGeneral
+                    publicChats={publicChats}
+                    handleMessage={handleMessage}
+                    sendValue={sendValue}
+                    userData={userData}
+                />}
+
+                <MessageInput
+                    value={userData.message}
+                    onChange={handleMessage}
+                    onSend={tab === 'CHATROOM' ? sendValue : sendPrivateValue}
+                    tab={tab}
+                />
+            </div>
+
+        </div>:<div>Cargando...</div>}
+    </>
     )
 }
 

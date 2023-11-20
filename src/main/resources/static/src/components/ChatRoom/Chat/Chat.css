@@ -1,34 +1,59 @@
-.chat-content{
-    margin: 0 10px 0 10px;
-    overflow: scroll;
-    height: auto;
+.chat-content {
+  /*margin: 0 10px 0 10px;*/
+  height: 70%;
+  width: 100%;
 }
 
-.message{
-    padding:5px;
-    width: auto;
-    display: flex;
-    flex-direction: row;
-    box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
-    margin: 5px 10px;
+.scroll-messages {
+  min-height: 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  width: 100%;
+  height: 100%;
+}
+.scroll-messages::-webkit-scrollbar {
+  width: 8px;
+  border-radius: 10px;
+  background-color: transparent
 }
 
-.message-data{
-    padding:5px;
+.scroll-messages::-webkit-scrollbar-thumb {
+  background: #212529;
+  border-radius: 5px;
 }
-.message.self{
+
+.message {
+  padding: 5px;
+  width: auto;
+  display: flex;
+  flex-direction: row;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+  margin: 5px 10px;
+  border:1px solid red;
+  border-radius: 10px;
+}
+
+.message-data {
+  padding: 5px;
+}
+.message.self {
     justify-content: end;
+    width: 40%;
+    margin: auto 0 auto auto;
 }
 
-
-.avatar{
-    background-color: cornflowerblue;
-    padding: 3px 5px;
-    border-radius: 5px;
-    color:#fff;
+.avatar {
+  padding: 3px 5px;
+  border-radius: 5px;
+  color: #fff;
 }
 
-.avatar.self{
-    color:#000;
-    background-color: greenyellow;
+.avatar.self {
+  color: #000;
+}
+
+.avatar-img-chat{
+    background-size: cover;
+    width: 100%;
+    height: 100%;
 }
