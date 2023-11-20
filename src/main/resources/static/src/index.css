@@ -22,44 +22,7 @@ code {
   flex-direction: row;
 }
 
-.chat-content{
-  margin: 0 10px 0 10px;
-}
-
-.chat-messages{
-  border: 1px solid #000;
-}
-
 ul {
   padding: 0;
   list-style-type: none;
-}
-
-
-.avatar{
-  background-color: cornflowerblue;
-  padding: 3px 5px;
-  border-radius: 5px;
-  color:#fff;
-}
-
-.avatar.self{
-  color:#000;
-  background-color: greenyellow;
-}
-
-.message{
-  padding:5px;
-  width: auto;
-  display: flex;
-  flex-direction: row;
-  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
-  margin: 5px 10px;
-}
-
-.message-data{
-  padding:5px;
-}
-.message.self{
-  justify-content: end;
 }

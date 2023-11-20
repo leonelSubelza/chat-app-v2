@@ -1,4 +1,5 @@
 import React, { useContext } from 'react'
+import './Chat.css';
 
 const Chat = ({userData,chat,index}) => {
 
