@@ -1,4 +1,5 @@
 import Modal from 'react-bootstrap/Modal';
+import { v4 as uuidv4 } from 'uuid';
 import '../../Register.css';
 import './ModalIconChooser.css';
 import { imageLinks } from '../../../../services/avatarsLinks.js';
@@ -36,7 +37,7 @@ const ModalIconChooser = ({ showModalIconChooser, handleCloseModalIconChooser })
         <div className='list-chooser-container'>
           <div className='scroll'>
             <ul>
-              {imageLinks.map((url, i) => (
+              {imageLinks.map((url,i=uuidv4()) => (
                 <li
                   key={i}
                   className={`list-item-item ${i === itemActiveIndex ? 'item-active' : ''}`}

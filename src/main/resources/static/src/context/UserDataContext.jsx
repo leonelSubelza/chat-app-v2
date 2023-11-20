@@ -37,6 +37,7 @@ export function UserDataContext({children}) {
         }else{
             username=localStorage.getItem('username');
         }
+        localStorage.setItem('connected',false);
         setUserData({...userData,"avatarImg": urlImg,"username":username});
 
       }
