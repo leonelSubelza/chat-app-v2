@@ -253,13 +253,11 @@ const ChatRoom = () => {
         setPrivateChats(new Map());
         setPublicChats([]);
         setTab("CHATROOM");
-        setUserData({
-            connected: false,
-            receivername: '',
-            message: '',
-            URLSessionid:'pene',
-            status:'JOIN'
-          });
+        setUserData({ ...userData, 
+            "connected": false,
+            "receivername": '',
+            "message": '',
+            });
     }
 
     const onError = (err) => {
