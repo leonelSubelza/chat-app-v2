@@ -12,11 +12,6 @@ code {
     monospace;
 }
 
-input {
-  padding: 10px;
-  font-size: 1.2em;
-}
-
 .register{
   position: fixed;
   padding:30px;
@@ -28,22 +23,17 @@ input {
 }
 
 .chat-content{
-  margin-left: 10px;
+  margin: 0 10px 0 10px;
 }
 
 .chat-messages{
   border: 1px solid #000;
 }
 
-.input-message{
-  border-radius: 50px;
-}
-
 ul {
   padding: 0;
   list-style-type: none;
 }
-
 
 
 .avatar{
