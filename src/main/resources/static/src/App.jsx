@@ -1,7 +1,7 @@
 import React, { useState,useEffect,useContext } from 'react'
 
-import ChatRoom from "./components/ChatRoom";
-import Register from "./components/register/Register";
+import ChatRoom from "./components/ChatRoom/ChatRoom.jsx";
+import Register from "./components/Register";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { userContext } from './context/UserDataContext';
 
