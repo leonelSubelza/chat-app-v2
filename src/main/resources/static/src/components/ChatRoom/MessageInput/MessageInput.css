@@ -3,8 +3,13 @@
     flex-direction: row;
     position: fixed;
     bottom: 0;
+    left: 240px;
+    width: calc(100% - 240px);
+}
+
+.chat-text-button.close .send-message{
     left: 64px;
-    width: calc(100% - 64px); /* Resta el ancho del bloque en el lado izquierdo */
+    width: calc(100% - 64px);
 }
 
 .input-message {
