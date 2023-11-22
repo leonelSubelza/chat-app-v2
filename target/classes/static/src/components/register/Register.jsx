@@ -7,6 +7,7 @@ import ModalJoinChat from './modals/join-chat/ModalJoinChat.jsx';
 
 //import '../index.css'
 import './Register.css'
+import { useEffect } from 'react';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -41,24 +42,27 @@ const Register = () => {
         setUserData({ ...userData, "username": value });
     }
 
-    const handleJoinChat = (e,urlRoom) => {
+    //esta funcion solo se ejecuta si cerras el modal, la conexion se realiza en ModalJoinChat
+    const handleCloseModalJoinChat = (e,urlRoom) => {
         if (e === undefined) {
             //se hizo click en la x del modal (no hay evento creo)
             setShowModalJoinChat(false);
             return;
         }
         e.preventDefault();
+        /*
         if (userData.username === '' || urlRoom === '') {
             alert('se debe poner la clave de una sala')
             return;
         }
         localStorage.setItem('username', userData.username);
 
-        //borrar luego
+        //borrar luego se debería generar un ID facha
         let urlSessionIdAux;
-        setUserData({ ...userData, "URLSessionid": 'pene' });
-        urlSessionIdAux = 'pene';
+        setUserData({ ...userData, "URLSessionid": '1234' });
+        urlSessionIdAux = '1234';
         navigate(`/chatroom/${urlSessionIdAux}`);
+        */
     }
 
     const handleCreateRoom = (e) => {
@@ -104,7 +108,7 @@ const Register = () => {
                 </div>
             </div>
             <ModalIconChooser showModalIconChooser={showModalIconChooser} handleCloseModalIconChooser={handleCloseModalIconChooser} />
-            <ModalJoinChat showModalJoinChat={showModalJoinChat} handleCloseModalJoinChat={handleJoinChat} />
+            <ModalJoinChat showModalJoinChat={showModalJoinChat} handleCloseModalJoinChat={handleCloseModalJoinChat} />
         </>
     )
 

@@ -15,8 +15,7 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }) => {
 
     const handleCloseModal = (e) => {
         if(e===undefined){
-            handleCloseModalJoinChat(e);
-            return;
+            return handleCloseModalJoinChat(e);
         }
         if (inputValue === '') {
             alert('Debe escribir un link para unirse a una sala!');

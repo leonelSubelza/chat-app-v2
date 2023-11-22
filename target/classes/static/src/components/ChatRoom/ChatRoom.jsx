@@ -7,17 +7,17 @@ mensajes a través del protocolo STOMP (Simple Text Oriented Messaging Protocol)
 import {over} from 'stompjs';
 import './ChatRoom.css';
 
-import menuHamburger from '../../assets/menu-burger.svg'
 
 //Es una librearia de JS. A diferencia de usar la api WebSocket para crear la conexion,
 //Esta sirve para que pueda ser usada en navegadores más viejos.
 import SockJS from 'sockjs-client';
 import {serverURL} from '../../config/chatConfiguration.js';
 import {userContext} from '../../context/UserDataContext.jsx';
-import MembersList from "./MemberList/MembersList.jsx";
 import ChatGeneral from "./Chat/ChatGeneral/ChatGeneral.jsx";
 import ChatPrivate from "./Chat/ChatPrivate/ChatPrivate.jsx";
 import MessageInput from "./MessageInput/MessageInput.jsx";
+import Sidebar from './sidebar/Sidebar.jsx';
+import { isCorrectURL } from '../../utils/InputValidator.js';
 
 const ChatRoom = () => {
     const navigate = useNavigate();
@@ -26,33 +26,26 @@ const ChatRoom = () => {
     const startedConnection = useRef(false);
     const [channelExists,setChannelExists] = useState(false);
 
-    const { userData,setUserData } = useContext(userContext);
+    const { isDataLoading, userData,setUserData } = useContext(userContext);
     const [privateChats, setPrivateChats] = useState(new Map());     
     const [publicChats, setPublicChats] = useState([]); 
     
     const [tab,setTab] =useState("CHATROOM");
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+
 
     const connect =()=>{
-        if(userData.connected){
+        if(userData.connected || isDataLoading){
             return;
         }
-        if(userData.username===''){
+        if(userData.username===''&&localStorage.getItem('username')===null){
             let nombre = prompt("Ingrese un nombre de usuario");
+            localStorage.setItem('username',nombre);
             setUserData({...userData,"username": nombre});
             userData.username=nombre;
         }
 
-        //FALTA PODER CONECTARSE A LA SALA POR URL SIN TENER NOMBRE PUESTO
-        //GUARDAR EN LOCALSTORAGE LOS DATOS PERSISTIBLES DEL USUARIO
         //CREAR CANAL PARA SABER QUIEN ESTA ESCRIBIENDO
-        //
-        /*
-        console.log("el if es valido?: ");
-        console.log("!startedConnection.current: "+!startedConnection.current);
-        console.log(", !userData.connected: "+!userData.connected);
-        console.log(", stompClient===null: ");
-        console.log(stompClient.current===null);
-        */
 
         if( !startedConnection.current 
             //&& userData.username!=='' 
@@ -69,24 +62,45 @@ const ChatRoom = () => {
     const onConnected = () => {
         console.log('se ejecuta oncconected');
         setUserData({...userData,"connected": true});
-        console.log("url actual: ");
-        console.log(location);
+
+        //Esto lo hago porque cuando se conecta por url el context no se llega a cargar
+
+
+        //ARREGLAR ERROR DE QUE EL userData no se carga cuando alguien se conecta por url
+
+
+
+
+
+        let urlSessionIdAux=userData.URLSessionid;
+        let usernameAux= userData.username==='' ? localStorage.getItem('username') : userData.username;
+
+        //caso en el que se conecta copiando la url en el navegador (aca no se puede accedera al userData pq no se carga aún)
         if(userData.URLSessionid===''){
-            let urlSessionIdAux = location.pathname.split(serverURL+'/chatroom/');;
-            console.log("no hay url entonces se toma como contra: "+urlSessionIdAux);
-            setUserData({...userData,"URLSessionid": urlSessionIdAux});
+            const url = window.location+'';
+            if(!isCorrectURL(url)){
+                alert('La garcha que escribiste en nla url esta para el orto');
+                disconnectChat();
+            }
+            const domain = window.location.origin;
+            urlSessionIdAux = url.split(domain+'/chatroom/')[1];
+
+            //let urlSessionIdAux = location.pathname.split(serverURL+'/chatroom/')[1];
+            console.log("id obtenido de la url: ");
+            console.log(urlSessionIdAux);
             if(urlSessionIdAux===''){
                 alert('no se puso ningun id ni en el userdata ni en la url');
                 disconnectChat();
             }
+            setUserData({...userData,"URLSessionid": urlSessionIdAux});
         }
         //primero checkeamos que el canal al que se quiere unir existe
         //o si se quiere crear una sala que ya existe
-        checkIfChannelExists();  
+        checkIfChannelExists(urlSessionIdAux,usernameAux);  
     }
 
-    const checkIfChannelExists = ()=>{
-        stompClient.current.subscribe('/user/'+userData.username+'/exists-channel', (payload)=>{
+    const checkIfChannelExists = (urlSessionIdAux,usernameAux)=>{
+        stompClient.current.subscribe('/user/'+usernameAux+'/exists-channel', (payload)=>{
             var payloadData = JSON.parse(payload.body);
 
             //este caso es raro que pase
@@ -105,9 +119,10 @@ const ChatRoom = () => {
         });
 
         var chatMessage = {
-            senderName: userData.username,
-            urlSessionId:userData.URLSessionid,
+            senderName: usernameAux,
+            urlSessionId:urlSessionIdAux,
         };
+
         stompClient.current.send("/app/check-channel", {}, JSON.stringify(chatMessage))
 
     }
@@ -357,46 +372,22 @@ const ChatRoom = () => {
             return;
         }
         */
-
+        connect();
         if(tab!=="CHATROOM" && privateChats.get(tab)===undefined){
             setTab("CHATROOM")
         }
     })
 
-
-    const [sidebarOpen, setSidebarOpen] = useState(true);
-    const toggleSidebar = () => {
-        setSidebarOpen(!sidebarOpen);
-    };
-
     return (
     <>
-        { channelExists&&startedConnection.current ?
+        { channelExists&&startedConnection.current&&!isDataLoading ?
         <div className="chat-box">
 
-            <div className={`sidebar ${sidebarOpen ? 'close' : ''}`}>
-                <div className="menu-details">
-                    <img className="menu-hamburger" src={menuHamburger} onClick={toggleSidebar} alt="menu" />
-                    <span className="logo_name">Chat-App</span>
-                    <button className="btn-leave" onClick={disconnectChat}>Leave</button>
-                </div>
-
-
-                <MembersList
-                    setTab={setTab}
-                    tab={tab}
-                    privateChats={privateChats}
-                />
-
-
-                <li>
-                    <div className="profile-details">
-                        <img className="profile_img" src='https://cdn-icons-png.flaticon.com/128/666/666201.png' alt="icon"/>
-                        <div className="profile_name">{userData.username}</div>
-                    </div>
-                </li>
-
-            </div>
+            <Sidebar 
+            sidebarOpen={sidebarOpen} 
+            disconnectChat={disconnectChat}
+            handleSideBarOpen={()=>setSidebarOpen(!sidebarOpen)}
+            />
 
             <div className={`chat-text-button ${sidebarOpen ? 'close' : ''}`}>
                 <div className="home-content">
@@ -413,7 +404,6 @@ const ChatRoom = () => {
                     publicChats={publicChats}
                     handleMessage={handleMessage}
                     sendValue={sendValue}
-                    userData={userData}
                 />}
 
                 <MessageInput

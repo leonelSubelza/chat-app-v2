@@ -8,7 +8,7 @@ import { userContext } from './context/UserDataContext';
 function App() {
   const { userData } = useContext(userContext);
   return (
-    <div className='container'>
+    <div className='chatRoom-global'>
     <Router>
         <Routes>
           <Route path="/" element={<Register/>} />
