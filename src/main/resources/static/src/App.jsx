@@ -8,7 +8,6 @@ import { userContext } from './context/UserDataContext';
 function App() {
   const { userData } = useContext(userContext);
   return (
-    <div className='chatRoom-global'>
     <Router>
         <Routes>
           <Route path="/" element={<Register/>} />
@@ -16,24 +15,14 @@ function App() {
           <Route path='*' element={<Register/>} />
         </Routes>
       </Router>
-    </div>
+    
   );
 }
 
 export default App;
 
 /*
-    <UserDataContext>
-      <div>
-        HOLA
-      <Router>
-        <Routes>
-          <Route path="/" element={<Register/>} />
-          <Route path="/chatroom" element={<ChatRoom />} />
-          <Route path="*" element={<Register/>} />
-        </Routes>
-      </Router>
-      </div>
-    </UserDataContext>
+    <div className='chatRoom-global'>
 
+  </div>
 */

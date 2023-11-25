@@ -1,111 +1,101 @@
-import React, { useState,useEffect,useContext,useRef } from 'react'
-import { useNavigate,useLocation  } from 'react-router-dom';
+import React, { useState, useEffect, useContext, useRef } from 'react'
+import { useNavigate } from 'react-router-dom';
 /*
 Stomp es una biblioteca JavaScript que se utiliza para enviar y recibir 
 mensajes a través del protocolo STOMP (Simple Text Oriented Messaging Protocol).
 */
-import {over} from 'stompjs';
+import { over } from 'stompjs';
 import './ChatRoom.css';
 
 
 //Es una librearia de JS. A diferencia de usar la api WebSocket para crear la conexion,
 //Esta sirve para que pueda ser usada en navegadores más viejos.
 import SockJS from 'sockjs-client';
-import {serverURL} from '../../config/chatConfiguration.js';
-import {userContext} from '../../context/UserDataContext.jsx';
+import { serverURL } from '../../config/chatConfiguration.js';
+import { userContext } from '../../context/UserDataContext.jsx';
 import ChatGeneral from "./Chat/ChatGeneral/ChatGeneral.jsx";
 import ChatPrivate from "./Chat/ChatPrivate/ChatPrivate.jsx";
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';
-import { isCorrectURL } from '../../utils/InputValidator.js';
+import { getRoomIdFromURL } from '../../utils/InputValidator.js';
 
 const ChatRoom = () => {
     const navigate = useNavigate();
-    const location = useLocation();
     const stompClient = useRef(null);
-    const startedConnection = useRef(false);
-    const [channelExists,setChannelExists] = useState(false);
+    const [channelExists, setChannelExists] = useState(false);
 
-    const { isDataLoading, userData,setUserData } = useContext(userContext);
+    const { isDataLoading, userData, setUserData, startedConnection, privateChats, setPrivateChats,
+        publicChats, setPublicChats, tab, setTab } = useContext(userContext);
+    /*
     const [privateChats, setPrivateChats] = useState(new Map());     
     const [publicChats, setPublicChats] = useState([]); 
-    
     const [tab,setTab] =useState("CHATROOM");
+
+    */
+
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
 
-    const connect =()=>{
-        if(userData.connected || isDataLoading){
+    const connect = () => {
+        if (userData.connected || isDataLoading) {
             return;
         }
-        if(userData.username===''&&localStorage.getItem('username')===null){
+        if (userData.username === '' && localStorage.getItem('username') === null) {
             let nombre = prompt("Ingrese un nombre de usuario");
-            localStorage.setItem('username',nombre);
-            setUserData({...userData,"username": nombre});
-            userData.username=nombre;
+            localStorage.setItem('username', nombre);
+            userData.username = nombre;
+            setUserData({ ...userData, "username": nombre });
         }
 
         //CREAR CANAL PARA SABER QUIEN ESTA ESCRIBIENDO
 
-        if( !startedConnection.current 
+        if (!startedConnection.current
             //&& userData.username!=='' 
-            && !userData.connected 
-            && (stompClient.current===null)){
+            && !userData.connected
+            && (stompClient.current === null)) {
 
-            startedConnection.current = true;
             let Sock = new SockJS(serverURL);
             stompClient.current = over(Sock);
-            stompClient.current.connect({},onConnected, onError);
+            startedConnection.current = true;
+            stompClient.current.connect({}, onConnected, onError);
         }
     }
 
     const onConnected = () => {
         console.log('se ejecuta oncconected');
-        setUserData({...userData,"connected": true});
+        setUserData({ ...userData, "connected": true });
 
-        //Esto lo hago porque cuando se conecta por url el context no se llega a cargar
+        let urlSessionIdAux = userData.URLSessionid;
 
-
-        //ARREGLAR ERROR DE QUE EL userData no se carga cuando alguien se conecta por url
-
-        let urlSessionIdAux=userData.URLSessionid;
-        //let usernameAux= userData.username==='' ? localStorage.getItem('username') : userData.username;
-
-        //caso en el que se conecta copiando la url en el navegador (aca no se puede accedera al userData pq no se carga aún)
-        if(userData.URLSessionid===''){
-            const url = window.location+'';
-            if(!isCorrectURL(url)){
-                alert('La garcha que escribiste en nla url esta para el orto');
+        //caso en el que se conecta copiando la url en el navegador (aca no se puede acceder al userData pq no se carga el estado aún)
+        //si no se tiene el id de la room se obtiene de la url
+        if (userData.URLSessionid === '') {
+            console.log("se esta conectando por url...");
+            const url = window.location + "";
+            urlSessionIdAux = getRoomIdFromURL(url);
+            console.log("id obtenida: " + urlSessionIdAux);
+            if (urlSessionIdAux === undefined) {
                 disconnectChat();
+                return;
             }
-            const domain = window.location.origin;
-            urlSessionIdAux = url.split(domain+'/chatroom/')[1];
-
-            //let urlSessionIdAux = location.pathname.split(serverURL+'/chatroom/')[1];
-            console.log("id obtenido de la url: ");
-            console.log(urlSessionIdAux);
-            if(urlSessionIdAux===''){
-                alert('no se puso ningun id ni en el userdata ni en la url');
-                disconnectChat();
-            }
-            setUserData({...userData,"URLSessionid": urlSessionIdAux});
+            setUserData({ ...userData, "URLSessionid": urlSessionIdAux });
         }
         //primero checkeamos que el canal al que se quiere unir existe
         //o si se quiere crear una sala que ya existe
-        checkIfChannelExists(urlSessionIdAux);  
+        checkIfChannelExists(urlSessionIdAux);
     }
 
-    const checkIfChannelExists = (urlSessionIdAux)=>{
-        stompClient.current.subscribe('/user/'+userData.username+'/exists-channel', (payload)=>{
+    const checkIfChannelExists = (urlSessionIdAux) => {
+        stompClient.current.subscribe('/user/' + userData.username + '/exists-channel', (payload) => {
             var payloadData = JSON.parse(payload.body);
 
             //este caso es raro que pase
-            if((payloadData.status==='EXISTS' && userData.status==='CREATE')){
+            if ((payloadData.status === 'EXISTS' && userData.status === 'CREATE')) {
                 alert('Se intenta crear una sala con un id que ya existe');
                 disconnectChat();
                 return;
             }
-            if( (payloadData.status==='NOT_EXISTS' && userData.status==='JOIN')){
+            if ((payloadData.status === 'NOT_EXISTS' && userData.status === 'JOIN')) {
                 alert('el canal al que se intenta conectar no existe');
                 disconnectChat();
                 return;
@@ -116,7 +106,7 @@ const ChatRoom = () => {
 
         var chatMessage = {
             senderName: userData.username,
-            urlSessionId:urlSessionIdAux,
+            urlSessionId: urlSessionIdAux,
         };
 
         stompClient.current.send("/app/check-channel", {}, JSON.stringify(chatMessage))
@@ -125,34 +115,35 @@ const ChatRoom = () => {
 
     const subscribeRoomChannels = (urlSessionIdAux) => {
         stompClient.current.subscribe('/chatroom/public', onMessageReceived);
-        stompClient.current.subscribe('/chatroom/'+urlSessionIdAux, onMessageReceived);
-        stompClient.current.subscribe('/user/'+userData.username+"/"+urlSessionIdAux+'/private', onPrivateMessage);
+        stompClient.current.subscribe('/chatroom/' + urlSessionIdAux, onMessageReceived);
+        stompClient.current.subscribe('/user/' + userData.username + "/" + urlSessionIdAux + '/private', onPrivateMessage);
         //escuchamos el canal que nos envía quién se desconectó
         //stompClient.subscribe('/chatroom/disconnected', onUserDisconnected);
         userJoin(urlSessionIdAux);
     }
 
-    const userJoin=(urlSessionIdAux)=>{
+    const userJoin = (urlSessionIdAux) => {
         //Al unirse a la sesion, se envia un msj a todos los usuarios conectados para que les 
         //lleguen los datos mios de q me conecté
-          var chatMessage = {
+        var chatMessage = {
             senderName: userData.username,
-            urlSessionId:urlSessionIdAux,
-            status:userData.status
-          };
-          //Se envia un msj al servidor, el cual se envia a todos los usuarios conectados
-          //stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
-          stompClient.current.send("/app/chat.join", {}, JSON.stringify(chatMessage));
+            urlSessionId: urlSessionIdAux,
+            status: userData.status
+        };
+        //Se envia un msj al servidor, el cual se envia a todos los usuarios conectados
+        //stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
+        stompClient.current.send("/app/chat.join", {}, JSON.stringify(chatMessage));
     }
 
     //llega un msj publico
-    const onMessageReceived = (payload)=>{
+    const onMessageReceived = (payload) => {
         var payloadData = JSON.parse(payload.body);
-        switch(payloadData.status){
+        switch (payloadData.status) {
             case "JOIN":
-                handleJoinUser(payloadData,true);
+                handleJoinUser(payloadData, true);
                 break;
             case "MESSAGE":
+                payloadData.date = convertUTCTimeToLocalTime(getActualDate(payloadData.date));
                 publicChats.push(payloadData);
                 setPublicChats([...publicChats]);
                 break;
@@ -167,13 +158,13 @@ const ChatRoom = () => {
                 break;
         }
     }
-    
-    const onPrivateMessage = (payload)=>{
+
+    const onPrivateMessage = (payload) => {
         var payloadData = JSON.parse(payload.body);
-        switch(payloadData.status){
+        switch (payloadData.status) {
             case "JOIN":
                 //Los usuarios que no conzco me dicen quienes son uwu
-                handleJoinUser(payloadData,false);
+                handleJoinUser(payloadData, false);
                 break;
             case "MESSAGE":
                 //recibo un mensaje de alguien
@@ -185,7 +176,7 @@ const ChatRoom = () => {
     }
 
 
-    const handleJoinUser = (payloadData,resend)=>{
+    const handleJoinUser = (payloadData, resend) => {
         //si recibo yo mismo mi mensaje o info de que me uní me voy
         if (payloadData.senderName === userData.username) {
             return;
@@ -197,11 +188,13 @@ const ChatRoom = () => {
             //cuando un usuario se une nuevo, éste no conoce quienes están unidos, 
             //por lo que le enviamos nuestro perfil para que lo guarde al que se unió (se maneja
             //en private msj)
-            if(resend){
+            if (resend) {
+                //la poronga del urlSessionId no se por qué concha puta no se guarda
+                let roomId = userData.URLSessionid==='' ?payloadData.urlSessionId : userData.URLSessionid;
                 var chatMessage = {
                     senderName: userData.username,
                     receiverName: payloadData.senderName,
-                    urlSessionId:userData.URLSessionid,
+                    urlSessionId: roomId,
                     status: "JOIN"
                 };
                 stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
@@ -209,18 +202,17 @@ const ChatRoom = () => {
         }
     }
 
-    const handlePrivateMessageReceived = (payloadData) =>{
-        if(privateChats.get(payloadData.senderName)){
-            privateChats.get(payloadData.senderName).push(payloadData);
+    const handlePrivateMessageReceived = (payloadData) => {
+        payloadData.date = convertUTCTimeToLocalTime(getActualDate(payloadData.date));
+        if (privateChats.get(payloadData.senderName)) {
+            let msg = privateChats.get(payloadData.senderName).push(payloadData);
             setPrivateChats(new Map(privateChats));
-        }else{
-            let list =[];
+        } else {
+            let list = [];
             list.push(payloadData);
-            privateChats.set(payloadData.senderName,list);
+            privateChats.set(payloadData.senderName, list);
             setPrivateChats(new Map(privateChats));
         }
-        console.log("se recibe msj, horario parseado correctamente: ");
-        convertUTCTimeToLocalTime(getActualDate(payloadData.date));
     }
 
 
@@ -244,8 +236,8 @@ const ChatRoom = () => {
 
 */
     const disconnectChat = () => {
-        userData.connected=false; 
-        if(stompClient.current!==null) {
+        userData.connected = false;
+        if (stompClient.current !== null) {
             stompClient.current.disconnect();
             navigate('/');
         }
@@ -254,76 +246,75 @@ const ChatRoom = () => {
         navigate('/');
     }
 
-/*
-    const unsubscribeChannels = () => {
-        Object.keys(stompClient.subscriptions).forEach((s) => stompClient.unsubscribe(s));
-    }
-*/
+    /*
+        const unsubscribeChannels = () => {
+            Object.keys(stompClient.subscriptions).forEach((s) => stompClient.unsubscribe(s));
+        }
+    */
 
-    const resetValues = () =>{
+    const resetValues = () => {
         setPrivateChats(new Map());
         setPublicChats([]);
         setTab("CHATROOM");
-        setUserData({ ...userData, 
+        setUserData({
+            ...userData,
             "connected": false,
             "receivername": '',
             "message": '',
-            });
+        });
     }
 
     const onError = (err) => {
-        console.log("Error conectando al wb: "+err);
+        console.log("Error conectando al wb: " + err);
         alert(err);
         //se vuelve a la pagina de registro:
         disconnectChat()
-        
+
     }
 
-    const handleMessage =(event)=>{
-        const {value}=event.target;
-        setUserData({...userData,"message": value});
+    const handleMessage = (event) => {
+        const { value } = event.target;
+        setUserData({ ...userData, "message": value });
     }
 
     //Envia msj a todos
-    const sendValue=()=>{
-            if (stompClient.current) {
-              var chatMessage = {
+    const sendValue = () => {
+        if (stompClient.current) {
+            var chatMessage = {
                 senderName: userData.username,
-                date:getActualDate(),
+                date: getActualDate(),
                 message: userData.message,
-                status:"MESSAGE",
-                urlSessionId:userData.URLSessionid
-              };
-              //stompClient.current.send("/app/message", {}, JSON.stringify(chatMessage));
-              //Ahora enviamos un 'msj grupal' solo a los que esten en nuestra sala
-              stompClient.current.send("/app/group-message", {}, JSON.stringify(chatMessage));
-              
-              setUserData({...userData,"message": ""});
-            }
+                status: "MESSAGE",
+                urlSessionId: userData.URLSessionid
+            };
+            //stompClient.current.send("/app/message", {}, JSON.stringify(chatMessage));
+            //Ahora enviamos un 'msj grupal' solo a los que esten en nuestra sala
+            stompClient.current.send("/app/group-message", {}, JSON.stringify(chatMessage));
+
+            setUserData({ ...userData, "message": "" });
+        }
     }
 
-    const sendPrivateValue=()=>{
+    const sendPrivateValue = () => {
         if (stompClient.current) {
-          var chatMessage = {
-            senderName: userData.username,
-            receiverName:tab,
-            date:getActualDate(),
-            message: userData.message,
-            status:"MESSAGE",
-            urlSessionId:userData.URLSessionid
-          };
-        //si se envia un msj a alguien que no sea yo mismo
-          if(userData.username !== tab){
-            //se guarda el msj enviado en el map de los msj privados. Si se enviara un msj a mi mismo entonces el map guardará el 
-            //msj escrito cuando se reciba por parte del servidor. Si envío un msj a alguien distinto a mi mismo entonces el método
-            //on onPrivateMessage se ejecutará en la compu del que recibe el msj no en la mia.
-            privateChats.get(tab).push(chatMessage);
-            setPrivateChats(new Map(privateChats));
-          }
-          console.log("se envía msj, horario parseado correctamente: ");
-          convertUTCTimeToLocalTime(getActualDate());
-          stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
-          setUserData({...userData,"message": ""});
+            var chatMessage = {
+                senderName: userData.username,
+                receiverName: tab,
+                date: getActualDate(),
+                message: userData.message,
+                status: "MESSAGE",
+                urlSessionId: userData.URLSessionid
+            };
+            //si se envia un msj a alguien que no sea yo mismo
+            if (userData.username !== tab) {
+                //se guarda el msj enviado en el map de los msj privados. Si se enviara un msj a mi mismo entonces el map guardará el 
+                //msj escrito cuando se reciba por parte del servidor. Si envío un msj a alguien distinto a mi mismo entonces el método
+                //on onPrivateMessage se ejecutará en la compu del que recibe el msj no en la mia.
+                privateChats.get(tab).push(chatMessage);
+                setPrivateChats(new Map(privateChats));
+            }
+            stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
+            setUserData({ ...userData, "message": "" });
         }
     }
 
@@ -345,19 +336,12 @@ const ChatRoom = () => {
         return formatoUTC;
     }
 
-    const convertUTCTimeToLocalTime = (UTCFormat)=>{
+    const convertUTCTimeToLocalTime = (UTCFormat) => {
         var fechaUTC = new Date(UTCFormat);
         var opciones = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
         var fechaHoraLocal = fechaUTC.toLocaleString(undefined, opciones);
-        console.log("Fecha y hora en zona horaria local2: " + fechaHoraLocal);
+        return fechaHoraLocal;
     }
-
-    
-
-    useEffect(() => {
-        //se ejecuta solo cuando se monta el componente una vez
-        connect();
-    },[])
 
     useEffect(() => {
         //se ejecuta por cada renderizado
@@ -369,49 +353,49 @@ const ChatRoom = () => {
         }
         */
         connect();
-        if(tab!=="CHATROOM" && privateChats.get(tab)===undefined){
+        if (tab !== "CHATROOM" && privateChats.get(tab) === undefined) {
             setTab("CHATROOM")
         }
     })
 
     return (
-    <>
-        { channelExists&&startedConnection.current&&!isDataLoading ?
-        <div className="chat-box">
+        <>
+            {channelExists && startedConnection.current && !isDataLoading ?
+                <div className='chatRoom-global'>
+                    <Sidebar
+                        sidebarOpen={sidebarOpen}
+                        disconnectChat={disconnectChat}
+                        handleSideBarOpen={() => setSidebarOpen(!sidebarOpen)}
+                    />
+                    <div className={`chat-box ${sidebarOpen ? 'close' : ''}`}>
+                        {/*<div className={`chat-text-button ${sidebarOpen ? 'close' : ''}`}>*/}
+                            <div className="home-content">
+                                <span className="text">CHAT GENERAL</span>
+                            </div>
 
-            <Sidebar 
-            sidebarOpen={sidebarOpen} 
-            disconnectChat={disconnectChat}
-            handleSideBarOpen={()=>setSidebarOpen(!sidebarOpen)}
-            />
+                            {tab !== "CHATROOM" ? <ChatPrivate
+                                privateChats={privateChats}
+                                tab={tab}
+                                sendPrivateValue={sendPrivateValue}
+                                userData={userData}
+                                handleMessage={handleMessage}
+                            /> : <ChatGeneral
+                                publicChats={publicChats}
+                                handleMessage={handleMessage}
+                                sendValue={sendValue}
+                            />}
 
-            <div className={`chat-text-button ${sidebarOpen ? 'close' : ''}`}>
-                <div className="home-content">
-                    <span className="text">CHAT GENERAL</span>
-                </div>
+                            <MessageInput
+                                value={userData.message}
+                                onChange={handleMessage}
+                                onSend={tab === 'CHATROOM' ? sendValue : sendPrivateValue}
+                                tab={tab}
+                            />
+                        {/*</div>*/}
 
-                {tab!=="CHATROOM" ? <ChatPrivate
-                    privateChats={privateChats}
-                    tab={tab}
-                    sendPrivateValue={sendPrivateValue}
-                    userData={userData}
-                    handleMessage={handleMessage}
-                /> :<ChatGeneral
-                    publicChats={publicChats}
-                    handleMessage={handleMessage}
-                    sendValue={sendValue}
-                />}
-
-                <MessageInput
-                    value={userData.message}
-                    onChange={handleMessage}
-                    onSend={tab === 'CHATROOM' ? sendValue : sendPrivateValue}
-                    tab={tab}
-                />
-            </div>
-
-        </div>:<div>Cargando...</div>}
-    </>
+                    </div>
+                </div> : <div>Cargando...</div>}
+        </>
     )
 }
 

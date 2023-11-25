@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState,useRef } from 'react'
 import { imageLinks } from '../services/avatarsLinks.js';
 
 export const userContext = React.createContext();
 
 export function UserDataContext({ children }) {
   const [isDataLoading, setIsDataLoading] = useState(true);
+  const startedConnection = useRef(false);
+  const [channelExists,setChannelExists] = useState(false);
 
   const [userData, setUserData] = useState({
     username: '',
@@ -17,11 +19,9 @@ export function UserDataContext({ children }) {
     avatarImg: ''
   });
 
-  const [chatroomData, setChatroomData] = useState({
-    privateChats: new Map(),
-    publicChats: [],
-    tab: 'CHATROOM'
-  })
+  const [privateChats, setPrivateChats] = useState(new Map());     
+  const [publicChats, setPublicChats] = useState([]); 
+  const [tab,setTab] =useState("CHATROOM");
 
   const [messageData, setMessageData] = useState({
     receivername: '',
@@ -45,7 +45,7 @@ export function UserDataContext({ children }) {
     } else {
       username = localStorage.getItem('username');
     }
-    localStorage.setItem('connected', false);
+    //localStorage.setItem('connected', false);
     setUserData({ ...userData, "avatarImg": urlImg, "username": username });
     setIsDataLoading(false);
   }
@@ -57,10 +57,14 @@ export function UserDataContext({ children }) {
   return (
     <userContext.Provider
       value={{
+        startedConnection,
+        channelExists,setChannelExists,
         isDataLoading, setIsDataLoading,
         userData, setUserData,
-        chatroomData, setChatroomData,
-        messageData, setMessageData
+        privateChats, setPrivateChats,
+        publicChats, setPublicChats,
+        messageData, setMessageData,
+        tab,setTab
       }}
     >
       {children}

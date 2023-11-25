@@ -2,6 +2,8 @@ import React,{useContext,useEffect} from 'react';
 import MembersList from './MemberList/MembersList.jsx';
 import { userContext } from '../../../context/UserDataContext';
 import menuHamburger from '../../../assets/menu-burger.svg';
+import './Sidebar.css';
+
 
 const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
 
@@ -22,12 +24,12 @@ const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
             </div>
 
             <MembersList/>
-            <li>
+            <div className='sidebar-user-info-container'>
                 <div className="profile-details">
                     <img className="profile_img" src={`${userData.avatarImg}`} alt="icon" />
                     <div className="profile_name">{userData.username}</div>
                 </div>
-            </li>
+            </div>
 
         </div>
     );

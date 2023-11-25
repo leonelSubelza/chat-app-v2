@@ -1,6 +1,33 @@
+.sidebar-nav-links-container{
+    height: 70%;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-nav-links {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    margin-bottom: 0;
+    padding-left: 0;
+    /*margin: 20px auto;*/
+}
+
 .member{
+    display: flex;
 
 }
+
+.member-item{
+    margin:auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    /*margin:auto auto auto 10px;*/
+    width: 100%;
+}
+
 .member.active{
     background: #4E4F5B;
     color:#fff;
@@ -12,43 +39,40 @@
     color:#fff;
 }
 
-.sidebar .nav-links {
-    height: 100%;
-    overflow: auto;
-    margin: 20px auto;
-}
 
-.sidebar.close .nav-links {
+
+.sidebar.close .sidebar-nav-links {
     overflow: visible;
 }
 
-.sidebar .nav-links::-webkit-scrollbar {
+.sidebar-nav-links::-webkit-scrollbar {
     display: none;
 }
 
-.sidebar .nav-links li {
+.sidebar-nav-links li {
     position: relative;
     list-style: none;
     transition: all 0.4s ease;
 }
 
-.sidebar .nav-links li:hover {
+.sidebar-nav-links li:hover {
     background: #1d1b31;
 }
 
-.sidebar .nav-links li .iocn-link {
+.sidebar-nav-links li .iocn-link {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.sidebar .nav-links li{
+.sidebar-nav-links li{
     margin-bottom: 20px;
 }
 
-.sidebar .nav-links li img {
+.profile_img {
     height: 50px;
     min-width: 50px;
+    width: auto;
     text-align: center;
     line-height: 50px;
     color: #fff;
@@ -57,27 +81,22 @@
     transition: all 0.3s ease;
     border-radius: 50%;
     background-color: #58596f;
-
+    margin:auto
 }
 
-.sidebar .nav-links li a {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
+.link_name{
+    /*margin-left: 10px;*/
+    width: 70%;
 }
 
-.sidebar .nav-links li a .link_name {
+.member-item .link_name {
     font-size: 18px;
     font-weight: 400;
     color: #fff;
     transition: all 0.4s ease;
 }
 
-.sidebar.close .nav-links li a .profile_img{
-
-}
-
-.sidebar.close .nav-links li a .link_name {
+.sidebar.close .member-item .link_name {
     opacity: 0;
     pointer-events: none;
     display: none;
@@ -113,10 +132,10 @@
 }
 
 .separator-sidebar {
-    width: 65%;
+    width: 90%;
     height: 1px;
     border: 1px solid #dee2e6;
     background-color: #dee2e6;
     margin: auto;
-    margin-right: 15px;
+    /*margin-right: 15px;*/
 }

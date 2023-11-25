@@ -4,12 +4,12 @@ import { userContext } from '../../../../context/UserDataContext';
 
 const MembersList = () => {
 
-    const { chatroomData,setChatroomData } = useContext(userContext);
+    const { tab,setTab,privateChats,publicChats } = useContext(userContext);
 
     return (
         <>
             <ul className="nav-links">
-                <li onClick={() => setTab("CHATROOM")} className={`member ${chatroomData.tab === "CHATROOM" && "active"} `}>
+                <li onClick={() => setTab("CHATROOM")} className={`member ${tab === "CHATROOM" && "active"} `}>
                     <a href="#">
                         <img className="profile_img" src='https://cdn-icons-png.flaticon.com/128/666/666201.png' alt="icon" />
                         <span className="link_name">CHAT GENERAL</span>
@@ -21,8 +21,8 @@ const MembersList = () => {
                     <div className="separator-sidebar"></div>
                 </div>
 
-                {chatroomData.privateChats.size > 0 && [...chatroomData.privateChats.keys()].map((name, index) => (
-                    <li onClick={() => { setTab(name) }} className={`member ${chatroomData.tab === name && "active"}`} key={index}>
+                {privateChats.size > 0 && [...privateChats.keys()].map((name, index) => (
+                    <li onClick={() => { setTab(name) }} className={`member ${tab === name && "active"}`} key={index}>
                         <a href="#">
                             <img className="profile_img" src='https://cdn-icons-png.flaticon.com/128/666/666201.png' alt="icon" />
                             <span className="link_name">{name}</span>
