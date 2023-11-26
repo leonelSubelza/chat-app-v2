@@ -8,10 +8,11 @@ import ModalJoinChat from './modals/join-chat/ModalJoinChat.jsx';
 //import '../index.css'
 import './Register.css'
 import { useEffect } from 'react';
+import { disconnectChat } from '../ChatRoom/ChatRoomFunctions.js';
 
 const Register = () => {
     const navigate = useNavigate();
-    const { userData, setUserData } = useContext(userContext);
+    const { userData, setUserData,stompClient } = useContext(userContext);
 
 
     //MOdal icon chooser
@@ -77,6 +78,12 @@ const Register = () => {
         localStorage.setItem('username', userData.username);
         navigate(`/chatroom/${urlRoom}`);
     }
+
+    useEffect(()=>{
+        //si se hace <- desde el navegador, se cierra la conexion cuando se carga este componente :(
+        console.log("se ejecuta useeffect de Register");
+        disconnectChat();
+    },[])
 
     return (
         <>

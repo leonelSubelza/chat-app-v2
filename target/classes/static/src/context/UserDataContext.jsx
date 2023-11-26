@@ -1,12 +1,25 @@
-import React, { useEffect, useState,useRef } from 'react'
+import React, { useEffect, useState,useRef,useContext } from 'react'
 import { imageLinks } from '../services/avatarsLinks.js';
 
 export const userContext = React.createContext();
 
+export function useUserDataContext (){
+  return useContext(userContext);
+}
+
 export function UserDataContext({ children }) {
+
+  //flag que hace que se espere hasta que este componente se termine de cargar
   const [isDataLoading, setIsDataLoading] = useState(true);
+
+  //flag para que no ejecute el método connect() más de una vez
   const startedConnection = useRef(false);
+
+  //verifica que la room a la que se quiere conectar existe
   const [channelExists,setChannelExists] = useState(false);
+
+  //OBJ que contiene la conexion con el ws
+  const stompClient = useRef(null);
 
   const [userData, setUserData] = useState({
     username: '',
@@ -45,7 +58,7 @@ export function UserDataContext({ children }) {
     } else {
       username = localStorage.getItem('username');
     }
-    localStorage.setItem('connected', false);
+    //localStorage.setItem('connected', false);
     setUserData({ ...userData, "avatarImg": urlImg, "username": username });
     setIsDataLoading(false);
   }
@@ -64,7 +77,8 @@ export function UserDataContext({ children }) {
         privateChats, setPrivateChats,
         publicChats, setPublicChats,
         messageData, setMessageData,
-        tab,setTab
+        tab,setTab,
+        stompClient
       }}
     >
       {children}

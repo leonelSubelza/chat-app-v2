@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate  } from 'react-router-dom';
+
 /*
 Stomp es una biblioteca JavaScript que se utiliza para enviar y recibir 
 mensajes a través del protocolo STOMP (Simple Text Oriented Messaging Protocol).
@@ -12,20 +13,22 @@ import './ChatRoom.css';
 //Esta sirve para que pueda ser usada en navegadores más viejos.
 import SockJS from 'sockjs-client';
 import { serverURL } from '../../config/chatConfiguration.js';
-import { userContext } from '../../context/UserDataContext.jsx';
+import { useUserDataContext, userContext } from '../../context/UserDataContext.jsx';
 import ChatGeneral from "./Chat/ChatGeneral/ChatGeneral.jsx";
 import ChatPrivate from "./Chat/ChatPrivate/ChatPrivate.jsx";
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';
 import { getRoomIdFromURL } from '../../utils/InputValidator.js';
+import { getActualDate,convertUTCTimeToLocalTime } from '../../utils/MessageDateConvertor.js';
+import { disconnectChat } from './ChatRoomFunctions.js';
 
 const ChatRoom = () => {
     const navigate = useNavigate();
-    const stompClient = useRef(null);
-    const [channelExists, setChannelExists] = useState(false);
 
     const { isDataLoading, userData, setUserData, startedConnection, privateChats, setPrivateChats,
-        publicChats, setPublicChats, tab, setTab } = useContext(userContext);
+        publicChats, setPublicChats, tab, setTab,stompClient,channelExists, setChannelExists } = useContext(userContext);
+
+    const userContextObj = useUserDataContext();
     /*
     const [privateChats, setPrivateChats] = useState(new Map());     
     const [publicChats, setPublicChats] = useState([]); 
@@ -75,7 +78,8 @@ const ChatRoom = () => {
             urlSessionIdAux = getRoomIdFromURL(url);
             console.log("id obtenida: " + urlSessionIdAux);
             if (urlSessionIdAux === undefined) {
-                disconnectChat();
+                disconnectChat(userContextObj);
+                navigate("/");
                 return;
             }
             setUserData({ ...userData, "URLSessionid": urlSessionIdAux });
@@ -92,12 +96,12 @@ const ChatRoom = () => {
             //este caso es raro que pase
             if ((payloadData.status === 'EXISTS' && userData.status === 'CREATE')) {
                 alert('Se intenta crear una sala con un id que ya existe');
-                disconnectChat();
+                disconnectChat(userContextObj);
                 return;
             }
             if ((payloadData.status === 'NOT_EXISTS' && userData.status === 'JOIN')) {
                 alert('el canal al que se intenta conectar no existe');
-                disconnectChat();
+                disconnectChat(userContextObj);
                 return;
             }
             setChannelExists(true);
@@ -108,9 +112,7 @@ const ChatRoom = () => {
             senderName: userData.username,
             urlSessionId: urlSessionIdAux,
         };
-
         stompClient.current.send("/app/check-channel", {}, JSON.stringify(chatMessage))
-
     }
 
     const subscribeRoomChannels = (urlSessionIdAux) => {
@@ -152,7 +154,7 @@ const ChatRoom = () => {
                 break;
             case "ERROR":
                 alert('Error conectando al chat. Nose que pudo haber sido, se enviaron mal los datos xD');
-                disconnectChat()
+                disconnectChat(userContextObj)
                 break;
             default:
                 break;
@@ -174,7 +176,6 @@ const ChatRoom = () => {
                 break;
         }
     }
-
 
     const handleJoinUser = (payloadData, resend) => {
         //si recibo yo mismo mi mensaje o info de que me uní me voy
@@ -215,61 +216,17 @@ const ChatRoom = () => {
         }
     }
 
-
     const handleUserLeave = (payloadData) => {
         privateChats.delete(payloadData.senderName);
         setPrivateChats(new Map(privateChats));
-    }
-
-    /*
-    Ahora cuando un usuario se desconecta el servidor maneja el evento y envia un msj global para
-    que todos sepan quien fue y se maneja acá en handleMessegeReceived
-    const onUserDisconnected = (payload) => {
-        //borrar de la lista de chats al que se desconectó
-        var payloadData = JSON.parse(payload.body);
-        console.log("se recibe msj de que alguien se desconectó: "+payloadData.senderName);
-        privateChats.delete(payloadData.senderName);
-        setPrivateChats(new Map(privateChats));
-    }
-
-
-
-*/
-    const disconnectChat = () => {
-        userData.connected = false;
-        if (stompClient.current !== null) {
-            stompClient.current.disconnect();
-            navigate('/');
-        }
-        //setStompClient(null);
-        resetValues();
-        navigate('/');
-    }
-
-    /*
-        const unsubscribeChannels = () => {
-            Object.keys(stompClient.subscriptions).forEach((s) => stompClient.unsubscribe(s));
-        }
-    */
-
-    const resetValues = () => {
-        setPrivateChats(new Map());
-        setPublicChats([]);
-        setTab("CHATROOM");
-        setUserData({
-            ...userData,
-            "connected": false,
-            "receivername": '',
-            "message": '',
-        });
     }
 
     const onError = (err) => {
         console.log("Error conectando al wb: " + err);
         alert(err);
         //se vuelve a la pagina de registro:
-        disconnectChat()
-
+        disconnectChat(userContextObj)
+        navigate('/')
     }
 
     const handleMessage = (event) => {
@@ -318,45 +275,32 @@ const ChatRoom = () => {
         }
     }
 
-    /*
-    const registerUser = (data) =>{
-        stompClient=null;
-        userData.username=data.username;        
-        const {name}=data.username;
-        setUserData({...userData,"username": name});
-        connect(data)
-    }
-    */
-
-    const getActualDate = () => {
-        var fechaHoraActual = new Date();
-        //este formate es universal, por lo que si la otra persona esta en otra region se debe convertir a su
-        //zona respectiva
-        var formatoUTC = fechaHoraActual.toISOString();
-        return formatoUTC;
-    }
-
-    const convertUTCTimeToLocalTime = (UTCFormat) => {
-        var fechaUTC = new Date(UTCFormat);
-        var opciones = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-        var fechaHoraLocal = fechaUTC.toLocaleString(undefined, opciones);
-        return fechaHoraLocal;
+    const handleDisconnectChat = () => {
+        disconnectChat(userContextObj);
+        navigate('/');
     }
 
     useEffect(() => {
         //se ejecuta por cada renderizado
-        /*
-        if(!userData.connected && userData.username === ''){
-            disconnectChat()
-            navigate('/');
-            return;
-        }
-        */
         connect();
         if (tab !== "CHATROOM" && privateChats.get(tab) === undefined) {
             setTab("CHATROOM")
         }
     })
+
+    useEffect(() => {
+        /*
+        const handleOnBeforeUnload = ((e) => {
+            e.preventDefault();
+            alert('user is leaving the page');
+            return '';
+        });
+        window.addEventListener('beforeunload',handleOnBeforeUnload);
+        return () => {
+            window.removeEventListener('beforeunload',handleOnBeforeUnload);
+        };
+        */
+      }, []);
 
     return (
         <>
@@ -364,7 +308,7 @@ const ChatRoom = () => {
                 <div className='chatRoom-global'>
                     <Sidebar
                         sidebarOpen={sidebarOpen}
-                        disconnectChat={disconnectChat}
+                        disconnectChat={handleDisconnectChat}
                         handleSideBarOpen={() => setSidebarOpen(!sidebarOpen)}
                     />
                     <div className={`chat-box ${sidebarOpen ? 'close' : ''}`}>
@@ -391,8 +335,6 @@ const ChatRoom = () => {
                                 onSend={tab === 'CHATROOM' ? sendValue : sendPrivateValue}
                                 tab={tab}
                             />
-                        {/*</div>*/}
-
                     </div>
                 </div> : <div>Cargando...</div>}
         </>

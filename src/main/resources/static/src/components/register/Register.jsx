@@ -1,18 +1,19 @@
 import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 
-import { userContext } from '../../context/UserDataContext';
+import { useUserDataContext, userContext } from '../../context/UserDataContext';
 import ModalIconChooser from './modals/item-chooser/ModalIconChooser.jsx';
 import ModalJoinChat from './modals/join-chat/ModalJoinChat.jsx';
 
 //import '../index.css'
 import './Register.css'
 import { useEffect } from 'react';
+import { disconnectChat } from '../ChatRoom/ChatRoomFunctions.js';
 
 const Register = () => {
     const navigate = useNavigate();
-    const { userData, setUserData } = useContext(userContext);
-
+    const { userData, setUserData, stompClient } = useContext(userContext);
+    const userContextObj = useUserDataContext();
 
     //MOdal icon chooser
     const [showModalIconChooser, setShowModalIconChooser] = useState(false);
@@ -30,7 +31,7 @@ const Register = () => {
 
     const handleShowModalJoinChat = (e) => {
         e.preventDefault();
-        if(userData.username===''){
+        if (userData.username === '') {
             alert('Se debe poner un nombre de usuario!');
             return;
         }
@@ -43,40 +44,35 @@ const Register = () => {
     }
 
     //esta funcion solo se ejecuta si cerras el modal, la conexion se realiza en ModalJoinChat
-    const handleCloseModalJoinChat = (e,urlRoom) => {
+    const handleCloseModalJoinChat = (e, urlRoom) => {
         if (e === undefined) {
             //se hizo click en la x del modal (no hay evento creo)
             setShowModalJoinChat(false);
             return;
         }
         e.preventDefault();
-        /*
-        if (userData.username === '' || urlRoom === '') {
-            alert('se debe poner la clave de una sala')
-            return;
-        }
-        localStorage.setItem('username', userData.username);
-
-        //borrar luego se debería generar un ID facha
-        let urlSessionIdAux;
-        setUserData({ ...userData, "URLSessionid": '1234' });
-        urlSessionIdAux = '1234';
-        navigate(`/chatroom/${urlSessionIdAux}`);
-        */
     }
 
     const handleCreateRoom = (e) => {
         e.preventDefault();
-        if (userData.username==='') {
+        if (userData.username === '') {
             alert('se debe poner un nombre de usuario');
             return;
         }
         //se debería crear un id
         let urlRoom = '1234'
-        setUserData({ ...userData, "status": 'CREATE',"URLSessionid": urlRoom });
+        setUserData({ ...userData, "status": 'CREATE', "URLSessionid": urlRoom });
         localStorage.setItem('username', userData.username);
         navigate(`/chatroom/${urlRoom}`);
     }
+
+    useEffect(() => {
+        //si se hace <- desde el navegador se cierra la conexion cuando se carga este componente pq no 
+        //puedo capturar el evento cuando se hace para atrás en chatroom :(
+        if (stompClient.current !== null) {
+            disconnectChat(userContextObj);
+        }
+    }, [])
 
     return (
         <>
