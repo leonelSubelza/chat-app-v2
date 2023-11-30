@@ -59,7 +59,7 @@ public class ChatController {
         // "/private" como destino y el propio objeto message como mensaje.
         //simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(),"/"+message.getReceiverName()+"/"+message.getUrlSessionId()+"/private",message);
         simpMessagingTemplate.convertAndSend(
-                "/user/"+message.getReceiverName()+"/"+message.getUrlSessionId()+"/private",message);
+                "/user/"+message.getReceiverId()+"/"+message.getUrlSessionId()+"/private",message);
         //El cliente para conectarse deberá establecer una URL de tipo /user/David/private
         //System.out.println("se envia mensaje privado a "+"/user/"+message.getReceiverName()+"/"+message.getUrlSessionId()+"/private");
         //'/user/'+userData.username+"/"+userData.URLSessionid+'/private'
@@ -88,9 +88,9 @@ public class ChatController {
     @MessageMapping("/chat.join")
     //@SendTo("/chatroom/{urlSessionId}")
     public Message userJoin(@Payload Message message, SimpMessageHeaderAccessor headerAccessor){
-        boolean userJoinCorrect = this.chatService.handleUserJoin(message,headerAccessor);
+        User userJoinCorrect = this.chatService.handleUserJoin(message,headerAccessor);
         //si hubo un error intentando conectar
-        if(!userJoinCorrect){
+        if(userJoinCorrect == null){
             message.setStatus(Status.ERROR);
         }
         simpMessagingTemplate.convertAndSend("/chatroom/"+message.getUrlSessionId(),message);
@@ -106,6 +106,6 @@ public class ChatController {
         }else {
             message.setStatus(Status.NOT_EXISTS);
         }
-        simpMessagingTemplate.convertAndSendToUser(message.getSenderName(),"/exists-channel",message);
+        simpMessagingTemplate.convertAndSendToUser(message.getSenderId(),"/exists-channel",message);
     }
 }

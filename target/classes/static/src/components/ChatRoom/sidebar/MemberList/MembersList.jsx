@@ -23,14 +23,23 @@ const MembersList = () => {
 
                 {privateChats.size > 0 && [...privateChats.keys()].map((name, index) => (
                     <li onClick={() => { setTab(name) }} className={`member ${tab === name && "active"}`} key={index}>
-                        <div className='member-item'>
-                            <img className="profile_img" src='https://cdn-icons-png.flaticon.com/128/666/666201.png' alt="icon" />
-                            <span className="link_name">{name}</span>
-                        </div>
-                    </li>
+                    <div className='member-item'>
+                        <img className="profile_img" src={`${name.avatarImg}`} alt="icon" />
+                        <span className="link_name">{name.username}</span>
+                    </div>
+                </li>
                 ))}
             </ul>
         </div>
     )
 }
 export default MembersList;
+
+/*
+                    <li onClick={() => { setTab(name) }} className={`member ${tab === name && "active"}`} key={index}>
+                        <div className='member-item'>
+                            <img className="profile_img" src={`${name[0].avatarImg}`} alt="icon" />
+                            <span className="link_name">{name}</span>
+                        </div>
+                    </li>
+*/

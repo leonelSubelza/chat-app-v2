@@ -16,7 +16,7 @@ const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
     };
 
     return (
-        <div className={`sidebar ${sidebarOpen ? 'close' : ''}`}>
+        <div className={`sidebar ${sidebarOpen ? '' : 'close'}`}>
             <div className="menu-details">
                 <img className="menu-hamburger" src={menuHamburger} onClick={toggleSidebar} alt="menu" />
                 <span className="logo_name">Chat-App</span>

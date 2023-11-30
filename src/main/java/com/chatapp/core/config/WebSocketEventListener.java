@@ -39,8 +39,11 @@ public class WebSocketEventListener {
         if(user!=null){
             log.info("User disconnected!:{}",user.getUsername());
             Message chatMessage = Message.builder()
-                    .status(Status.LEAVE)
+                    .senderId(user.getId())
                     .senderName(user.getUsername())
+                    //faltaria agregar la fecha en formato universal UTC
+                    .status(Status.LEAVE)
+                    .urlSessionId(user.getRoomId())
                     .build();
             WebSocketSessionHandler.removeSession(user.getUsername());
             log.info("number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
@@ -54,7 +57,7 @@ public class WebSocketEventListener {
                 log.warn("SE INTENTO BORRAR UN USUARIO DE UNA ROOM INEXISTENTE");
                 return;
             }
-            if(userRoom.getUsers().size() == 0){
+            if(userRoom.getUsers().isEmpty()){
                 WebSocketRoomHandler.removeRoom(userRoom);
                 log.info("Room with id:{} deleted, number of rooms actives: {}",
                         userRoom.getId(),WebSocketSessionHandler.getActiveSessionsCount());

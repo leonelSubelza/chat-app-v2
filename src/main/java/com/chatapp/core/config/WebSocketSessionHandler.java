@@ -33,4 +33,10 @@ public class WebSocketSessionHandler {
         Optional<User> user = activeSessions.stream().filter(u -> u.getUsername().equals(username)).findFirst();
         return user.orElse(null);
     }
+
+    public static User existsUser(String id){
+        return WebSocketSessionHandler.activeSessions.stream().filter(user -> user.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
 }

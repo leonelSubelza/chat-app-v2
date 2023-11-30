@@ -1,16 +1,22 @@
 import React, { useContext } from 'react'
 import './Chat.css';
-import { userContext } from '../../../context/UserDataContext';
 
-const Chat = ({chat,index}) => {
-    const { userData,setUserData } = useContext(userContext);
+const Chat = ({chat,userData,index}) => {
 
     return (
         <>
-            <li className={`message ${chat.senderName === userData.username && "self"}`} key={index}>
-                {chat.senderName !== userData.username && <div className="avatar">{chat.senderName}</div>}
-                <div className="message-data">{chat.message}</div>
-                {chat.senderName === userData.username && <div className="avatar self"><img className="avatar-img-chat" src={userData.avatarImg}/></div>}
+            <li className={`message ${chat.id === userData.userId && "self"}`} key={index}>
+                {chat.id !== userData.userId && 
+                <div className="avatar">
+                    <img className="avatar-img-chat" src={userData.avatarImg}/>
+                </div>}
+                <div className="message-data">
+                    {chat.message}
+                </div>
+                {chat.id === userData.userId && 
+                <div className="avatar self">
+                    <img className="avatar-img-chat" src={userData.avatarImg}/>
+                </div>}
             </li>
         </>
     )

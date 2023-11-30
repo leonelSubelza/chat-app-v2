@@ -16,24 +16,30 @@ import java.util.HashSet;
 @Slf4j
 public class ChatService {
 
-    public boolean handleUserJoin(Message message, SimpMessageHeaderAccessor headerAccessor){
+    public User handleUserJoin(Message message, SimpMessageHeaderAccessor headerAccessor){
         String id = headerAccessor.getSessionId();
-        User newUser = createUser(id,message);
+        //Aca no se si guardar el id de la session de spring o el del frontend
+        User newUser = createUser(message);
         Room room = WebSocketRoomHandler.activeRooms.get(message.getUrlSessionId());
+        //Si el id generado en el front ya existia
+        if(WebSocketSessionHandler.existsUser(newUser.getId()) != null){
+            log.error("The User with the id:{} already exists!",message.getSenderId());
+            return null;
+        }
         if(message.getStatus().equals(Status.CREATE)){
             if(room==null){
                 room = createNewRoom(newUser);
                 saveRoom(room);
             }else{
                 log.error("The Room with the key:{} already exists!",newUser.getRoomId());
-                return false;
+                return null;
             }
         }
         if(message.getStatus().equals(Status.JOIN)){
             //si el usuario se quiere unir a una ruoom que no eixte todo mal
             if(room==null){
                 log.error("Trying to connect a Room with the key:{} that doesn't exists!",newUser.getRoomId());
-                return false;
+                return null;
             }else{
                 WebSocketRoomHandler.activeRooms.get(message.getUrlSessionId()).getUsers().add(newUser);
                 log.info("User added to room!:{}",room.getId());
@@ -41,7 +47,7 @@ public class ChatService {
             }
         }
         saveUser(newUser,headerAccessor);
-        return true;
+        return newUser;
     }
 
     public void saveUser(User user,SimpMessageHeaderAccessor headerAccessor){
@@ -65,9 +71,9 @@ public class ChatService {
         return newRoom;
     }
 
-    public User createUser(String id, Message message){
+    public User createUser(Message message){
         return User.builder()
-                .id(id)
+                .id(message.getSenderId())
                 .username(message.getSenderName())
                 .roomId(message.getUrlSessionId())
                 .build();

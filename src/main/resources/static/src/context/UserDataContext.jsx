@@ -1,5 +1,6 @@
 import React, { useEffect, useState,useRef,useContext } from 'react'
 import { imageLinks } from '../services/avatarsLinks.js';
+import { generateUserId } from '../utils/IdGenerator.js';
 
 export const userContext = React.createContext();
 
@@ -22,6 +23,7 @@ export function UserDataContext({ children }) {
   const stompClient = useRef(null);
 
   const [userData, setUserData] = useState({
+    userId:'',
     username: '',
     connected: false,
     receivername: '',
@@ -59,7 +61,9 @@ export function UserDataContext({ children }) {
       username = localStorage.getItem('username');
     }
     //localStorage.setItem('connected', false);
-    setUserData({ ...userData, "avatarImg": urlImg, "username": username });
+    let idGeneradooo = generateUserId();
+    setUserData({ ...userData, "userId":idGeneradooo, "avatarImg": urlImg, "username": username });
+    console.log("idGenrado para el usuario mio o sea yo: "+idGeneradooo);
     setIsDataLoading(false);
   }
 
