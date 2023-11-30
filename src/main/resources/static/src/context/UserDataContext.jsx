@@ -36,7 +36,7 @@ export function UserDataContext({ children }) {
 
   const [privateChats, setPrivateChats] = useState(new Map());     
   const [publicChats, setPublicChats] = useState([]); 
-  const [tab,setTab] =useState("CHATROOM");
+  const [tab,setTab] =useState("CHATROOM");//tab es o 'CHATROOM' o un obj chatUser
 
   const [messageData, setMessageData] = useState({
     receivername: '',
@@ -63,7 +63,6 @@ export function UserDataContext({ children }) {
     //localStorage.setItem('connected', false);
     let idGeneradooo = generateUserId();
     setUserData({ ...userData, "userId":idGeneradooo, "avatarImg": urlImg, "username": username });
-    console.log("idGenrado para el usuario mio o sea yo: "+idGeneradooo);
     setIsDataLoading(false);
   }
 

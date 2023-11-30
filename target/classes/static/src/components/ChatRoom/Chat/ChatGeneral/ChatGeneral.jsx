@@ -8,11 +8,11 @@ const ChatGeneral = ({ publicChats, handleMessage, sendValue }) => {
         <div className="chat-content">
             <div className='scroll-messages'>
                 <ul className="chat-messages">
-                    {publicChats.map((chat, index) => (
+                    {publicChats.map((chat,) => (
                         <Chat
+                            key={uuidv4()}
                             chat={chat}
                             userData={userData}
-                            index={index}
                         />
                     ))}
                 </ul>

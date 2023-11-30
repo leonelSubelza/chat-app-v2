@@ -26,8 +26,6 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }) => {
 
             const domain = window.location.origin;
             let urlSessionIdAux = inputValue.split(domain+'/chatroom/')[1];
-            console.log("id obtenido: ");
-            console.log(urlSessionIdAux);
             setUserData({...userData,"URLSessionid": urlSessionIdAux});
             navigate(`/chatroom/${urlSessionIdAux}`);
         }else{

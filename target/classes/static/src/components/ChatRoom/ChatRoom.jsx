@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'
-import { useNavigate  } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 /*
 Stomp es una biblioteca JavaScript que se utiliza para enviar y recibir 
@@ -19,15 +19,15 @@ import ChatPrivate from "./Chat/ChatPrivate/ChatPrivate.jsx";
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';
 import { getRoomIdFromURL } from '../../utils/InputValidator.js';
-import { getActualDate,convertUTCTimeToLocalTime } from '../../utils/MessageDateConvertor.js';
-import { disconnectChat,createUserChat, createPrivateMessage,createPublicMessage } from './ChatRoomFunctions.js';
+import { getActualDate, convertUTCTimeToLocalTime } from '../../utils/MessageDateConvertor.js';
+import { disconnectChat, createUserChat, createPrivateMessage, createPublicMessage } from './ChatRoomFunctions.js';
 import { generateUserId } from '../../utils/IdGenerator.js';
 
 const ChatRoom = () => {
     const navigate = useNavigate();
 
     const { isDataLoading, userData, setUserData, startedConnection, privateChats, setPrivateChats,
-        publicChats, setPublicChats, tab, setTab,stompClient,channelExists, setChannelExists } = useContext(userContext);
+        publicChats, setPublicChats, tab, setTab, stompClient, channelExists, setChannelExists } = useContext(userContext);
 
     const userContextObj = useUserDataContext();
     /*
@@ -41,18 +41,29 @@ const ChatRoom = () => {
 
 
     const connect = () => {
-        if (userData.connected || isDataLoading ) {
+        /*
+        if (localStorage.getItem('connected') === true &&
+            !startedConnection.current
+            //&& userData.username!=='' 
+            && !userData.connected
+            && (stompClient.current === null)) {
+            alert('Already connected!')
+            return;
+        }
+        */
+
+        if (userData.connected || isDataLoading) {
             return;
         }
 
+
         if (userData.username === '' || localStorage.getItem('username') === null
-        || localStorage.getItem('username') === 'null') {
+            || localStorage.getItem('username') === 'null') {
             let nombre = prompt("Ingrese un nombre de usuario");
             localStorage.setItem('username', nombre);
             setUserData({ ...userData, "username": nombre });
             return;
         }
-
         //CREAR CANAL PARA SABER QUIEN ESTA ESCRIBIENDO
 
         if (!startedConnection.current
@@ -69,6 +80,7 @@ const ChatRoom = () => {
 
     const onConnected = () => {
         setUserData({ ...userData, "connected": true });
+        //localStorage.setItem('connected', true)
         let urlSessionIdAux = userData.URLSessionid;
 
         //caso en el que se conecta copiando la url en el navegador (aca no se puede acceder al userData pq no se carga el estado aún)
@@ -136,7 +148,7 @@ const ChatRoom = () => {
         //despues fijarse si se carga bien el url session id asi no hago esta variable 
 
         //aca el status puede ser CREATE o JOIN depende
-        var chatMessage = createPublicMessage(userData.status,userDataAux);
+        var chatMessage = createPublicMessage(userData.status, userDataAux);
         /*
         var chatMessage = {
             senderId:userIdAux,
@@ -169,7 +181,7 @@ const ChatRoom = () => {
             case "ERROR":
                 alert('Error conectando al chat. Nose que pudo haber sido, se enviaron mal los datos xD');
                 //Por las dudas si se genero mal el id que se haga uno nuevo :,(
-                setUserData({ ...userData,'userId': generateUserId()} );
+                setUserData({ ...userData, 'userId': generateUserId() });
                 disconnectChat(userContextObj)
                 navigate('/');
                 break;
@@ -199,7 +211,7 @@ const ChatRoom = () => {
         if (payloadData.senderName === userData.username) {
             return;
         }
-//Si no se tiene guardado quien se unio se guarda (tambien nos llega un msj de que este cliente mismo se unio)
+        //Si no se tiene guardado quien se unio se guarda (tambien nos llega un msj de que este cliente mismo se unio)
         let userSaved = getUserSavedFromPrivateMenssage(payloadData.senderId);
         if (!privateChats.get(userSaved)) {
             var chatUser = createUserChat(payloadData);
@@ -210,10 +222,10 @@ const ChatRoom = () => {
             //en private msj lo recibido)
             if (resend) {
                 //la poronga del urlSessionId no se por qué concha puta no se guarda
-                let roomId = userData.URLSessionid==='' ?payloadData.urlSessionId : userData.URLSessionid;
+                let roomId = userData.URLSessionid === '' ? payloadData.urlSessionId : userData.URLSessionid;
                 let userDataAux = userData;
                 userDataAux.URLSessionid = roomId;
-                var chatMessage = createPrivateMessage('JOIN',userDataAux,payloadData.senderName,payloadData.senderId);
+                var chatMessage = createPrivateMessage('JOIN', userDataAux, payloadData.senderName, payloadData.senderId);
                 /*
                 var chatMessage = {
                     senderId:userIdAux,
@@ -231,18 +243,18 @@ const ChatRoom = () => {
 
     const getUserSavedFromPrivateMenssage = (id) => {
         for (var obj of privateChats) {
-            if(id === obj[0].id){
+            if (id === obj[0].id) {
                 return obj[0];
             }
-          }
-          return undefined;
+        }
+        return undefined;
     }
 
     const handlePrivateMessageReceived = (payloadData) => {
         payloadData.date = convertUTCTimeToLocalTime(getActualDate(payloadData.date));
 
         let userSaved = getUserSavedFromPrivateMenssage(payloadData.senderId)
-        console.log("ses recibe un msj de: "+payloadData.senderName);
+        console.log("ses recibe un msj de: " + payloadData.senderName);
         //privateChats.get(payloadData.senderName)
         if (userSaved) {
             console.log("se agrega a msj ya guardados");
@@ -261,7 +273,7 @@ const ChatRoom = () => {
     const handleUserLeave = (payloadData) => {
         let userSaved = getUserSavedFromPrivateMenssage(payloadData.senderId)
         privateChats.delete(userSaved);
-        console.log("se borra usuario: "+userSaved.username);
+        console.log("se borra usuario: " + userSaved.username);
         setPrivateChats(new Map(privateChats));
     }
 
@@ -281,7 +293,7 @@ const ChatRoom = () => {
     //Envia msj a todos
     const sendValue = () => {
         if (stompClient.current) {
-            var chatMessage = createPublicMessage('MESSAGE',userData);
+            var chatMessage = createPublicMessage('MESSAGE', userData);
             /*
             var chatMessage = {
                 senderId:userData.userId,
@@ -302,7 +314,7 @@ const ChatRoom = () => {
 
     const sendPrivateValue = () => {
         if (stompClient.current) {
-            var chatMessage = createPrivateMessage('MESSAGE',userData,tab.username,tab.id);
+            var chatMessage = createPrivateMessage('MESSAGE', userData, tab.username, tab.id);
             /*
             var chatMessage = {
                 senderId:userData.userId,
@@ -318,7 +330,6 @@ const ChatRoom = () => {
             //si se envia un msj a alguien que no sea yo mismo
             if (userData.userId !== tab.id) {
                 //cuando un usuario se une se guarda su referencia en el map, por lo que nunca será vacio
-                console.log("se deberia guardar en los chats privados el msj enviado");
                 privateChats.get(tab).push(chatMessage);
                 setPrivateChats(new Map(privateChats));
             }
@@ -353,28 +364,28 @@ const ChatRoom = () => {
                     />
                     <div className={`chat-box ${sidebarOpen ? 'close' : ''}`}>
                         {/*<div className={`chat-text-button ${sidebarOpen ? 'close' : ''}`}>*/}
-                            <div className="home-content">
-                                <span className="text">CHAT GENERAL</span>
-                            </div>
+                        <div className="home-content">
+                            <span className="text">CHAT GENERAL</span>
+                        </div>
 
-                            {tab !== "CHATROOM" ? <ChatPrivate
-                                privateChats={privateChats}
-                                tab={tab}
-                                sendPrivateValue={sendPrivateValue}
-                                userData={userData}
-                                handleMessage={handleMessage}
-                            /> : <ChatGeneral
-                                publicChats={publicChats}
-                                handleMessage={handleMessage}
-                                sendValue={sendValue}
-                            />}
+                        {tab !== "CHATROOM" ? <ChatPrivate
+                            privateChats={privateChats}
+                            tab={tab}
+                            sendPrivateValue={sendPrivateValue}
+                            userData={userData}
+                            handleMessage={handleMessage}
+                        /> : <ChatGeneral
+                            publicChats={publicChats}
+                            handleMessage={handleMessage}
+                            sendValue={sendValue}
+                        />}
 
-                            <MessageInput
-                                value={userData.message}
-                                onChange={handleMessage}
-                                onSend={tab === 'CHATROOM' ? sendValue : sendPrivateValue}
-                                tab={tab}
-                            />
+                        <MessageInput
+                            value={userData.message}
+                            onChange={handleMessage}
+                            onSend={tab === 'CHATROOM' ? sendValue : sendPrivateValue}
+                            tab={tab}
+                        />
                     </div>
                 </div> : <div>Cargando...</div>}
         </>

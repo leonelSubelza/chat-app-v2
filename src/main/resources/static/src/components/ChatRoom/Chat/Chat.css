@@ -1,6 +1,8 @@
 .chat-content {
-  /*margin: 0 10px 0 10px;*/
-  height: 70%;
+  /*header 10%, input 10%*/
+  margin-top: 2%;
+  height: 78%;
+
   width: 100%;
   overflow: hidden;
 }
@@ -27,11 +29,15 @@
 }
 
 .chat-messages{
+  /*creo que hay una clase de bootstrap que se llama asi, quito los estilos*/
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 0;
+
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  margin-top: 5px;
 }
 
 .message {
@@ -47,6 +53,7 @@
 .message-data {
   padding: 5px;
   width: auto;
+  max-width: 90%;
   word-wrap: break-word;
   height: auto;
   margin:auto 0;

@@ -1,9 +1,9 @@
 import React, { useContext, useEffect } from 'react'
 import './Chat.css';
 
-const Chat = ({chat,userData,index}) => {
+const Chat = ({chat,userData}) => {
     return (
-            <li className={`message ${chat.senderId === userData.userId && "self"}`} key={index}>
+            <li className={`message ${chat.senderId === userData.userId && "self"}`}>
                 {chat.senderId !== userData.userId && 
                 <div className="chat-avatar">
                     <img className="avatar-img-chat" src={chat.avatarImg}/>

@@ -21,6 +21,7 @@ export const resetValues = (userDataContext) => {
       URLSessionid:'',
       status:'JOIN'
     });
+    //localStorage.setItem('connected',false)
   };
   
 export const disconnectChat = (userDataContext) => {

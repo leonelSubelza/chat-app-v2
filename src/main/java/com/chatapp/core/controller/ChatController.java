@@ -89,6 +89,7 @@ public class ChatController {
     //@SendTo("/chatroom/{urlSessionId}")
     public Message userJoin(@Payload Message message, SimpMessageHeaderAccessor headerAccessor){
         User userJoinCorrect = this.chatService.handleUserJoin(message,headerAccessor);
+        System.out.println("Id usuario que se intenta conectar: "+headerAccessor.getSessionId());
         //si hubo un error intentando conectar
         if(userJoinCorrect == null){
             message.setStatus(Status.ERROR);
