@@ -19,7 +19,7 @@ import ChatPrivate from "./Chat/ChatPrivate/ChatPrivate.jsx";
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';
 import { getRoomIdFromURL } from '../../utils/InputValidator.js';
-import { getActualDate, convertUTCTimeToLocalTime } from '../../utils/MessageDateConvertor.js';
+import { getActualDate, convertUTCTimeToLocalTime, getHourFromUTCFormatDate } from '../../utils/MessageDateConvertor.js';
 import { disconnectChat, createUserChat, createPrivateMessage, createPublicMessage } from './ChatRoomFunctions.js';
 import { generateUserId } from '../../utils/IdGenerator.js';
 
@@ -162,7 +162,6 @@ const ChatRoom = () => {
                 handleJoinUser(payloadData, true);
                 break;
             case "MESSAGE":
-                payloadData.date = convertUTCTimeToLocalTime(getActualDate(payloadData.date));
                 publicChats.push(payloadData);
                 setPublicChats([...publicChats]);
                 break;
@@ -242,18 +241,13 @@ const ChatRoom = () => {
     }
 
     const handlePrivateMessageReceived = (payloadData) => {
-        payloadData.date = convertUTCTimeToLocalTime(getActualDate(payloadData.date));
-
         let userSaved = getUserSavedFromPrivateMenssage(payloadData.senderId)
-        console.log("ses recibe un msj de: " + payloadData.senderName);
         //privateChats.get(payloadData.senderName)
         if (userSaved) {
-            console.log("se agrega a msj ya guardados");
             privateChats.get(userSaved).push(payloadData);
             setPrivateChats(new Map(privateChats));
         } else {
             var chatUser = createUserChat(payloadData);
-            console.log("se crea un nuevo campo");
             let list = [];
             list.push(payloadData);
             privateChats.set(chatUser, list);
@@ -283,6 +277,9 @@ const ChatRoom = () => {
 
     //Envia msj a todos
     const sendValue = () => {
+        if(userData.message === ''){
+            return;
+        }
         if (stompClient.current) {
             var chatMessage = createPublicMessage('MESSAGE', userData);
             /*
@@ -304,6 +301,9 @@ const ChatRoom = () => {
     }
 
     const sendPrivateValue = () => {
+        if(userData.message === ''){
+            return;
+        }
         if (stompClient.current) {
             var chatMessage = createPrivateMessage('MESSAGE', userData, tab.username, tab.id);
             /*

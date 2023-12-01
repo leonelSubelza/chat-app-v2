@@ -108,7 +108,8 @@
 }
 
 .profile_name{
-    width: 80%;
+    width: auto;
+    max-width: 80%;
     height: auto;
     text-align: center;
     word-wrap: break-word;

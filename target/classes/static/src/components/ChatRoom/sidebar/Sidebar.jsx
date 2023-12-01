@@ -26,8 +26,8 @@ const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
             <MembersList/>
             <div className='sidebar-user-info-container'>
                 <div className="profile-details">
-                    <img className="profile_img" src={`${userData.avatarImg}`} alt="icon" />
-                    <div className="profile_name">{userData.username}</div>
+                    <img className="profile-details__img" src={`${userData.avatarImg}`} alt="icon" />
+                    <p className="profile_name">{userData.username}</p>
                 </div>
             </div>
 
