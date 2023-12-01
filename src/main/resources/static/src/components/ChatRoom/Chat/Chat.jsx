@@ -2,22 +2,30 @@ import React, { useContext, useEffect } from 'react'
 import './Chat.css';
 import { getHourFromUTCFormatDate } from '../../../utils/MessageDateConvertor';
 
-const Chat = ({chat,userData}) => {
+const Chat = ({ chat, userData }) => {
     return (
-            <li className={`message ${chat.senderId === userData.userId && "self"}`}>
-                {chat.senderId !== userData.userId && 
-                <div className="chat-avatar">
-                    <img className="avatar-img-chat" src={chat.avatarImg}/>
-                </div>}
+        <li className={`message ${chat.senderId === userData.userId && "self"}`}>
+            {chat.senderId !== userData.userId &&
+                <div className='message-data-username'>{chat.senderName}</div>}
+            <div className='message-container'>
+                {chat.senderId !== userData.userId &&
+                    <div className="chat-avatar">
+                        <img className="avatar-img-chat" src={chat.avatarImg} />
+                    </div>}
                 <div className="message-data-container">
-                    <p className='message-data-text'>{chat.message}</p>
-                    <p className='message-data-time'>{getHourFromUTCFormatDate(chat.date)}</p>
+                    <div className='message-data__message-info'>
+                        <p className='message-data__message-info-text'>{chat.message}</p>
+                        <p className='message-data__message-info-time'>{getHourFromUTCFormatDate(chat.date)}</p>
+                    </div>
+
                 </div>
-                {chat.senderId === userData.userId && 
+                {chat.senderId === userData.userId &&
                 <div className="chat-avatar self">
-                    <img className="avatar-img-chat" src={userData.avatarImg}/>
+                    <img className="avatar-img-chat" src={userData.avatarImg} />
                 </div>}
-            </li>
+            </div>
+
+        </li>
     )
 
 }

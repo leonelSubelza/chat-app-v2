@@ -1,6 +1,5 @@
 .chat-content {
   /*header 10%, input 10%*/
-  margin-top: 2%;
   height: 78%;
 
   width: 100%;
@@ -46,13 +45,34 @@
   /*min-height: 15%;*/
   height: auto;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: stretch;
-  margin: 0px 10px;
+  margin: 10px 10px 15px 10px;
+}
+
+.message-container{
+  display: flex;
+  width: 100%;
+}
+.message.self .message-container{
+  justify-content: flex-end;
 }
 
 .message-data-container {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  width: auto;
   max-width: 90%;
+  position: relative;
+}
+
+.message-data-username{
+  width: auto;
+  /*68px son el largo de la foto*/
+  margin-left: 85px;
+}
+.message-data__message-info{
   width: auto;
   height: auto;
 
@@ -65,7 +85,8 @@
   flex-direction: column;
 }
 
-.message-data-text{
+
+.message-data__message-info-text{
   width: auto;
   max-width: 100%;
   height: 100%;
@@ -74,7 +95,7 @@
   word-wrap: break-word;
 }
 
-.message-data-time{
+.message-data__message-info-time{
   font-size: 10px;
   margin:auto 0 0 0;
   margin:0 0 0 auto;
@@ -86,7 +107,7 @@
     margin: 0px 0px 15px auto;
 }
 
-.message.self .message-data-container{
+.message.self .message-data__message-info{
   background-color: #424698;
   color:white
 }
