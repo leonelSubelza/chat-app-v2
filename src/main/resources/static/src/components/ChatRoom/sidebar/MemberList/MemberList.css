@@ -1,7 +1,8 @@
 .sidebar-nav-links-container{
-    height: 70%;
+    height: 75%;
     display: flex;
     flex-direction: column;
+    padding-top: 10px;
 }
 
 .sidebar-nav-links {
@@ -15,7 +16,7 @@
 
 .member{
     display: flex;
-
+    cursor: pointer;
 }
 
 .member-item{

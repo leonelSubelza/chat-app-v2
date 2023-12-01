@@ -30,21 +30,12 @@ const ChatRoom = () => {
         publicChats, setPublicChats, tab, setTab, stompClient, channelExists, setChannelExists } = useContext(userContext);
 
     const userContextObj = useUserDataContext();
-    /*
-    const [privateChats, setPrivateChats] = useState(new Map());     
-    const [publicChats, setPublicChats] = useState([]); 
-    const [tab,setTab] =useState("CHATROOM");
-
-    */
-
     const [sidebarOpen, setSidebarOpen] = useState(true);
-
 
     const connect = () => {
         /*
         if (localStorage.getItem('connected') === true &&
             !startedConnection.current
-            //&& userData.username!=='' 
             && !userData.connected
             && (stompClient.current === null)) {
             alert('Already connected!')
@@ -365,7 +356,7 @@ const ChatRoom = () => {
                     <div className={`chat-box ${sidebarOpen ? 'close' : ''}`}>
                         {/*<div className={`chat-text-button ${sidebarOpen ? 'close' : ''}`}>*/}
                         <div className="home-content">
-                            <span className="text">CHAT GENERAL</span>
+                            <span className="text">{`${tab === 'CHATROOM' ? 'CHAT GENERAL' : tab.username}`}</span>
                         </div>
 
                         {tab !== "CHATROOM" ? <ChatPrivate

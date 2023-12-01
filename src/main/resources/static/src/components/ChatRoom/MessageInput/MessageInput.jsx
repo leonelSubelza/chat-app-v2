@@ -6,7 +6,7 @@ const MessageInput = ({ value, onChange, onSend }) => {
             <input
                 type="text"
                 className="input-message"
-                placeholder="enter the message"
+                placeholder="Message..."
                 value={value}
                 onChange={onChange}
             />

@@ -77,7 +77,7 @@
     align-items: center;
     justify-content: center; /* Cambiado a justificación centrada */
     background: #383258;
-    padding: 12px 0;
+    /*padding: 12px 0;*/
     transition: all 0.5s ease;
 }
 
@@ -93,6 +93,38 @@
     font-size: 18px;
     font-weight: 500;
     white-space: nowrap;
+}
+
+
+.profile-details__img{
+    margin:0 auto;
+    height: 50px;
+    min-width: 50px;
+    width: auto;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    background-color: #58596f;
+}
+
+.profile_name{
+    width: 80%;
+    height: auto;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-x: auto;
+    overflow-y: hidden;
+    cursor: pointer;
+}
+.profile_name::-webkit-scrollbar {
+    width:1px;
+    border-radius: 2px;
+    background-color: #bfbee0;
+}
+
+.profile_name::-webkit-scrollbar-thumb{
+    background: #38394D;
+    border-radius: 2px;
 }
 
 
