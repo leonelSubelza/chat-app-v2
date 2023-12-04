@@ -19,7 +19,7 @@ import ChatPrivate from "./Chat/ChatPrivate/ChatPrivate.jsx";
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';
 import { getRoomIdFromURL } from '../../utils/InputValidator.js';
-import { getActualDate, convertUTCTimeToLocalTime } from '../../utils/MessageDateConvertor.js';
+import { getActualDate, convertUTCTimeToLocalTime, getHourFromUTCFormatDate } from '../../utils/MessageDateConvertor.js';
 import { disconnectChat, createUserChat, createPrivateMessage, createPublicMessage } from './ChatRoomFunctions.js';
 import { generateUserId } from '../../utils/IdGenerator.js';
 
@@ -162,7 +162,6 @@ const ChatRoom = () => {
                 handleJoinUser(payloadData, true);
                 break;
             case "MESSAGE":
-                payloadData.date = convertUTCTimeToLocalTime(getActualDate(payloadData.date));
                 publicChats.push(payloadData);
                 setPublicChats([...publicChats]);
                 break;
@@ -242,18 +241,13 @@ const ChatRoom = () => {
     }
 
     const handlePrivateMessageReceived = (payloadData) => {
-        payloadData.date = convertUTCTimeToLocalTime(getActualDate(payloadData.date));
-
         let userSaved = getUserSavedFromPrivateMenssage(payloadData.senderId)
-        console.log("ses recibe un msj de: " + payloadData.senderName);
         //privateChats.get(payloadData.senderName)
         if (userSaved) {
-            console.log("se agrega a msj ya guardados");
             privateChats.get(userSaved).push(payloadData);
             setPrivateChats(new Map(privateChats));
         } else {
             var chatUser = createUserChat(payloadData);
-            console.log("se crea un nuevo campo");
             let list = [];
             list.push(payloadData);
             privateChats.set(chatUser, list);
@@ -262,6 +256,10 @@ const ChatRoom = () => {
     }
 
     const handleUserLeave = (payloadData) => {
+        if(payloadData.senderId===userData.userId){
+            //si yo mismo me voy
+            return;
+        }
         let userSaved = getUserSavedFromPrivateMenssage(payloadData.senderId)
         privateChats.delete(userSaved);
         console.log("se borra usuario: " + userSaved.username);
@@ -276,13 +274,11 @@ const ChatRoom = () => {
         navigate('/')
     }
 
-    const handleMessage = (event) => {
-        const { value } = event.target;
-        setUserData({ ...userData, "message": value });
-    }
-
     //Envia msj a todos
     const sendValue = () => {
+        if(userData.message === ''){
+            return;
+        }
         if (stompClient.current) {
             var chatMessage = createPublicMessage('MESSAGE', userData);
             /*
@@ -304,6 +300,9 @@ const ChatRoom = () => {
     }
 
     const sendPrivateValue = () => {
+        if(userData.message === ''){
+            return;
+        }
         if (stompClient.current) {
             var chatMessage = createPrivateMessage('MESSAGE', userData, tab.username, tab.id);
             /*
@@ -364,18 +363,13 @@ const ChatRoom = () => {
                             tab={tab}
                             sendPrivateValue={sendPrivateValue}
                             userData={userData}
-                            handleMessage={handleMessage}
                         /> : <ChatGeneral
                             publicChats={publicChats}
-                            handleMessage={handleMessage}
                             sendValue={sendValue}
                         />}
 
                         <MessageInput
-                            value={userData.message}
-                            onChange={handleMessage}
                             onSend={tab === 'CHATROOM' ? sendValue : sendPrivateValue}
-                            tab={tab}
                         />
                     </div>
                 </div> : <div>Cargando...</div>}
@@ -384,14 +378,3 @@ const ChatRoom = () => {
 }
 
 export default ChatRoom
-
-
-//arreglar estados donde se guardan los private messages, el metodo get no devuelve nada y en el
-//backend verificar que no se pueda volver a conectar el mismo usuario
-/*
-PARA QUE PUEDA HABER USUARIOS CON EL MISMO NOMBRE:ahora los usuarios manejan un id 
-Ahora los usuarios tienen un id, habrá que cambiar que en los canales a los que se suscribe tengan su
-id en vez del nombre y si ya existe ese id generado entonces que se actualice y se genere otro
-AUN NO LO HICE
-
-*/

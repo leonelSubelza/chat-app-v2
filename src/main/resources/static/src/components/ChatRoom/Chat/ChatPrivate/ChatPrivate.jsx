@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import Chat from "../Chat.jsx";
 import { v4 as uuidv4 } from 'uuid';
 
-const ChatPrivate = ({ privateChats, tab, sendPrivateValue, userData, handleMessage }) => {
+const ChatPrivate = ({ privateChats, tab, userData }) => {
     return (
         <div className="chat-content">
             <div className='scroll-messages'>

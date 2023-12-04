@@ -93,6 +93,7 @@ const Register = () => {
                             value={userData.username}
                             onChange={handleUsername}
                             margin="normal"
+                            autoFocus
                         />
                         <button type="button" className='button btn-join-chat' onClick={handleShowModalJoinChat}>
                             <i className="bi bi-box-arrow-in-right"></i>JOIN A CHAT

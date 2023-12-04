@@ -18,7 +18,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 //Se supone que esta clase escucha cada vez que un usuario deja el chat
 @Component
 @RequiredArgsConstructor
-@Slf4j//para el login
+@Slf4j
 public class WebSocketEventListener {
 
     private final SimpMessageSendingOperations messageTemplate;

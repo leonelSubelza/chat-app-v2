@@ -71,17 +71,14 @@
 
 .profile_img {
     height: 50px;
-    min-width: 50px;
-    width: auto;
-    text-align: center;
-    line-height: 50px;
+    width: 50px;
+    max-width: 100%;
     color: #fff;
-    font-size: 20px;
     cursor: pointer;
     transition: all 0.3s ease;
     border-radius: 50%;
-    background-color: #58596f;
-    margin:auto
+    margin:auto;
+    background-size: cover;
 }
 
 .link_name{
