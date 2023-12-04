@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import './MemberList.css'
 import { userContext } from '../../../../context/UserDataContext';
+import chatRoomIcon from '../../../../assets/people-icon.svg';
 
 const MembersList = () => {
 
@@ -11,7 +12,7 @@ const MembersList = () => {
             <ul className="sidebar-nav-links">
                 <li onClick={() => setTab("CHATROOM")} className={`member ${tab === "CHATROOM" && "active"} `}>
                     <div className='member-item'>
-                        <img className="profile_img" src='https://cdn-icons-png.flaticon.com/128/666/666201.png' alt="icon" />
+                        <img className="profile_img" src={chatRoomIcon} alt="icon" />
                         <span className="link_name">CHAT GENERAL</span>
                     </div>
                 </li>
@@ -34,12 +35,3 @@ const MembersList = () => {
     )
 }
 export default MembersList;
-
-/*
-                    <li onClick={() => { setTab(name) }} className={`member ${tab === name && "active"}`} key={index}>
-                        <div className='member-item'>
-                            <img className="profile_img" src={`${name[0].avatarImg}`} alt="icon" />
-                            <span className="link_name">{name}</span>
-                        </div>
-                    </li>
-*/

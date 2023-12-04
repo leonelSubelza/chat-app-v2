@@ -36,7 +36,7 @@ const MessageInput = ({ onSend }) => {
                 autoFocus
             />
             <button type="button" className="send-button" onClick={()=> onSend()}>
-                Send
+                <i className="bi bi-send-fill"></i>
             </button>
         </div>
     );

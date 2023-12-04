@@ -298,7 +298,7 @@ const ChatRoom = () => {
 
     useEffect(() => {
         connect();
-
+        console.log("size: "+ typeof window.screen.width);
         if (tab !== "CHATROOM" && privateChats.get(tab) === undefined) {
             setTab("CHATROOM")
         }
