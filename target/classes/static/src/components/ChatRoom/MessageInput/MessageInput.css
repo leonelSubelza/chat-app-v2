@@ -38,19 +38,23 @@
     cursor: pointer;
     border: none;
     color: #fff;
-    background: rgba(124, 139, 149, 0.75);
+    background: #383258;
     font-size: 25px;
     font-weight: bold;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
 .send-button:hover {
-    background-color: #6A6B7A;
+    filter: brightness(70%)
+}
+.send-button:focus{
+    outline: none;
 }
 
 @media screen and (max-width: 768px){
     .send-message{
         margin-bottom:5px;
+        content:'aaaaaa'
     }
     
     .input-message{

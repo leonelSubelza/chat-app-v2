@@ -13,14 +13,13 @@ import './ChatRoom.css';
 //Esta sirve para que pueda ser usada en navegadores más viejos.
 import SockJS from 'sockjs-client';
 import { serverURL } from '../../config/chatConfiguration.js';
-import { useUserDataContext, userContext } from '../../context/UserDataContext.jsx';
+import { UserDataContext, useUserDataContext, userContext } from '../../context/UserDataContext.jsx';
 import ChatGeneral from "./Chat/ChatGeneral/ChatGeneral.jsx";
 import ChatPrivate from "./Chat/ChatPrivate/ChatPrivate.jsx";
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';
 import { getRoomIdFromURL } from '../../utils/InputValidator.js';
-import { getActualDate, convertUTCTimeToLocalTime, getHourFromUTCFormatDate } from '../../utils/MessageDateConvertor.js';
-import { disconnectChat, createUserChat, createPrivateMessage, createPublicMessage } from './ChatRoomFunctions.js';
+import { disconnectChat, createUserChat, createPrivateMessage, createPublicMessage,updateChatData } from './ChatRoomFunctions.js';
 import { generateUserId } from '../../utils/IdGenerator.js';
 
 const ChatRoom = () => {
@@ -33,20 +32,9 @@ const ChatRoom = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
     const connect = () => {
-        /*
-        if (localStorage.getItem('connected') === true &&
-            !startedConnection.current
-            && !userData.connected
-            && (stompClient.current === null)) {
-            alert('Already connected!')
-            return;
-        }
-        */
-
         if (userData.connected || isDataLoading) {
             return;
         }
-
 
         if (userData.username === '' || localStorage.getItem('username') === null
             || localStorage.getItem('username') === 'null') {
@@ -70,7 +58,8 @@ const ChatRoom = () => {
     }
 
     const onConnected = () => {
-        setUserData({ ...userData, "connected": true });
+        userData.connected = true
+        setUserData({ ...userData});
         //localStorage.setItem('connected', true)
         let urlSessionIdAux = userData.URLSessionid;
 
@@ -140,15 +129,6 @@ const ChatRoom = () => {
 
         //aca el status puede ser CREATE o JOIN depende
         var chatMessage = createPublicMessage(userData.status, userDataAux);
-        /*
-        var chatMessage = {
-            senderId:userIdAux,
-            senderName: userData.username,
-            urlSessionId: urlSessionIdAux,
-            status: userData.status,
-            avatarImg: userData.avatarImg
-        };
-        */
         //Se envia un msj al servidor, el cual se envia a todos los usuarios conectados
         //stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
         stompClient.current.send("/app/chat.join", {}, JSON.stringify(chatMessage));
@@ -164,6 +144,16 @@ const ChatRoom = () => {
             case "MESSAGE":
                 publicChats.push(payloadData);
                 setPublicChats([...publicChats]);
+                //tener cuidado, ningun usuario manda mensaje sin antes hacer un join
+                //se debería actualizar por medio de un msj al ws no cuando se envia de nuevo un msj arreglar esto!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //checkUpdatedUserChatData(payloadData,userContextObj,getUserSavedFromPrivateMenssage(payloadData.senderId));
+                break;
+            case "UPDATE":
+                //actualizar publicMessages y privateMessages
+                let userToUpdate = getUserSavedFromPrivateMenssage(payloadData.senderId);
+                if(userToUpdate){
+                    updateChatData(payloadData,userContextObj,userToUpdate);
+                }
                 break;
             case "LEAVE":
                 handleUserLeave(payloadData);
@@ -190,6 +180,7 @@ const ChatRoom = () => {
             case "MESSAGE":
                 //recibo un mensaje de alguien
                 handlePrivateMessageReceived(payloadData);
+                //checkUpdatedUserChatData(payloadData,userContextObj,getUserSavedFromPrivateMenssage(payloadData.senderId))
                 break;
             default:
                 break;
@@ -216,16 +207,6 @@ const ChatRoom = () => {
                 let userDataAux = userData;
                 userDataAux.URLSessionid = roomId;
                 var chatMessage = createPrivateMessage('JOIN', userDataAux, payloadData.senderName, payloadData.senderId);
-                /*
-                var chatMessage = {
-                    senderId:userIdAux,
-                    senderName: userData.username,
-                    receiverName: payloadData.senderName,
-                    urlSessionId: roomId,
-                    status: "JOIN",
-                    avatarImg: userData.avatarImg
-                };
-                */
                 stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
             }
         }
@@ -277,21 +258,11 @@ const ChatRoom = () => {
     //Envia msj a todos
     const sendValue = () => {
         if(userData.message === ''){
+            console.log("msj vacio en enviar msjglobal");
             return;
         }
         if (stompClient.current) {
             var chatMessage = createPublicMessage('MESSAGE', userData);
-            /*
-            var chatMessage = {
-                senderId:userData.userId,
-                senderName: userData.username,
-                date: getActualDate(),
-                message: userData.message,
-                status: "MESSAGE",
-                urlSessionId: userData.URLSessionid,
-                avatarImg: userData.avatarImg
-            };
-            */
             //Ahora enviamos un 'msj grupal' solo a los que esten en nuestra sala
             stompClient.current.send("/app/group-message", {}, JSON.stringify(chatMessage));
             //el msj enviado se guarda en la func que procesa un msj recibido grupal debería hacerse acá >:(
@@ -305,18 +276,6 @@ const ChatRoom = () => {
         }
         if (stompClient.current) {
             var chatMessage = createPrivateMessage('MESSAGE', userData, tab.username, tab.id);
-            /*
-            var chatMessage = {
-                senderId:userData.userId,
-                senderName: userData.username,
-                receiverName: tab,
-                date: getActualDate(),
-                message: userData.message,
-                status: "MESSAGE",
-                urlSessionId: userData.URLSessionid,
-                avatarImg: userData.avatarImg
-            };
-            */
             //si se envia un msj a alguien que no sea yo mismo
             if (userData.userId !== tab.id) {
                 //cuando un usuario se une se guarda su referencia en el map, por lo que nunca será vacio
@@ -333,12 +292,30 @@ const ChatRoom = () => {
         navigate('/');
     }
 
+    const handleKeyPressedMsg = (e) => {
+        let key = e;
+        if (typeof e !== 'string') {
+            key = e.key;
+        }
+        if(key === 'Enter'){
+            if(tab === 'CHATROOM'){
+                sendValue();
+            }else{
+                sendPrivateValue();
+            }
+        }
+    }
+
     useEffect(() => {
         connect();
-
-        //se ejecuta por cada renderizado        
         if (tab !== "CHATROOM" && privateChats.get(tab) === undefined) {
             setTab("CHATROOM")
+        }
+        if(userData.connected){
+            window.addEventListener('keyup', handleKeyPressedMsg);
+        }
+        return () => {
+            window.removeEventListener('keyup', handleKeyPressedMsg);
         }
     })
 
@@ -358,12 +335,14 @@ const ChatRoom = () => {
                             <span className="text">{`${tab === 'CHATROOM' ? 'CHAT GENERAL' : tab.username}`}</span>
                         </div>
 
-                        {tab !== "CHATROOM" ? <ChatPrivate
+                        {tab !== "CHATROOM" ? 
+                        <ChatPrivate
                             privateChats={privateChats}
                             tab={tab}
                             sendPrivateValue={sendPrivateValue}
                             userData={userData}
-                        /> : <ChatGeneral
+                        /> : 
+                        <ChatGeneral
                             publicChats={publicChats}
                             sendValue={sendValue}
                         />}

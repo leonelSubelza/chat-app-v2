@@ -1,6 +1,7 @@
 .sidebar-nav-links-container{
     height: 75%;
     display: flex;
+    width: 100%;
     flex-direction: column;
     padding-top: 10px;
 }
@@ -9,9 +10,7 @@
     height: 100%;
     width: 100%;
     overflow: auto;
-    margin-bottom: 0;
-    padding-left: 0;
-    /*margin: 20px auto;*/
+    padding: 0 10px 0 10px;
 }
 
 .member{
@@ -35,7 +34,7 @@
     border-radius: 10px;
 }
 .member:hover{
-    background: grey;
+    filter: brightness(70%);
     color:#fff;
 }
 
@@ -56,7 +55,7 @@
 }
 
 .sidebar-nav-links li:hover {
-    background: #1d1b31;
+    filter: brightness(70%);
 }
 
 .sidebar-nav-links li .iocn-link {

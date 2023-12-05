@@ -13,14 +13,13 @@ import './ChatRoom.css';
 //Esta sirve para que pueda ser usada en navegadores más viejos.
 import SockJS from 'sockjs-client';
 import { serverURL } from '../../config/chatConfiguration.js';
-import { useUserDataContext, userContext } from '../../context/UserDataContext.jsx';
+import { UserDataContext, useUserDataContext, userContext } from '../../context/UserDataContext.jsx';
 import ChatGeneral from "./Chat/ChatGeneral/ChatGeneral.jsx";
 import ChatPrivate from "./Chat/ChatPrivate/ChatPrivate.jsx";
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';
 import { getRoomIdFromURL } from '../../utils/InputValidator.js';
-import { getActualDate, convertUTCTimeToLocalTime, getHourFromUTCFormatDate } from '../../utils/MessageDateConvertor.js';
-import { disconnectChat, createUserChat, createPrivateMessage, createPublicMessage } from './ChatRoomFunctions.js';
+import { disconnectChat, createUserChat, createPrivateMessage, createPublicMessage,updateChatData } from './ChatRoomFunctions.js';
 import { generateUserId } from '../../utils/IdGenerator.js';
 
 const ChatRoom = () => {
@@ -59,7 +58,8 @@ const ChatRoom = () => {
     }
 
     const onConnected = () => {
-        setUserData({ ...userData, "connected": true });
+        userData.connected = true
+        setUserData({ ...userData});
         //localStorage.setItem('connected', true)
         let urlSessionIdAux = userData.URLSessionid;
 
@@ -144,6 +144,16 @@ const ChatRoom = () => {
             case "MESSAGE":
                 publicChats.push(payloadData);
                 setPublicChats([...publicChats]);
+                //tener cuidado, ningun usuario manda mensaje sin antes hacer un join
+                //se debería actualizar por medio de un msj al ws no cuando se envia de nuevo un msj arreglar esto!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //checkUpdatedUserChatData(payloadData,userContextObj,getUserSavedFromPrivateMenssage(payloadData.senderId));
+                break;
+            case "UPDATE":
+                //actualizar publicMessages y privateMessages
+                let userToUpdate = getUserSavedFromPrivateMenssage(payloadData.senderId);
+                if(userToUpdate){
+                    updateChatData(payloadData,userContextObj,userToUpdate);
+                }
                 break;
             case "LEAVE":
                 handleUserLeave(payloadData);
@@ -170,6 +180,7 @@ const ChatRoom = () => {
             case "MESSAGE":
                 //recibo un mensaje de alguien
                 handlePrivateMessageReceived(payloadData);
+                //checkUpdatedUserChatData(payloadData,userContextObj,getUserSavedFromPrivateMenssage(payloadData.senderId))
                 break;
             default:
                 break;
@@ -282,7 +293,6 @@ const ChatRoom = () => {
     }
 
     const handleKeyPressedMsg = (e) => {
-        console.log("se escucha keypressed en chatroom");
         let key = e;
         if (typeof e !== 'string') {
             key = e.key;
@@ -298,7 +308,6 @@ const ChatRoom = () => {
 
     useEffect(() => {
         connect();
-        console.log("size: "+ typeof window.screen.width);
         if (tab !== "CHATROOM" && privateChats.get(tab) === undefined) {
             setTab("CHATROOM")
         }

@@ -9,7 +9,7 @@ const MessageInput = ({ onSend }) => {
         const { value } = event.target;
         setUserData({ ...userData, "message": value });
     }
-
+/*
     const handleKeyPressedMsg = (e) => {
         console.log("se escucha keypressed en chatroom");
         let key = e;
@@ -24,14 +24,7 @@ const MessageInput = ({ onSend }) => {
         setUserData({ ...userData, "message": value });
     }
 
-    useContext(()=>{
-        console.log("oasdfasdfa");
-        window.addEventListener('keyup', handleKeyPressedMsg);
-        return () => {
-            window.removeEventListener('keyup', handleKeyPressedMsg);
-        }
-    })
-
+*/
     return (
         <div className="send-message">
             <input
@@ -42,8 +35,8 @@ const MessageInput = ({ onSend }) => {
                 onChange={handleMessage}
                 autoFocus
             />
-            <button type="button" className="send-button" onClick={onSend}>
-                Send
+            <button type="button" className="send-button" onClick={()=> onSend()}>
+                <i className="bi bi-send-fill"></i>
             </button>
         </div>
     );
