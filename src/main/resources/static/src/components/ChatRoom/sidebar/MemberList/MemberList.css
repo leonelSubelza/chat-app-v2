@@ -16,6 +16,7 @@
 .member{
     display: flex;
     cursor: pointer;
+
 }
 
 .member-item{
@@ -28,10 +29,11 @@
 }
 
 .member.active{
-    background: #4E4F5B;
     color:#fff;
     padding: 5px;
     border-radius: 10px;
+    background: #4E4F5B;
+
 }
 .member:hover{
     filter: brightness(70%);

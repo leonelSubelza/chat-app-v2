@@ -44,34 +44,6 @@
     cursor: pointer;
     padding: 4px;
 }
-
-/*
-.sidebar{
-    font-size: 30px;
-    color: #fff;
-    height: 20px;
-    min-width: 20px;
-    text-align: center;
-    line-height: 50px;
-    cursor: pointer;
-    margin: 10px;
-}
-*/
-/*
-.sidebar .menu-details {
-    display: flex;
-    align-items: center;
-    font-size: 15px;
-    color: #fff;
-    background-color: #38394D;
-    border-radius:10px;
-    border: 0;
-    cursor: pointer;
-    padding: 4px;
-    margin-right: 10px;
-    margin-left: auto;
-}
-*/
 .sidebar .menu-details .btn-leave:hover{
     background-color: #58596f;
 }
@@ -176,7 +148,8 @@
 }
 
 .sidebar.close .menu-details .logo_name,
-.sidebar.close .menu-details .btn-leave{
+.sidebar.close .menu-details .btn-leave,
+.sidebar.close .menu-details .url-input-icon{
     pointer-events: none;
     display: none;
     transition: all 0.5s ease;

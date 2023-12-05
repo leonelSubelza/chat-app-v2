@@ -25,8 +25,6 @@ const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
     const handleCloseModalIconChooser = (iconChoosed) => {
         setShowModalIconChooser(false)
         if (iconChoosed !== '') {
-            console.log("se cambia icono, stompClient:");
-            console.log(userData);
             //Preguntamos si está conectado en una sala, entonces le avisamos a todos de act
             if(startedConnection.current && userData.connected
                 && stompClient.current !== null){
@@ -38,12 +36,26 @@ const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
         }
     };
 
+    const copyInput = () => {
+        navigator.clipboard.writeText(window.location)
+        .then(() => {
+            console.log('Text copied to clipboard');
+        })
+        .catch(err => {
+            console.error('Error in copying text: ', err);
+        });
+    }
+    
     return (
         <div className={`sidebar ${sidebarOpen ? '' : 'close'}`}>
             <div className="menu-details">
                 <i className="bi bi-list menu-hamburger" onClick={toggleSidebar}></i>
                 <span className="logo_name">Chat-App</span>
-                <button className="btn-leave" onClick={handleDisconnectChat}>Leave</button>
+                <i className="bi bi-clipboard url-input-icon" style={{color:"white"}} onClick={copyInput}></i>
+                
+                <button className="btn-leave" onClick={handleDisconnectChat}>
+                    Leave <i class="bi bi-box-arrow-left"></i>
+                </button>
             </div>
 
             <MembersList/>
