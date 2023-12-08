@@ -63,7 +63,6 @@ export const updateChatData = (payloadData, userDataContext, userChat) => {
 
 const updateUserChatDataPublic = (userDataContext, payloadData) => {
   const { publicChats, setPublicChats } = userDataContext;
-  console.log("public chats: "+publicChats);
   if(publicChats===undefined||publicChats.length===0){
     return;
   }

@@ -23,6 +23,17 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }) => {
             alert('Debe escribir un link para unirse a una sala!');
             return;
         }
+        if(localStorage.getItem('username')===null || localStorage.getItem('username')===''
+        || userData.username === ''){
+            alert('Debe escribir un nombre de usuario!');
+            return;
+        }
+        if(localStorage.getItem('avatarImg')===null || localStorage.getItem('avatarImg')===''
+        || userData.avatarImg === ''){
+            alert('Debe seleccionar una imagen!');
+            return;
+        }
+
         if(isCorrectURL(inputValue)){
             console.log("el link escrito es un link valido");
 

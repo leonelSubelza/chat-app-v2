@@ -30,7 +30,7 @@ const MessageInput = ({ onSend }) => {
             <input
                 type="text"
                 className="input-message"
-                placeholder="Message..."
+                placeholder="Write a message..."
                 value={userData.message}
                 onChange={handleMessage}
                 autoFocus

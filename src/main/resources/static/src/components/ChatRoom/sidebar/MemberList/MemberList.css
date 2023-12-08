@@ -85,10 +85,24 @@
 .link_name{
     /*margin-left: 10px;*/
     width: 70%;
+    overflow-y: hidden;
+    overflow-x: auto;
+
+}
+
+.link_name::-webkit-scrollbar {
+    height: 5px;
+    margin:auto;
+    border-radius: 20px;
+    background-color: transparent
+  }
+  
+.link_name::-webkit-scrollbar-thumb {
+    background: #212529;
+    border-radius: 20px;
 }
 
 .member-item .link_name {
-    word-wrap: break-word;
     font-size: 18px;
     font-weight: 400;
     color: #fff;

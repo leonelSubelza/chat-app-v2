@@ -39,6 +39,11 @@ const ChatRoom = () => {
         if (userData.username === '' || localStorage.getItem('username') === null
             || localStorage.getItem('username') === 'null') {
             let nombre = prompt("Ingrese un nombre de usuario");
+            if(nombre===null){
+                disconnectChat(userContextObj);
+                navigate("/");
+                return;
+            }
             localStorage.setItem('username', nombre);
             setUserData({ ...userData, "username": nombre });
             return;
@@ -178,9 +183,7 @@ const ChatRoom = () => {
                 handleJoinUser(payloadData, false);
                 break;
             case "MESSAGE":
-                //recibo un mensaje de alguien
                 handlePrivateMessageReceived(payloadData);
-                //checkUpdatedUserChatData(payloadData,userContextObj,getUserSavedFromPrivateMenssage(payloadData.senderId))
                 break;
             default:
                 break;

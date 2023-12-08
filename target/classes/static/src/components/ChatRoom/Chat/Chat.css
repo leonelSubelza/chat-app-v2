@@ -69,9 +69,25 @@
 
 .message-data-username{
   width: auto;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
   /*68px son el largo de la foto*/
   margin-left: 85px;
 }
+
+.message-data-username::-webkit-scrollbar {
+  height:5px;
+  border-radius: 20px;
+  background-color: transparent;
+}
+
+.message-data-username::-webkit-scrollbar-thumb{
+  background: #38394D;
+  border-radius: 20px;
+}
+
+
 .message-data__message-info{
   width: auto;
   height: auto;

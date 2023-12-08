@@ -2,12 +2,19 @@
 
 .chat-box{
     height: 100%;
+    /*
     max-width: 90%;
     min-width: 80%;
-    width: 100%;
+    width: 100%;*/
     display: flex;
     flex-direction: column;
+    width: 90%;
     margin:0 0 0 auto;
+    transition: all 0.5s ease;
+}
+
+.chat-box.close{
+    width: 75%;
 }
 
 .chat-text-button{
@@ -29,7 +36,21 @@
     width: 100%;
     display: flex;
     align-items: center;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
+
+.home-content::-webkit-scrollbar {
+    height: 8px;
+    margin:auto;
+    border-radius: 20px;
+    background-color: transparent
+  }
+  
+  .home-content::-webkit-scrollbar-thumb {
+    background: #212529;
+    border-radius: 20px;
+  }
 
 .home-content .bx-menu,
 .home-content .text{
@@ -45,5 +66,19 @@
     /*font-weight: 600;*/
     margin-left: 20px;
     font-family: 'Righteous', sans-serif;
+    width: 100%;
+    cursor: pointer;
 }
 
+
+
+@media screen and (max-width: 768px) and (min-width: 376px) {
+    .chat-box{
+        width: 85%;
+    }
+}
+@media (max-width: 376px){
+    .chat-box{
+        width: 85%;
+    }
+}

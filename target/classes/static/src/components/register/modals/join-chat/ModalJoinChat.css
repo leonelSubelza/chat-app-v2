@@ -26,11 +26,13 @@
 .url-input-icon{
     margin: auto;
     color:rgba(0, 0, 0, 0.58);
+    cursor: pointer;
 }
 
 .url-input-icon:hover{
     color: black;
     font-weight: bold;
+    filter: brightness(70%);
 }
 
 .modal-footer{

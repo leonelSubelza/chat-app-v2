@@ -1,6 +1,7 @@
 import React,{useContext,useEffect,useState} from 'react';
 import MembersList from './MemberList/MembersList.jsx';
 import { userContext } from '../../../context/UserDataContext';
+import Toast from 'react-bootstrap/Toast';
 //import menuHamburger from '../../../assets/menu-burger.svg';
 import './Sidebar.css';
 import ModalIconChooser from '../../register/modals/item-chooser/ModalIconChooser.jsx';
@@ -13,6 +14,8 @@ const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
 
     //MOdal icon chooser
     const [showModalIconChooser, setShowModalIconChooser] = useState(false);
+
+    const [showToastCopied, setShowToastMessage] = useState(false);
 
     const handleDisconnectChat = ()=>{
         return disconnectChat();
@@ -37,6 +40,7 @@ const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
     };
 
     const copyInput = () => {
+        setShowToastMessage(true);
         navigator.clipboard.writeText(window.location)
         .then(() => {
             console.log('Text copied to clipboard');
@@ -54,7 +58,7 @@ const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
                 <i className="bi bi-clipboard url-input-icon" style={{color:"white"}} onClick={copyInput}></i>
                 
                 <button className="btn-leave" onClick={handleDisconnectChat}>
-                    Leave <i class="bi bi-box-arrow-left"></i>
+                    Leave <i className="bi bi-box-arrow-left"></i>
                 </button>
             </div>
 
@@ -71,6 +75,9 @@ const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
                 </div>
             </div>
             <ModalIconChooser showModalIconChooser={showModalIconChooser} handleCloseModalIconChooser={handleCloseModalIconChooser} />
+            <Toast onClose={() => setShowToastMessage(false)} show={showToastCopied} delay={3000} autohide>
+                <Toast.Body>Copied!</Toast.Body>
+            </Toast>
         </div>
     );
 };
