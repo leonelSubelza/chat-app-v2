@@ -2,12 +2,12 @@ import React, { useContext, useEffect } from 'react'
 import './Chat.css';
 import { getHourFromUTCFormatDate } from '../../../utils/MessageDateConvertor';
 
-const Chat = ({ chat, userData }) => {
+const Chat = ({ chat, userData, isPublicChat}) => {
     return (
         <>
         {(chat.status === 'MESSAGE') ?
         <li className={`message ${chat.senderId === userData.userId && "self"}`}>
-            {chat.senderId !== userData.userId &&
+            {chat.senderId !== userData.userId && isPublicChat &&
                 <div className='message-data-username'>{chat.senderName}</div>}
 
             <div className='message-container'>
@@ -30,7 +30,7 @@ const Chat = ({ chat, userData }) => {
         :
         <li className={'message message-connect-container'}>
             <p className='message-connect'>
-                {chat.senderName }{`${chat.status === 'JOIN' ? ' joined!' : ' leaved!'}`}
+                {chat.senderName }{`${chat.status === 'JOIN' ? ' joined!' : ' left!'}`}
             </p>
         </li>
     }

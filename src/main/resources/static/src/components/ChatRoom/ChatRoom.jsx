@@ -264,7 +264,7 @@ const ChatRoom = () => {
 
     //Envia msj a todos
     const sendValue = () => {
-        if(userData.message === ''){
+        if(userData.message.trim() === ''){
             return;
         }
         if (stompClient.current) {
@@ -277,7 +277,7 @@ const ChatRoom = () => {
     }
 
     const sendPrivateValue = () => {
-        if(userData.message === ''){
+        if(userData.message.trim() === ''){
             return;
         }
         if (stompClient.current) {

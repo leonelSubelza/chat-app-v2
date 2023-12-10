@@ -7,11 +7,13 @@ const ChatPrivate = ({ privateChats, tab, userData }) => {
         <div className="chat-content">
             <div className='scroll-messages'>
                 <ul className="chat-messages">
-                    {(privateChats.size > 0 && privateChats.get(tab) !== undefined) && privateChats.get(tab).map((chat) => (
+                    {(privateChats.size > 0 && privateChats.get(tab) !== undefined) && 
+                    privateChats.get(tab).map((chat) => (
                         <Chat
                             key={uuidv4()}
                             chat={chat}
                             userData={userData}
+                            isPublicChat={false}
                         />
                     ))}
                 </ul>

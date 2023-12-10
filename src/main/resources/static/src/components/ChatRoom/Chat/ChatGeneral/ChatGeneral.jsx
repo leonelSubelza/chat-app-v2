@@ -14,6 +14,7 @@ const ChatGeneral = ({ publicChats }) => {
                             key={uuidv4()}
                             chat={chat}
                             userData={userData}
+                            isPublicChat={true}
                         />
                     ))}
                 </ul>
