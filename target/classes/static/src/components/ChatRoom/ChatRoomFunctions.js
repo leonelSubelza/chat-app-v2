@@ -78,7 +78,6 @@ const updateUserChatDataPublic = (userDataContext, payloadData) => {
 
 const updateUserChatDataPrivate = (userDataContext, payloadData, userChat) => {
   const { privateChats, setPrivateChats } = userDataContext;
-  console.log("private chats: "+privateChats.get(userChat));
   if (privateChats.get(userChat) === undefined) {
     return;
   }

@@ -134,6 +134,18 @@ export const createPrivateMessage = (
     avatarImg: userData.avatarImg,
   };
 };
+
+
+export const createMessageJoin = (status, payloadData) => {
+  return {
+    senderId: payloadData.senderId,
+    senderName: payloadData.senderName,
+    date: getActualDate(),
+    status: status,
+    avatarImg: payloadData.avatarImg
+  };
+};
+
 /*
   MSJ PRIVADO
                   senderId:userData.userId,

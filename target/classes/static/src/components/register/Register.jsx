@@ -9,6 +9,7 @@ import ModalJoinChat from './modals/join-chat/ModalJoinChat.jsx';
 import './Register.css'
 import { useEffect } from 'react';
 import { disconnectChat } from '../ChatRoom/ChatRoomFunctions.js';
+import { imageLinks } from '../../services/avatarsLinks.js';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -41,6 +42,7 @@ const Register = () => {
     const handleUsername = (event) => {
         const { value } = event.target;
         setUserData({ ...userData, "username": value });
+        localStorage.setItem('username', value);
     }
 
     //esta funcion solo se ejecuta si cerras el modal, la conexion se realiza en ModalJoinChat
@@ -55,14 +57,18 @@ const Register = () => {
 
     const handleCreateRoom = (e) => {
         e.preventDefault();
-        if (userData.username === '') {
+        if (userData.username === '' && localStorage.getItem('username')===null || 
+        localStorage.getItem('username')==='') {
             alert('se debe poner un nombre de usuario');
+            return;
+        }
+        if (userData.avatarImg === '' || localStorage.getItem('avatarImg')===null) {
+            alert('Debe seleccionar una imagen');
             return;
         }
         //se debería crear un id
         let urlRoom = '1234'
         setUserData({ ...userData, "status": 'CREATE', "URLSessionid": urlRoom });
-        localStorage.setItem('username', userData.username);
         navigate(`/chatroom/${urlRoom}`);
     }
 
@@ -74,13 +80,23 @@ const Register = () => {
         }
     }, [])
 
+    useEffect(()=>{
+        if(localStorage.getItem('avatarImg')===null){
+            localStorage.setItem('avatarImg', imageLinks[0]);
+        }
+    })
+
     return (
         <>
             <div className='register-container'>
                 <div className="register">
                     <h1 className='register-title'>CHAT ROOM</h1>
                     <div className='register-icon-container'>
-                        <div className='icon-img-contenedor' style={{ backgroundImage: `url(${localStorage.getItem('avatarImg')})` }}></div>
+                        <div 
+                        className='icon-img-contenedor' 
+                        style={
+                            { backgroundImage: `url(${localStorage.getItem('avatarImg')===null ? imageLinks[0] : localStorage.getItem('avatarImg')})` }
+                            }></div>
                         <button className='icon-edit-btn' onClick={handleShowModalIconChooser}><i className="bi bi-pencil"></i></button>
                     </div>
 

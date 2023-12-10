@@ -162,6 +162,27 @@
     display: none;
 }
 
+.copy-animation-active {
+    opacity: 1;
+    transition: opacity .2s;
+}
+.copy-animation {
+    background-color: rgba(61, 61, 61, 0.937);
+    color: white;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 15%;
+    margin: 0 auto;
+    width: 150px;
+    max-width: 50%;
+    height: 40px;
+    border-radius: 10px;
+    opacity: 0;
+    transition: opacity .2s;
+    user-select: none;
+}
+
 
 @media screen and (max-width: 768px) and (min-width: 376px) {
     .sidebar{

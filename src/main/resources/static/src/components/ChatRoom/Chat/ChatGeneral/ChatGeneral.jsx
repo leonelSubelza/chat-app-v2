@@ -9,7 +9,7 @@ const ChatGeneral = ({ publicChats }) => {
         <div className="chat-content">
             <div className='scroll-messages'>
                 <ul className="chat-messages">
-                    {publicChats.map((chat,) => (
+                    {publicChats.map((chat) => (
                         <Chat
                             key={uuidv4()}
                             chat={chat}
