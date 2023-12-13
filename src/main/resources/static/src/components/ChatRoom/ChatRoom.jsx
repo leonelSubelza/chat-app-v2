@@ -1,19 +1,10 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'
 import { useNavigate } from 'react-router-dom';
-
-/*
-Stomp es una biblioteca JavaScript que se utiliza para enviar y recibir 
-mensajes a través del protocolo STOMP (Simple Text Oriented Messaging Protocol).
-*/
 import { over } from 'stompjs';
 import './ChatRoom.css';
-
-
-//Es una librearia de JS. A diferencia de usar la api WebSocket para crear la conexion,
-//Esta sirve para que pueda ser usada en navegadores más viejos.
 import SockJS from 'sockjs-client';
 import { serverURL } from '../../config/chatConfiguration.js';
-import { UserDataContext, useUserDataContext, userContext } from '../../context/UserDataContext.jsx';
+import { useUserDataContext, userContext } from '../../context/UserDataContext.jsx';
 import ChatGeneral from "./Chat/ChatGeneral/ChatGeneral.jsx";
 import ChatPrivate from "./Chat/ChatPrivate/ChatPrivate.jsx";
 import MessageInput from "./MessageInput/MessageInput.jsx";
@@ -118,8 +109,6 @@ const ChatRoom = () => {
         stompClient.current.subscribe('/chatroom/public', onMessageReceived);
         stompClient.current.subscribe('/chatroom/' + urlSessionIdAux, onMessageReceived);
         stompClient.current.subscribe('/user/' + userData.userId + "/" + urlSessionIdAux + '/private', onPrivateMessage);
-        //escuchamos el canal que nos envía quién se desconectó
-        //stompClient.subscribe('/chatroom/disconnected', onUserDisconnected);
         userJoin(urlSessionIdAux);
     }
 
@@ -132,8 +121,6 @@ const ChatRoom = () => {
 
         //aca el status puede ser CREATE o JOIN depende
         var chatMessage = createPublicMessage(userData.status, userDataAux);
-        //Se envia un msj al servidor, el cual se envia a todos los usuarios conectados
-        //stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
         stompClient.current.send("/app/chat.join", {}, JSON.stringify(chatMessage));
     }
 
@@ -147,9 +134,6 @@ const ChatRoom = () => {
             case "MESSAGE":
                 publicChats.push(payloadData);
                 setPublicChats([...publicChats]);
-                //tener cuidado, ningun usuario manda mensaje sin antes hacer un join
-                //se debería actualizar por medio de un msj al ws no cuando se envia de nuevo un msj arreglar esto!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                //checkUpdatedUserChatData(payloadData,userContextObj,getUserSavedFromPrivateMenssage(payloadData.senderId));
                 break;
             case "UPDATE":
                 //actualizar publicMessages y privateMessages
@@ -324,8 +308,6 @@ const ChatRoom = () => {
             window.removeEventListener('keyup', handleKeyPressedMsg);
         }
     })
-
-
     return (
         <>
             {channelExists && startedConnection.current && !isDataLoading ?
@@ -340,19 +322,7 @@ const ChatRoom = () => {
                         <div className="home-content">
                             <span className="text">{`${tab === 'CHATROOM' ? 'CHAT GENERAL' : tab.username}`}</span>
                         </div>
-
-                        {tab !== "CHATROOM" ? 
-                        <ChatPrivate
-                            privateChats={privateChats}
-                            tab={tab}
-                            sendPrivateValue={sendPrivateValue}
-                            userData={userData}
-                        /> : 
-                        <ChatGeneral
-                            publicChats={publicChats}
-                            sendValue={sendValue}
-                        />}
-
+                        {tab !== "CHATROOM" ? <ChatPrivate/> : <ChatGeneral/>}
                         <MessageInput
                             onSend={tab === 'CHATROOM' ? sendValue : sendPrivateValue}
                         />

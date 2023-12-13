@@ -19,7 +19,7 @@ import ChatPrivate from "./Chat/ChatPrivate/ChatPrivate.jsx";
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';
 import { getRoomIdFromURL } from '../../utils/InputValidator.js';
-import { disconnectChat, createUserChat, createPrivateMessage, createPublicMessage,updateChatData } from './ChatRoomFunctions.js';
+import { disconnectChat, createUserChat, createPrivateMessage, createPublicMessage,updateChatData, createMessageJoin } from './ChatRoomFunctions.js';
 import { generateUserId } from '../../utils/IdGenerator.js';
 
 const ChatRoom = () => {
@@ -199,10 +199,12 @@ const ChatRoom = () => {
             var chatUser = createUserChat(payloadData);
             privateChats.set(chatUser, []);
             setPrivateChats(new Map(privateChats));
-            //cuando un usuario se une nuevo, éste no conoce quienes están unidos, 
-            //por lo que le enviamos nuestro perfil para que lo guarde al que se unió (se maneja
-            //en private msj lo recibido)
             if (resend) {
+                //Generamos el msj de que alguien se unió
+                let joinMessage = createMessageJoin("JOIN", payloadData);
+                publicChats.push(joinMessage);
+                setPublicChats([...publicChats]);
+
                 //la poronga del urlSessionId no se por qué concha puta no se guarda
                 let roomId = userData.URLSessionid === '' ? payloadData.urlSessionId : userData.URLSessionid;
                 let userDataAux = userData;
@@ -242,9 +244,13 @@ const ChatRoom = () => {
             //si yo mismo me voy
             return;
         }
+        //mostramos msj de que alguien se fue
+        let joinMessage = createMessageJoin("LEAVE", payloadData);
+        publicChats.push(joinMessage);
+        setPublicChats([...publicChats]);
+
         let userSaved = getUserSavedFromPrivateMenssage(payloadData.senderId)
         privateChats.delete(userSaved);
-        console.log("se borra usuario: " + userSaved.username);
         setPrivateChats(new Map(privateChats));
     }
 
@@ -258,8 +264,7 @@ const ChatRoom = () => {
 
     //Envia msj a todos
     const sendValue = () => {
-        if(userData.message === ''){
-            console.log("msj vacio en enviar msjglobal");
+        if(userData.message.trim() === ''){
             return;
         }
         if (stompClient.current) {
@@ -272,7 +277,7 @@ const ChatRoom = () => {
     }
 
     const sendPrivateValue = () => {
-        if(userData.message === ''){
+        if(userData.message.trim() === ''){
             return;
         }
         if (stompClient.current) {

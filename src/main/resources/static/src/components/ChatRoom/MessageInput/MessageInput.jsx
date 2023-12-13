@@ -9,22 +9,7 @@ const MessageInput = ({ onSend }) => {
         const { value } = event.target;
         setUserData({ ...userData, "message": value });
     }
-/*
-    const handleKeyPressedMsg = (e) => {
-        console.log("se escucha keypressed en chatroom");
-        let key = e;
-        if (typeof e !== 'string') {
-            key = e.key;
-        }
-        if(key === 'Enter'){
-            return onSend();
-        }
-
-        const { value } = e.target;
-        setUserData({ ...userData, "message": value });
-    }
-
-*/
+    
     return (
         <div className="send-message">
             <input
