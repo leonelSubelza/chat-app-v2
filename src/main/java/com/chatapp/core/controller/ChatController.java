@@ -111,19 +111,13 @@ public class ChatController {
 
     //Un usuario se desconectó pero no cerró la ventana del navegador
     @MessageMapping("/user.disconnected")
-    public Message handleUserDisconnected(@Payload Message message){
+    public void handleUserDisconnected(@Payload Message message){
         User user = WebSocketSessionHandler.getUser(message.getSenderId());
         System.out.println("se desonecta el usuario: "+user);
         if(user==null){
             log.error("Trying to delete user {} who doesn't exists",message.getSenderName());
-            message.setStatus(Status.ERROR);
         }else{
-            boolean disconnected = this.chatService.disconnectUserFromRoom(user);
-            if(!disconnected){
-                message.setStatus(Status.ERROR);
-            }
+            this.chatService.disconnectUserFromRoom(user);
         }
-        simpMessagingTemplate.convertAndSend("/chatroom/"+message.getUrlSessionId(),message);
-        return message;
     }
 }

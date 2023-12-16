@@ -35,7 +35,9 @@ public class WebSocketEventListener {
         System.out.println("se ejecuta eventlistener de usuario desconectado");
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(disconnectEvent.getMessage());
         String id = headerAccessor.getSessionId();
-        User user = (User) headerAccessor.getSessionAttributes().get("User");
+        //UsersessionHandler es un objeto que maneja Spring, guardamos ahi una referencia al usuario para obtenerlo acá
+        User userSessionHandler = (User) headerAccessor.getSessionAttributes().get("User");
+        User user = WebSocketSessionHandler.getUser(userSessionHandler.getId());
 //Esto pasa cuando un usuario se quiere conectar a una room invalida, no se guarda al usuario por lo que se desconeta alguien null
         if(user==null) return;
 

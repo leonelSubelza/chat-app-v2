@@ -300,7 +300,8 @@ const ChatRoom = () => {
     }
 
     const handleDisconnectChat = () => {
-        disconnectChat(userContextObj);
+        console.log("se envia msj que me desconecté");
+        disconnectChat();
         //avisamos a todos que nos desconectamos
         var chatMessage = {
             senderId:userData.userId,

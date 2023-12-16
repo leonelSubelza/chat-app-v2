@@ -84,7 +84,7 @@ public class ChatService {
                 .build();
     }
 
-    public boolean disconnectUserFromRoom(User user){
+    public void disconnectUserFromRoom(User user){
         //Tener en cuenta que existe una referencia en el obj headerAccesor manejado por Spring que no se borra
         //sino que se borrará cuando el usuario cierre la ventana del navegador
 
@@ -100,6 +100,7 @@ public class ChatService {
                 .build();
         WebSocketSessionHandler.removeSession(user);
         log.info("number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
+
         //informamos a todos los demas que alguien se desconectó
         this.messageTemplate.convertAndSend("/chatroom/"+user.getRoomId(),chatMessage);
 
@@ -107,13 +108,12 @@ public class ChatService {
         boolean remove = WebSocketRoomHandler.activeRooms.get(user.getRoomId()).getUsers().remove(user);
         if(!remove){
             log.warn("Tryied to delete a user from an inxisting room");
-            return false;
+            return;
         }
         if(userRoom.getUsers().isEmpty()) {
             WebSocketRoomHandler.removeRoom(userRoom);
             log.info("Room with id:{} deleted, number of rooms actives: {}",
                     userRoom.getId(), WebSocketSessionHandler.getActiveSessionsCount());
         }
-        return true;
     }
 }
