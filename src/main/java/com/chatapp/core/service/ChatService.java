@@ -7,7 +7,9 @@ import com.chatapp.core.controller.model.Room;
 import com.chatapp.core.controller.model.Status;
 import com.chatapp.core.controller.model.User;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -15,6 +17,9 @@ import java.util.HashSet;
 @Service
 @Slf4j
 public class ChatService {
+
+    @Autowired
+    private SimpMessageSendingOperations messageTemplate;
 
     public User handleUserJoin(Message message, SimpMessageHeaderAccessor headerAccessor){
         String id = headerAccessor.getSessionId();
@@ -42,7 +47,7 @@ public class ChatService {
                 return null;
             }else{
                 WebSocketRoomHandler.activeRooms.get(message.getUrlSessionId()).getUsers().add(newUser);
-                log.info("User added to room!:{}",room.getId());
+                log.info("User {} added to room {}!",newUser.getUsername(),room.getId());
                 log.info("All the rooms:{}",WebSocketRoomHandler.activeRooms);
             }
         }
@@ -56,7 +61,7 @@ public class ChatService {
         log.info("User connected!:{}",user.getUsername());
         log.info("number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
     }
-    public void  saveRoom(Room room){
+    public void saveRoom(Room room){
         WebSocketRoomHandler.addRoom(room);
         log.info("New Room created!:{}",room.getId());
         log.info("number of rooms created:{}",WebSocketRoomHandler.getActiveRoomsCount());
@@ -77,5 +82,38 @@ public class ChatService {
                 .username(message.getSenderName())
                 .roomId(message.getUrlSessionId())
                 .build();
+    }
+
+    public boolean disconnectUserFromRoom(User user){
+        //Tener en cuenta que existe una referencia en el obj headerAccesor manejado por Spring que no se borra
+        //sino que se borrará cuando el usuario cierre la ventana del navegador
+
+        Room userRoom = WebSocketRoomHandler.activeRooms.get(user.getRoomId());
+
+        log.info("User disconnected!:{}",user.getUsername());
+        Message chatMessage = Message.builder()
+                .senderId(user.getId())
+                .senderName(user.getUsername())
+                .status(Status.LEAVE)
+                .date("")
+                .urlSessionId(user.getRoomId())
+                .build();
+        WebSocketSessionHandler.removeSession(user);
+        log.info("number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
+        //informamos a todos los demas que alguien se desconectó
+        this.messageTemplate.convertAndSend("/chatroom/"+user.getRoomId(),chatMessage);
+
+        //checkeo si la room a la que pertenecía ya no existe
+        boolean remove = WebSocketRoomHandler.activeRooms.get(user.getRoomId()).getUsers().remove(user);
+        if(!remove){
+            log.warn("Tryied to delete a user from an inxisting room");
+            return false;
+        }
+        if(userRoom.getUsers().isEmpty()) {
+            WebSocketRoomHandler.removeRoom(userRoom);
+            log.info("Room with id:{} deleted, number of rooms actives: {}",
+                    userRoom.getId(), WebSocketSessionHandler.getActiveSessionsCount());
+        }
+        return true;
     }
 }

@@ -13,9 +13,6 @@ export function UserDataContext({ children }) {
   //flag que hace que se espere hasta que este componente se termine de cargar
   const [isDataLoading, setIsDataLoading] = useState(true);
 
-  //flag para que no ejecute el método connect() más de una vez
-  const startedConnection = useRef(false);
-
   //verifica que la room a la que se quiere conectar existe
   const [channelExists,setChannelExists] = useState(false);
 
@@ -46,34 +43,28 @@ export function UserDataContext({ children }) {
 
   const loadUserDataValues = () => {
     //setAvatarImage
-    let urlImg = '';
     if (localStorage.getItem('avatarImg') === null) {
       localStorage.setItem('avatarImg', imageLinks[0]);
-      urlImg = imageLinks[0];
+      userData.avatarImg = imageLinks[0];
     } else {
-      urlImg = localStorage.getItem('avatarImg')
+      userData.avatarImg = localStorage.getItem('avatarImg')
     }
-    //setUserName
-    let username = '';
+       
     if (localStorage.getItem('username') === null) {
-      username = '';
+      userData.username = '';
     } else {
-      username = localStorage.getItem('username');
+      userData.username = localStorage.getItem('username');
     }
     //localStorage.setItem('connected', false);
-    let idGeneradooo = generateUserId();
-    setUserData({ ...userData, "userId":idGeneradooo, "avatarImg": urlImg, "username": username });
+    userData.userId = generateUserId();
+    setUserData({ ...userData, "userId":userData.userId, "avatarImg": userData.avatarImg, "username": userData.username });
     setIsDataLoading(false);
   }
 
-  useEffect(() => {
-    loadUserDataValues();
-  }, [])
 
   return (
     <userContext.Provider
       value={{
-        startedConnection,
         channelExists,setChannelExists,
         isDataLoading, setIsDataLoading,
         userData, setUserData,
@@ -81,7 +72,8 @@ export function UserDataContext({ children }) {
         publicChats, setPublicChats,
         messageData, setMessageData,
         tab,setTab,
-        stompClient
+        stompClient,
+        loadUserDataValues
       }}
     >
       {children}

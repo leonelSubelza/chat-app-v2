@@ -1,21 +1,21 @@
-import React, { useState,useEffect,useContext } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 
 import ChatRoom from "./components/ChatRoom/ChatRoom.jsx";
 import Register from "./components/register/Register.jsx";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { userContext } from './context/UserDataContext';
+import { ChatRoomConnectionContext } from './context/ChatRoomConnectionContext.jsx';
 
 function App() {
-  const { userData } = useContext(userContext);
   return (
-    <Router>
-        <Routes>
-          <Route path="/" element={<Register/>} />
-          <Route path={`/chatroom/*`} element={<ChatRoom />} />
-          <Route path='*' element={<Register/>} />
-        </Routes>
+      <Router>
+        <ChatRoomConnectionContext>
+          <Routes>
+            <Route path="/" element={<Register />} />
+            <Route path={`/chatroom/*`} element={<ChatRoom />} />
+            <Route path='*' element={<Register />} />
+          </Routes>
+          </ChatRoomConnectionContext>
       </Router>
-    
   );
 }
 

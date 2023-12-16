@@ -2,10 +2,9 @@ import { getActualDate } from "../../utils/MessageDateConvertor";
 
 export const resetValues = (userDataContext) => {
   const {
-    setIsDataLoading,
     userData,
     setUserData,
-    startedConnection,
+    //startedConnection,
     setPrivateChats,
     setPublicChats,
     setTab,
@@ -14,17 +13,20 @@ export const resetValues = (userDataContext) => {
   } = userDataContext;
 
   //setIsDataLoading(true);
-  startedConnection.current = false;
+  //startedConnection.current = false;
+
+//startedConnection.current && !isDataLoading && userData.connected
+
+
   setChannelExists(false);
-  if (stompClient !== null) {
-    stompClient.current = null;
-  }
+  //if (stompClient !== null) {
+  //  stompClient.current = null;
+  //}
   setPrivateChats(new Map());
   setPublicChats([]);
   setTab("CHATROOM");
   setUserData({
     ...userData,
-    connected: false,
     receivername: "",
     message: "",
     URLSessionid: "",
@@ -33,30 +35,7 @@ export const resetValues = (userDataContext) => {
   //localStorage.setItem('connected',false)
 };
 
-export const disconnectChat = (userDataContext) => {
-  const { stompClient } = userDataContext;
-  if (stompClient.current !== null) {
-    stompClient.current.disconnect();
-    //navigate("/");
-    resetValues(userDataContext);
-  }
-};
-
-//Actualizar foto y nombre de un chatUser
-
 export const updateChatData = (payloadData, userDataContext, userChat) => {
-  /*
-  const {publicChats} = userDataContext;
-  let msgPublic = publicChats.find(msg => msg.senderId === payloadData.senderId);
-  if(msgPublic !== undefined){
-    if(msgPublic.senderName!==payloadData.senderName || msgPublic.avatarImg !== payloadData.avatarImg){
-      updateUserChatDataPublic(userDataContext,payloadData);
-    }
-  }
-  if(userChat.senderName!==payloadData.senderName || userChat.avatarImg !== payloadData.avatarImg){
-    updateUserChatDataPrivate(userDataContext,payloadData,userChat);
-  }
-  */
   updateUserChatDataPublic(userDataContext, payloadData);
   updateUserChatDataPrivate(userDataContext, payloadData, userChat);
 };

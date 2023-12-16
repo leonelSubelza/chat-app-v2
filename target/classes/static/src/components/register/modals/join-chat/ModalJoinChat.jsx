@@ -7,11 +7,12 @@ import Modal from 'react-bootstrap/Modal';
 import './ModalJoinChat.css'
 import { isCorrectURL } from '../../../../utils/InputValidator';
 import {userContext} from '../../../../context/UserDataContext.jsx';
+import { chatRoomConnectionContext } from '../../../../context/ChatRoomConnectionContext.jsx';
 const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }) => {
 
     const [inputValue, setInputValue] = useState('');
     const { userData,setUserData } = useContext(userContext);
-    const navigate = useNavigate();
+    const {checkIfChannelExists} = useContext(chatRoomConnectionContext)
 
     const handleCloseModal = (e) => {
         if(e===undefined){
@@ -40,17 +41,19 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }) => {
             const domain = window.location.origin;
             let urlSessionIdAux = inputValue.split(domain+'/chatroom/')[1];
             setUserData({...userData,"URLSessionid": urlSessionIdAux});
-            navigate(`/chatroom/${urlSessionIdAux}`);
+            //navigate(`/chatroom/${urlSessionIdAux}`);
             window.removeEventListener('keyup', handleKeyPressed);
             setInputValue('');
+            checkIfChannelExists(urlSessionIdAux);
         }else{
             //si el link escrito no es una url válida, entonces se verifica que sea solo una contraseña
             if( /^[a-zA-Z\d]+$/.test(inputValue)){
                 console.log("el link escrito es una contraseña valida");
                 setUserData({...userData,"URLSessionid": inputValue});
-                navigate(`/chatroom/${inputValue}`);
+                //navigate(`/chatroom/${inputValue}`);
                 window.removeEventListener('keyup', handleKeyPressed);
                 setInputValue('');
+                checkIfChannelExists(inputValue);
             }else{
                 alert("el link escrito NO es una contraseña valida")
             }

@@ -89,7 +89,6 @@ public class ChatController {
     //@SendTo("/chatroom/{urlSessionId}")
     public Message userJoin(@Payload Message message, SimpMessageHeaderAccessor headerAccessor){
         User userJoinCorrect = this.chatService.handleUserJoin(message,headerAccessor);
-        System.out.println("Id usuario que se intenta conectar: "+headerAccessor.getSessionId());
         //si hubo un error intentando conectar
         if(userJoinCorrect == null){
             message.setStatus(Status.ERROR);
@@ -108,5 +107,23 @@ public class ChatController {
             message.setStatus(Status.NOT_EXISTS);
         }
         simpMessagingTemplate.convertAndSendToUser(message.getSenderId(),"/exists-channel",message);
+    }
+
+    //Un usuario se desconectó pero no cerró la ventana del navegador
+    @MessageMapping("/user.disconnected")
+    public Message handleUserDisconnected(@Payload Message message){
+        User user = WebSocketSessionHandler.getUser(message.getSenderId());
+        System.out.println("se desonecta el usuario: "+user);
+        if(user==null){
+            log.error("Trying to delete user {} who doesn't exists",message.getSenderName());
+            message.setStatus(Status.ERROR);
+        }else{
+            boolean disconnected = this.chatService.disconnectUserFromRoom(user);
+            if(!disconnected){
+                message.setStatus(Status.ERROR);
+            }
+        }
+        simpMessagingTemplate.convertAndSend("/chatroom/"+message.getUrlSessionId(),message);
+        return message;
     }
 }

@@ -3,8 +3,8 @@ import Chat from "../Chat.jsx";
 import { userContext } from '../../../../context/UserDataContext.jsx';
 import { v4 as uuidv4 } from 'uuid';
 
-const ChatGeneral = ({ publicChats }) => {
-    const { userData } = useContext(userContext);
+const ChatGeneral = () => {
+    const { userData,publicChats } = useContext(userContext);
     return (
         <div className="chat-content">
             <div className='scroll-messages'>

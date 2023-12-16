@@ -1,29 +1,35 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { over } from 'stompjs';
 import './ChatRoom.css';
-import SockJS from 'sockjs-client';
-import { serverURL } from '../../config/chatConfiguration.js';
 import { useUserDataContext, userContext } from '../../context/UserDataContext.jsx';
+import { chatRoomConnectionContext, useChatRoomConnectionContext } from '../../context/ChatRoomConnectionContext.jsx';
 import ChatGeneral from "./Chat/ChatGeneral/ChatGeneral.jsx";
 import ChatPrivate from "./Chat/ChatPrivate/ChatPrivate.jsx";
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';
 import { getRoomIdFromURL } from '../../utils/InputValidator.js';
-import { disconnectChat, createUserChat, createPrivateMessage, createPublicMessage,updateChatData, createMessageJoin } from './ChatRoomFunctions.js';
-import { generateUserId } from '../../utils/IdGenerator.js';
+import { createPrivateMessage, createPublicMessage } from './ChatRoomFunctions.js';
+
 
 const ChatRoom = () => {
     const navigate = useNavigate();
 
-    const { isDataLoading, userData, setUserData, startedConnection, privateChats, setPrivateChats,
+    const { isDataLoading, userData, setUserData, privateChats, setPrivateChats,
         publicChats, setPublicChats, tab, setTab, stompClient, channelExists, setChannelExists } = useContext(userContext);
 
+    const {startedConnection} = useContext(chatRoomConnectionContext);
     const userContextObj = useUserDataContext();
+
+    const {disconnectChat,checkIfChannelExists} = useContext(chatRoomConnectionContext)
+
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
+
     const connect = () => {
-        if (userData.connected || isDataLoading) {
+        if(stompClient.current===null){
+            return;
+        }
+        if (!startedConnection.current || isDataLoading || !userData.connected) {
             return;
         }
 
@@ -31,7 +37,7 @@ const ChatRoom = () => {
             || localStorage.getItem('username') === 'null') {
             let nombre = prompt("Ingrese un nombre de usuario");
             if(nombre===null){
-                disconnectChat(userContextObj);
+                disconnectChat();
                 navigate("/");
                 return;
             }
@@ -39,20 +45,34 @@ const ChatRoom = () => {
             setUserData({ ...userData, "username": nombre });
             return;
         }
+        if (userData.URLSessionid === '') {
+            const url = window.location + "";
+            let urlSessionIdAux = getRoomIdFromURL(url);
+            if (urlSessionIdAux === undefined) {
+                disconnectChat();
+                navigate("/");
+                return;
+            }
+            setUserData({ ...userData, "URLSessionid": urlSessionIdAux });
+            if(stompClient.current!==null){
+                checkIfChannelExists(urlSessionIdAux);
+            }
+            return;
+        }
         //CREAR CANAL PARA SABER QUIEN ESTA ESCRIBIENDO
 
-        if (!startedConnection.current
-            //&& userData.username!=='' 
-            && !userData.connected
-            && (stompClient.current === null)) {
+        // if (!startedConnection.current
+        //     //&& userData.username!=='' 
+        //     && !userData.connected
+        //     && (stompClient.current === null)) {
 
-            let Sock = new SockJS(serverURL);
-            stompClient.current = over(Sock);
-            startedConnection.current = true;
-            stompClient.current.connect({}, onConnected, onError);
-        }
+        //     let Sock = new SockJS(serverURL);
+        //     stompClient.current = over(Sock);
+        //     startedConnection.current = true;
+        //     stompClient.current.connect({}, onConnected, onError);
+        // }
     }
-
+    /*
     const onConnected = () => {
         userData.connected = true
         setUserData({ ...userData});
@@ -246,6 +266,8 @@ const ChatRoom = () => {
         navigate('/')
     }
 
+    */
+
     //Envia msj a todos
     const sendValue = () => {
         if(userData.message.trim() === ''){
@@ -279,6 +301,16 @@ const ChatRoom = () => {
 
     const handleDisconnectChat = () => {
         disconnectChat(userContextObj);
+        //avisamos a todos que nos desconectamos
+        var chatMessage = {
+            senderId:userData.userId,
+            senderName: userData.username,
+            urlSessionId: userData.URLSessionid,
+            status: 'LEAVE',
+            avatarImg: userData.avatarImg
+        }
+        stompClient.current.send("/app/user.disconnected", {}, JSON.stringify(chatMessage));
+
         navigate('/');
     }
 
