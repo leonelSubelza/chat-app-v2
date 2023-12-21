@@ -125,8 +125,6 @@ export function ChatRoomConnectionContext({ children }) {
             case "MESSAGE":
                 //publicChats.push(payloadData);
                 //setPublicChats([...publicChats]);
-                console.log("se recibe msj privado, el tab elegido: ");
-                console.log(tab);
                 savePublicMessage(payloadData);
                 break;
             case "UPDATE":
@@ -164,8 +162,6 @@ export function ChatRoomConnectionContext({ children }) {
                 handleJoinUser(payloadData, false);
                 break;
             case "MESSAGE":
-                console.log("se recibe msj privado, el tab elegido: ");
-                console.log(tab);
                 handlePrivateMessageReceived(payloadData);
                 break;
             default:
@@ -247,7 +243,6 @@ export function ChatRoomConnectionContext({ children }) {
             chatUser.hasUnreadedMessages=true;
 
             chats.set(chatUser, list);
-            console.log(chatUser);
             setChats(new Map(chats));
         }
 

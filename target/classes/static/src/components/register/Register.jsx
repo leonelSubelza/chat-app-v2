@@ -8,7 +8,7 @@ import { imageLinks } from '../../services/avatarsLinks.js';
 import './Register.css'
 
 const Register = () => {
-    const { userData, setUserData, isDataLoading } = useContext(userContext);
+    const { userData, setUserData, isDataLoading,stompClient,channelExists } = useContext(userContext);
     const { checkIfChannelExists, disconnectChat, startedConnection } = useContext(chatRoomConnectionContext)
 
     //MOdal icon chooser
@@ -69,9 +69,19 @@ const Register = () => {
     }
 
     useEffect(() => {
+        console.log("se carga componente Register");
         //si se hace <- desde el navegador se cierra la conexion cuando se carga este componente pq no 
         //puedo capturar el evento cuando se hace para atrás en chatroom :(
-        if (userData.connected) {
+        if (userData.connected && !channelExists &&
+            Object.keys(stompClient.current.subscriptions).length>0) {
+            var chatMessage = {
+                senderId:userData.userId,
+                senderName: userData.username,
+                urlSessionId: userData.URLSessionid,
+                status: 'LEAVE',
+                avatarImg: userData.avatarImg
+            }
+            stompClient.current.send("/app/user.disconnected", {}, JSON.stringify(chatMessage));
             disconnectChat();
         }
     }, [])

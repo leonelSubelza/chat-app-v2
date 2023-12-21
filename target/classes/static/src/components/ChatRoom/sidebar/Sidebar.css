@@ -188,6 +188,18 @@
     user-select: none;
 }
 
+.toast{
+    position:fixed;
+    bottom: 10%;
+    left: 50%;
+    width: auto !important;
+    background-color: #383258 !important;
+}
+
+.toast-body{
+    text-align: center;
+    color: #fff;
+}
 
 @media screen and (max-width: 768px) and (min-width: 376px) {
     .sidebar{

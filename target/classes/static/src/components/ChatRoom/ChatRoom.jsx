@@ -81,8 +81,9 @@ const ChatRoom = () => {
             var chatMessage = createPublicMessage(status, userData);
             //Ahora enviamos un 'msj grupal' solo a los que esten en nuestra sala
             stompClient.current.send("/app/group-message", {}, JSON.stringify(chatMessage));
-            //el msj enviado se guarda en la func que procesa un msj recibido grupal debería hacerse acá >:(
-            setUserData({ ...userData, "message": "" });
+            if(status==="MESSAGE"){
+                setUserData({ ...userData, "message": "" });
+            }
         }
     }
 
@@ -134,11 +135,11 @@ const ChatRoom = () => {
                 sendPrivateValue();
             }
         }
-        setTimeout(() => {
-            sendValue("WRITING")
-		}, 5000);
-
-
+        // else{
+        //     setTimeout(() => {
+        //         sendValue("WRITING")
+        //     }, 5000);
+        // }
     }
 
     useEffect(() => {

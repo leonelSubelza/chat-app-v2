@@ -75,8 +75,14 @@ const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
                 </div>
             </div>
             <ModalIconChooser showModalIconChooser={showModalIconChooser} handleCloseModalIconChooser={handleCloseModalIconChooser} />
-            <Toast onClose={() => setShowToastMessage(false)} show={showToastCopied} delay={3000} autohide>
-                <Toast.Body>Copied!</Toast.Body>
+            <Toast 
+            onClose={() => setShowToastMessage(false)} 
+            show={showToastCopied} 
+            delay={800} 
+            animation={true}
+            autohide
+            >
+                <Toast.Body>URL Copied to clipboard!</Toast.Body>
             </Toast>
         </div>
     );
