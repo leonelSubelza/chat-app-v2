@@ -53,7 +53,7 @@ const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
     return (
         <div className={`sidebar ${sidebarOpen ? '' : 'close'}`}>
             <div className="menu-details">
-                <i className="bi bi-list menu-hamburger" onClick={toggleSidebar}>{`${"<-"}`}</i>
+                <i className="bi bi-list menu-hamburger" onClick={toggleSidebar}></i>
                 <span className="logo_name">Chat-App</span>
                 <i className="bi bi-clipboard url-input-icon" style={{color:"white"}} onClick={copyInput}></i>
                 
@@ -75,8 +75,14 @@ const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
                 </div>
             </div>
             <ModalIconChooser showModalIconChooser={showModalIconChooser} handleCloseModalIconChooser={handleCloseModalIconChooser} />
-            <Toast onClose={() => setShowToastMessage(false)} show={showToastCopied} delay={3000} autohide>
-                <Toast.Body>Copied!</Toast.Body>
+            <Toast 
+            onClose={() => setShowToastMessage(false)} 
+            show={showToastCopied} 
+            delay={800} 
+            animation={true}
+            autohide
+            >
+                <Toast.Body>URL Copied to clipboard!</Toast.Body>
             </Toast>
         </div>
     );
