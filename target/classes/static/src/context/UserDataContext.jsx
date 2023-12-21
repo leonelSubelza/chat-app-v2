@@ -1,7 +1,7 @@
 import React, { useEffect, useState,useRef,useContext } from 'react'
 import { imageLinks } from '../services/avatarsLinks.js';
 import { generateUserId } from '../utils/IdGenerator.js';
-
+import chatRoomIcon from '../assets/people-icon.svg';
 export const userContext = React.createContext();
 
 export function useUserDataContext (){
@@ -23,7 +23,7 @@ export function UserDataContext({ children }) {
     userId:'',
     username: '',
     connected: false,
-    receivername: '',
+    receivername: '',//este tal vez borrar
     message: '',
     URLSessionid: '',
     //el estado indica luego en el chatroom qué hay que hacer, si unirse auna sala o crear una
@@ -33,8 +33,10 @@ export function UserDataContext({ children }) {
 
   const [privateChats, setPrivateChats] = useState(new Map());     
   const [publicChats, setPublicChats] = useState([]); 
-  const [tab,setTab] =useState("CHATROOM");//tab es o 'CHATROOM' o un obj chatUser
+  const [chats, setChats] = useState(new Map());
+  const [tab,setTab] =useState();//tab es o 'CHATROOM' o un obj chatUser
 
+  //este no se usa tal vez borrar
   const [messageData, setMessageData] = useState({
     receivername: '',
     message: '',
@@ -59,8 +61,27 @@ export function UserDataContext({ children }) {
     userData.userId = generateUserId();
     setUserData({ ...userData, "userId":userData.userId, "avatarImg": userData.avatarImg, "username": userData.username });
     setIsDataLoading(false);
+
+    resetChats();
   }
 
+  const resetChats = () => {
+    let chatsAux = chats;
+    for (var obj of chatsAux) {
+      chats.delete(obj[0]);
+    }
+    let chatRoomObject = {
+      id: 0,
+      username: "CHATROOM",
+      joinData: "-",
+      avatarImg: chatRoomIcon,
+      hasUnreadedMessages:false
+    }
+
+    chats.set(chatRoomObject, []);
+    setChats(new Map(chats));
+    setTab(Array.from(chats.keys())[0])
+  }
 
   return (
     <userContext.Provider
@@ -73,7 +94,9 @@ export function UserDataContext({ children }) {
         messageData, setMessageData,
         tab,setTab,
         stompClient,
-        loadUserDataValues
+        loadUserDataValues,
+        resetChats,
+        chats, setChats
       }}
     >
       {children}

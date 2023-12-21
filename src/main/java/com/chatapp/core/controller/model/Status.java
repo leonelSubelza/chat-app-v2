@@ -8,5 +8,6 @@ public enum Status {
     CREATE,
     EXISTS,
     NOT_EXISTS,
-    ERROR
+    ERROR,
+    WRITING
 }

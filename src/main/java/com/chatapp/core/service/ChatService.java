@@ -95,6 +95,7 @@ public class ChatService {
                 .senderId(user.getId())
                 .senderName(user.getUsername())
                 .status(Status.LEAVE)
+                //GENERAR UNA FECHA EN FORMATO UTC O SEA FORMATO UNIVERSAL
                 .date("")
                 .urlSessionId(user.getRoomId())
                 .build();

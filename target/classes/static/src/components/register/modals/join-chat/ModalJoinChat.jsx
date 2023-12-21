@@ -16,9 +16,8 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }) => {
 
     const handleCloseModal = (e) => {
         if(e===undefined){
-            setInputValue('');
-            window.removeEventListener('keyup', handleKeyPressed);
-            return handleCloseModalJoinChat(e);
+            closeModal(e);
+            return;
         }
         if (inputValue === '') {
             alert('Debe escribir un link para unirse a una sala!');
@@ -60,6 +59,12 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }) => {
         }
 
         //return handleCloseModalJoinChat(e,inputValue);
+    }
+
+    const closeModal = (e) => {
+        setInputValue('');
+        window.removeEventListener('keyup', handleKeyPressed);
+        return handleCloseModalJoinChat(e);
     }
 
     const copyInput = () => {

@@ -41,7 +41,7 @@ const Register = () => {
     }
 
     //esta funcion solo se ejecuta si cerras el modal, la conexion se realiza en ModalJoinChat
-    const handleCloseModalJoinChat = (e, urlRoom) => {
+    const handleCloseModalJoinChat = (e) => {
         if (e === undefined) {
             //se hizo click en la x del modal (no hay evento creo)
             setShowModalJoinChat(false);

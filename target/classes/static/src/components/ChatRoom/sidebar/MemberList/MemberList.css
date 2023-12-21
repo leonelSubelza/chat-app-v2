@@ -40,7 +40,9 @@
     color:#fff;
 }
 
-
+.hasUnreadedMessages{
+    border:1px solid green;
+}
 
 .sidebar.close .sidebar-nav-links {
     overflow: visible;

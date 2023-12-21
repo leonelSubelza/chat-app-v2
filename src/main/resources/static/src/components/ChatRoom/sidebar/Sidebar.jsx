@@ -53,7 +53,7 @@ const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
     return (
         <div className={`sidebar ${sidebarOpen ? '' : 'close'}`}>
             <div className="menu-details">
-                <i className="bi bi-list menu-hamburger" onClick={toggleSidebar}></i>
+                <i className="bi bi-list menu-hamburger" onClick={toggleSidebar}>{`${"<-"}`}</i>
                 <span className="logo_name">Chat-App</span>
                 <i className="bi bi-clipboard url-input-icon" style={{color:"white"}} onClick={copyInput}></i>
                 

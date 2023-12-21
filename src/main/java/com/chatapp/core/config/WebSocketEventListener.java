@@ -1,20 +1,13 @@
 package com.chatapp.core.config;
 
-import com.chatapp.core.controller.model.Message;
-import com.chatapp.core.controller.model.Room;
-import com.chatapp.core.controller.model.Status;
 import com.chatapp.core.controller.model.User;
 import com.chatapp.core.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.messaging.SessionConnectEvent;
-import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 //Se supone que esta clase escucha cada vez que un usuario deja el chat
@@ -37,10 +30,9 @@ public class WebSocketEventListener {
         String id = headerAccessor.getSessionId();
         //UsersessionHandler es un objeto que maneja Spring, guardamos ahi una referencia al usuario para obtenerlo acá
         User userSessionHandler = (User) headerAccessor.getSessionAttributes().get("User");
+        if(userSessionHandler==null) return;
         User user = WebSocketSessionHandler.getUser(userSessionHandler.getId());
-//Esto pasa cuando un usuario se quiere conectar a una room invalida, no se guarda al usuario por lo que se desconeta alguien null
         if(user==null) return;
-
         this.chatService.disconnectUserFromRoom(user);
     }
 }

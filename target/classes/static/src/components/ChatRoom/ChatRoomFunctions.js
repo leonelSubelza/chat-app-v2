@@ -10,6 +10,7 @@ export const resetValues = (userDataContext) => {
     setTab,
     stompClient,
     setChannelExists,
+    resetChats
   } = userDataContext;
 
   //setIsDataLoading(true);
@@ -24,6 +25,9 @@ export const resetValues = (userDataContext) => {
   //}
   setPrivateChats(new Map());
   setPublicChats([]);
+
+  resetChats();
+
   setTab("CHATROOM");
   setUserData({
     ...userData,
@@ -40,6 +44,8 @@ export const updateChatData = (payloadData, userDataContext, userChat) => {
   updateUserChatDataPrivate(userDataContext, payloadData, userChat);
 };
 
+
+/*
 const updateUserChatDataPublic = (userDataContext, payloadData) => {
   const { publicChats, setPublicChats } = userDataContext;
   if(publicChats===undefined||publicChats.length===0){
@@ -72,6 +78,51 @@ const updateUserChatDataPrivate = (userDataContext, payloadData, userChat) => {
   }
   setPrivateChats(new Map(privateChats));
 };
+*/
+
+const getPrimerElementoDelMap = (chats) =>{
+  for (var obj of chats) {
+      return obj[0];
+  }
+}
+
+const updateUserChatDataPublic = (userDataContext, payloadData) => {
+  const { chats, setChats } = userDataContext;
+  let chatRoomElement = Array.from(chats.keys())[0];
+  let chatsPublics = chats.get(chatRoomElement);
+  if(chatsPublics===undefined||chatsPublics.length===0){
+    return;
+  }
+  //aca public chats de undefined y nose por qué
+  chatsPublics.forEach((element) => {
+    if (payloadData.id === element.id) {
+      updateMessage(element,payloadData)
+    }
+  });
+  setChats([...chatsPublics]);
+};
+
+const updateUserChatDataPrivate = (userDataContext, payloadData, userChat) => {
+  const { chats, setChats } = userDataContext;
+  if (chats.get(userChat) === undefined) {
+    return;
+  }
+  chats.get(userChat).forEach((msg) => updateMessage(msg,payloadData));
+  
+  //Actualizamos las keys que tienen los datos de los usuarios
+  for (let user of chats.keys()) {
+    if (user.id === payloadData.senderId) {
+      user.username = payloadData.senderName;
+      user.avatarImg = payloadData.avatarImg;
+    }
+  }
+  setChats(new Map(chats));
+};
+
+const updateMessage = (msg,payloadData) => {
+  msg.senderName = payloadData.username;
+  msg.avatarImg = payloadData.avatarImg;
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const createUserChat = (payloadData) => {
@@ -80,6 +131,7 @@ export const createUserChat = (payloadData) => {
     username: payloadData.senderName,
     joinData: payloadData.date,
     avatarImg: payloadData.avatarImg,
+    hasUnreadedMessages:false
   };
 };
 

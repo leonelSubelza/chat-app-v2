@@ -1,4 +1,4 @@
-import React, { useContext, useEffect,useRef } from 'react'
+import React, { useCallback, useContext, useEffect, useRef } from 'react'
 import { userContext, useUserDataContext } from './UserDataContext';
 import { generateUserId } from '../utils/IdGenerator';
 import { createMessageJoin, createPrivateMessage, createPublicMessage, createUserChat, resetValues, updateChatData } from '../components/ChatRoom/ChatRoomFunctions.js';
@@ -31,11 +31,12 @@ export function ChatRoomConnectionContext({ children }) {
         userData, setUserData,
         privateChats, setPrivateChats,
         publicChats, setPublicChats,
-        stompClient,loadUserDataValues } = useContext(userContext)
+        stompClient, loadUserDataValues,
+        chats, setChats,tab } = useContext(userContext)
 
 
     const disconnectChat = () => {
-        if (stompClient.current !== null && Object.keys(stompClient.current.subscriptions).length>0) {
+        if (stompClient.current !== null && Object.keys(stompClient.current.subscriptions).length > 0) {
             //se desuscribe de todos los canales
             Object.keys(stompClient.current.subscriptions).forEach((s) => stompClient.current.unsubscribe(s));
             resetValues(userDataContext);
@@ -58,19 +59,17 @@ export function ChatRoomConnectionContext({ children }) {
 
     const onConnected = () => {
         userData.connected = true
-        setUserData({ ...userData});
+        setUserData({ ...userData });
     }
 
     const onError = (err) => {
         console.log("Error conectando al wb: " + err);
         alert(err);
-        //se vuelve a la pagina de registro:
         disconnectChat()
         navigate('/')
     }
 
     const checkIfChannelExists = (roomId) => {
-        console.log(stompClient);
         stompClient.current.subscribe('/user/' + userData.userId + '/exists-channel', (payload) => {
             var payloadData = JSON.parse(payload.body);
             if ((payloadData.status === 'EXISTS' && userData.status === 'CREATE')) {
@@ -124,18 +123,26 @@ export function ChatRoomConnectionContext({ children }) {
                 handleJoinUser(payloadData, true);
                 break;
             case "MESSAGE":
-                publicChats.push(payloadData);
-                setPublicChats([...publicChats]);
+                //publicChats.push(payloadData);
+                //setPublicChats([...publicChats]);
+                console.log("se recibe msj privado, el tab elegido: ");
+                console.log(tab);
+                savePublicMessage(payloadData);
                 break;
             case "UPDATE":
                 //actualizar publicMessages y privateMessages
-                let userToUpdate = getUserSavedFromPrivateMenssage(payloadData.senderId);
+                let userToUpdate = getUserSavedFromChats(payloadData.senderId);
                 if (userToUpdate) {
                     updateChatData(payloadData, userDataContext, userToUpdate);
                 }
                 break;
             case "LEAVE":
                 handleUserLeave(payloadData);
+                break;
+            case "WRITING":
+                if(payloadData.senderId !== userData.userId){
+                    console.log(payloadData.senderName+" ESTÁ ESCRIBIENDO... ");
+                }
                 break;
             case "ERROR":
                 alert('Error conectando al chat. Nose que pudo haber sido, se enviaron mal los datos xD');
@@ -157,6 +164,8 @@ export function ChatRoomConnectionContext({ children }) {
                 handleJoinUser(payloadData, false);
                 break;
             case "MESSAGE":
+                console.log("se recibe msj privado, el tab elegido: ");
+                console.log(tab);
                 handlePrivateMessageReceived(payloadData);
                 break;
             default:
@@ -165,21 +174,31 @@ export function ChatRoomConnectionContext({ children }) {
     }
 
     const handleJoinUser = (payloadData, resend) => {
-        //si soy yo mismo
-        if (payloadData.senderName === userData.username) {
+        if (payloadData.senderId === userData.userId) {
             return;
         }
         //Si no se tiene guardado quien se unio se guarda (tambien nos llega un msj de que este cliente mismo se unio)
-        let userSaved = getUserSavedFromPrivateMenssage(payloadData.senderId);
-        if (!privateChats.get(userSaved)) {
+        let userSaved = getUserSavedFromChats(payloadData.senderId);
+
+        //if (!privateChats.get(userSaved)) {
+        if (!chats.get(userSaved)) {
+
             var chatUser = createUserChat(payloadData);
-            privateChats.set(chatUser, []);
-            setPrivateChats(new Map(privateChats));
+
+            //privateChats.set(chatUser, []);
+            //setPrivateChats(new Map(privateChats));
+
+            chats.set(chatUser, []);
+            setChats(new Map(chats));
+
             if (resend) {
                 //Generamos el msj de que alguien se unió
                 let joinMessage = createMessageJoin("JOIN", payloadData);
-                publicChats.push(joinMessage);
-                setPublicChats([...publicChats]);
+
+                //publicChats.push(joinMessage);
+                //setPublicChats([...publicChats]);
+
+                savePublicMessage(joinMessage);
 
                 //la poronga del urlSessionId no se por qué concha puta no se guarda
                 let roomId = userData.URLSessionid === '' ? payloadData.urlSessionId : userData.URLSessionid;
@@ -191,7 +210,14 @@ export function ChatRoomConnectionContext({ children }) {
         }
     }
 
-    const getUserSavedFromPrivateMenssage = (id) => {
+    const savePublicMessage = (payloadData) => {
+        let chatRoomElement = Array.from(chats.keys())[0];
+        chatRoomElement.hasUnreadedMessages = true;
+        chats.get(chatRoomElement).push(payloadData);
+        setChats(new Map(chats));
+    };
+
+    /*const getUserSavedFromPrivateMenssage = (id) => {
         for (var obj of privateChats) {
             if (id === obj[0].id) {
                 return obj[0];
@@ -199,20 +225,32 @@ export function ChatRoomConnectionContext({ children }) {
         }
         return undefined;
     }
-
+*/
     const handlePrivateMessageReceived = (payloadData) => {
-        let userSaved = getUserSavedFromPrivateMenssage(payloadData.senderId, privateChats)
+        let userSaved = getUserSavedFromChats(payloadData.senderId)
         //privateChats.get(payloadData.senderName)
         if (userSaved) {
-            privateChats.get(userSaved).push(payloadData);
-            setPrivateChats(new Map(privateChats));
+            //privateChats.get(userSaved).push(payloadData);
+            //setPrivateChats(new Map(privateChats));
+            Array.from(chats.keys()).find(c => c.id === userSaved.id).hasUnreadedMessages=true;
+            chats.get(userSaved).push(payloadData);
+            setChats(new Map(chats));
         } else {
+            console.log("no se tenia un obj privado guardado");
             var chatUser = createUserChat(payloadData);
             let list = [];
             list.push(payloadData);
-            privateChats.set(chatUser, list);
-            setPrivateChats(new Map(privateChats));
+            //privateChats.set(chatUser, list);
+            //setPrivateChats(new Map(privateChats));
+
+            //COSO PARA LAS NOTIFICACIONES DE MSJ NO LEIDOS
+            chatUser.hasUnreadedMessages=true;
+
+            chats.set(chatUser, list);
+            console.log(chatUser);
+            setChats(new Map(chats));
         }
+
     }
 
     const handleUserLeave = (payloadData) => {
@@ -221,14 +259,35 @@ export function ChatRoomConnectionContext({ children }) {
             return;
         }
         //mostramos msj de que alguien se fue
+        //let joinMessage = createMessageJoin("LEAVE", payloadData);
+        //publicChats.push(joinMessage);
+        //setPublicChats([...publicChats]);
+        //mostramos msj de que alguien se fue
         let joinMessage = createMessageJoin("LEAVE", payloadData);
-        publicChats.push(joinMessage);
-        setPublicChats([...publicChats]);
+        savePublicMessage(joinMessage)
 
-        let userSaved = getUserSavedFromPrivateMenssage(payloadData.senderId)
-        privateChats.delete(userSaved);
-        setPrivateChats(new Map(privateChats));
+        let userSaved = getUserSavedFromChats(payloadData.senderId)
+        //privateChats.delete(userSaved);
+        //setPrivateChats(new Map(privateChats));
+        chats.delete(userSaved);
+        setChats(new Map(chats));
     }
+
+    const getUserSavedFromChats = (id) => {
+        return Array.from(chats.keys()).find(k => k.id === id)
+    }
+
+    useEffect(()=>{
+        //COSO PARA MARCAR MSJ NO LEIDO
+        let unreadChat = Array.from(chats.keys()).find(c => c.hasUnreadedMessages);
+        if(unreadChat===undefined || tab===undefined ) {
+            return;
+        }
+        if(tab.id === unreadChat.id){
+            Array.from(chats.keys()).find(c => c.id === unreadChat.id).hasUnreadedMessages=false;
+            setChats(new Map(chats))
+        }
+    },[chats])
 
     useEffect(() => {
         loadUserDataValues();

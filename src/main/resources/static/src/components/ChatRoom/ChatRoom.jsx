@@ -4,7 +4,6 @@ import './ChatRoom.css';
 import { useUserDataContext, userContext } from '../../context/UserDataContext.jsx';
 import { chatRoomConnectionContext, useChatRoomConnectionContext } from '../../context/ChatRoomConnectionContext.jsx';
 import ChatGeneral from "./Chat/ChatGeneral/ChatGeneral.jsx";
-import ChatPrivate from "./Chat/ChatPrivate/ChatPrivate.jsx";
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';
 import { getRoomIdFromURL } from '../../utils/InputValidator.js';
@@ -15,7 +14,7 @@ const ChatRoom = () => {
     const navigate = useNavigate();
 
     const { isDataLoading, userData, setUserData, privateChats, setPrivateChats,
-        publicChats, setPublicChats, tab, setTab, stompClient, channelExists, setChannelExists } = useContext(userContext);
+        publicChats, setPublicChats, tab, setTab, stompClient, channelExists, setChannelExists,chats,setChats } = useContext(userContext);
 
     const {startedConnection} = useContext(chatRoomConnectionContext);
     const userContextObj = useUserDataContext();
@@ -72,6 +71,123 @@ const ChatRoom = () => {
         //     stompClient.current.connect({}, onConnected, onError);
         // }
     }
+
+    //Envia msj a todos
+    const sendValue = (status) => {
+        if(userData.message.trim() === ''){
+            return;
+        }
+        if (stompClient.current) {
+            var chatMessage = createPublicMessage(status, userData);
+            //Ahora enviamos un 'msj grupal' solo a los que esten en nuestra sala
+            stompClient.current.send("/app/group-message", {}, JSON.stringify(chatMessage));
+            if(status==="MESSAGE"){
+                setUserData({ ...userData, "message": "" });
+            }
+        }
+    }
+
+    const sendPrivateValue = () => {
+        if(userData.message.trim() === ''){
+            return;
+        }
+        if (stompClient.current) {
+            var chatMessage = createPrivateMessage('MESSAGE', userData, tab.username, tab.id);
+            //si se envia un msj a alguien que no sea yo mismo
+            if (userData.userId !== tab.id) {
+                //cuando un usuario se une se guarda su referencia en el map, por lo que nunca será vacio
+                //privateChats.get(tab).push(chatMessage);
+                //setPrivateChats(new Map(privateChats));
+
+                chats.get(tab).push(chatMessage);
+                setChats(new Map(chats));
+            }
+            stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
+            setUserData({ ...userData, "message": "" });
+        }
+    }
+
+    const handleDisconnectChat = () => {
+        disconnectChat();
+        //avisamos a todos que nos desconectamos
+        var chatMessage = {
+            senderId:userData.userId,
+            senderName: userData.username,
+            urlSessionId: userData.URLSessionid,
+            status: 'LEAVE',
+            avatarImg: userData.avatarImg
+        }
+        stompClient.current.send("/app/user.disconnected", {}, JSON.stringify(chatMessage));
+
+        navigate('/');
+    }
+
+    const handleKeyPressedMsg = (e) => {
+        let key = e;
+        if (typeof e !== 'string') {
+            key = e.key;
+        }
+        if(key === 'Enter'){
+            //if(tab === 'CHATROOM'){
+            if(tab.username === 'CHATROOM'){
+                sendValue("MESSAGE");
+            }else{
+                sendPrivateValue();
+            }
+        }
+        // else{
+        //     setTimeout(() => {
+        //         sendValue("WRITING")
+        //     }, 5000);
+        // }
+    }
+
+    useEffect(() => {
+        connect();
+        //if (tab !== "CHATROOM" && chats.get(tab) === undefined) {
+        if (tab !== Array.from(chats.keys())[0] && chats.get(tab) === undefined) {
+            //setTab("CHATROOM")
+            setTab(Array.from(chats.keys())[0]);
+        }
+        if(tab === undefined){
+            console.log("tab era undefined, se setea tab chatroom");
+            setTab(Array.from(chats.keys())[0]);
+        }
+        if(userData.connected){
+            window.addEventListener('keyup', handleKeyPressedMsg);
+        }
+        return () => {
+            window.removeEventListener('keyup', handleKeyPressedMsg);
+        }
+    })
+    return (
+        <>
+            {channelExists && startedConnection.current && !isDataLoading ?
+                <div className='chatRoom-global'>
+                    <Sidebar
+                        sidebarOpen={sidebarOpen}
+                        disconnectChat={handleDisconnectChat}
+                        handleSideBarOpen={() => setSidebarOpen(!sidebarOpen)}
+                    />
+                    <div className={`chat-box ${sidebarOpen ? 'close' : ''}`}>
+                        {/*<div className={`chat-text-button ${sidebarOpen ? 'close' : ''}`}>*/}
+                        <div className="home-content">
+                            <span className="text">{`${tab === 'CHATROOM' ? 'CHAT GENERAL' : tab.username}`}</span>
+                        </div>
+
+                        {/*tab !== "CHATROOM" ? <ChatPrivate/> : <ChatGeneral/>*/}
+                        <ChatGeneral/>
+                        <MessageInput
+                            onSend={tab.username === 'CHATROOM' ? ()=>sendValue("MESSAGE") : sendPrivateValue}
+                        />
+                    </div>
+                </div> : <div>Cargando...</div>}
+        </>
+    )
+}
+
+export default ChatRoom;
+
     /*
     const onConnected = () => {
         userData.connected = true
@@ -267,102 +383,3 @@ const ChatRoom = () => {
     }
 
     */
-
-    //Envia msj a todos
-    const sendValue = () => {
-        if(userData.message.trim() === ''){
-            return;
-        }
-        if (stompClient.current) {
-            var chatMessage = createPublicMessage('MESSAGE', userData);
-            //Ahora enviamos un 'msj grupal' solo a los que esten en nuestra sala
-            stompClient.current.send("/app/group-message", {}, JSON.stringify(chatMessage));
-            //el msj enviado se guarda en la func que procesa un msj recibido grupal debería hacerse acá >:(
-            setUserData({ ...userData, "message": "" });
-        }
-    }
-
-    const sendPrivateValue = () => {
-        if(userData.message.trim() === ''){
-            return;
-        }
-        if (stompClient.current) {
-            var chatMessage = createPrivateMessage('MESSAGE', userData, tab.username, tab.id);
-            //si se envia un msj a alguien que no sea yo mismo
-            if (userData.userId !== tab.id) {
-                //cuando un usuario se une se guarda su referencia en el map, por lo que nunca será vacio
-                privateChats.get(tab).push(chatMessage);
-                setPrivateChats(new Map(privateChats));
-            }
-            stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
-            setUserData({ ...userData, "message": "" });
-        }
-    }
-
-    const handleDisconnectChat = () => {
-        console.log("se envia msj que me desconecté");
-        disconnectChat();
-        //avisamos a todos que nos desconectamos
-        var chatMessage = {
-            senderId:userData.userId,
-            senderName: userData.username,
-            urlSessionId: userData.URLSessionid,
-            status: 'LEAVE',
-            avatarImg: userData.avatarImg
-        }
-        stompClient.current.send("/app/user.disconnected", {}, JSON.stringify(chatMessage));
-
-        navigate('/');
-    }
-
-    const handleKeyPressedMsg = (e) => {
-        let key = e;
-        if (typeof e !== 'string') {
-            key = e.key;
-        }
-        if(key === 'Enter'){
-            if(tab === 'CHATROOM'){
-                sendValue();
-            }else{
-                sendPrivateValue();
-            }
-        }
-    }
-
-    useEffect(() => {
-        connect();
-        if (tab !== "CHATROOM" && privateChats.get(tab) === undefined) {
-            setTab("CHATROOM")
-        }
-        if(userData.connected){
-            window.addEventListener('keyup', handleKeyPressedMsg);
-        }
-        return () => {
-            window.removeEventListener('keyup', handleKeyPressedMsg);
-        }
-    })
-    return (
-        <>
-            {channelExists && startedConnection.current && !isDataLoading ?
-                <div className='chatRoom-global'>
-                    <Sidebar
-                        sidebarOpen={sidebarOpen}
-                        disconnectChat={handleDisconnectChat}
-                        handleSideBarOpen={() => setSidebarOpen(!sidebarOpen)}
-                    />
-                    <div className={`chat-box ${sidebarOpen ? 'close' : ''}`}>
-                        {/*<div className={`chat-text-button ${sidebarOpen ? 'close' : ''}`}>*/}
-                        <div className="home-content">
-                            <span className="text">{`${tab === 'CHATROOM' ? 'CHAT GENERAL' : tab.username}`}</span>
-                        </div>
-                        {tab !== "CHATROOM" ? <ChatPrivate/> : <ChatGeneral/>}
-                        <MessageInput
-                            onSend={tab === 'CHATROOM' ? sendValue : sendPrivateValue}
-                        />
-                    </div>
-                </div> : <div>Cargando...</div>}
-        </>
-    )
-}
-
-export default ChatRoom
