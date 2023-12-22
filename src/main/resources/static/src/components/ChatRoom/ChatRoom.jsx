@@ -23,6 +23,7 @@ const ChatRoom = () => {
 
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
+    const [writingCooldown,setWritingCooldown] = useState(false);
 
     const connect = () => {
         if(stompClient.current===null){
@@ -58,18 +59,6 @@ const ChatRoom = () => {
             }
             return;
         }
-        //CREAR CANAL PARA SABER QUIEN ESTA ESCRIBIENDO
-
-        // if (!startedConnection.current
-        //     //&& userData.username!=='' 
-        //     && !userData.connected
-        //     && (stompClient.current === null)) {
-
-        //     let Sock = new SockJS(serverURL);
-        //     stompClient.current = over(Sock);
-        //     startedConnection.current = true;
-        //     stompClient.current.connect({}, onConnected, onError);
-        // }
     }
 
     //Envia msj a todos
@@ -123,6 +112,7 @@ const ChatRoom = () => {
     }
 
     const handleKeyPressedMsg = (e) => {
+        e.preventDefault()
         let key = e;
         if (typeof e !== 'string') {
             key = e.key;
@@ -134,12 +124,16 @@ const ChatRoom = () => {
             }else{
                 sendPrivateValue();
             }
+            return;
         }
-        // else{
-        //     setTimeout(() => {
-        //         sendValue("WRITING")
-        //     }, 5000);
-        // }
+        if(!writingCooldown){
+            sendValue("WRITING");
+            setWritingCooldown(true);
+        }else{
+            setTimeout(() => {
+                setWritingCooldown(false)
+            }, 6000);
+        }
     }
 
     useEffect(() => {
@@ -150,7 +144,6 @@ const ChatRoom = () => {
             setTab(Array.from(chats.keys())[0]);
         }
         if(tab === undefined){
-            console.log("tab era undefined, se setea tab chatroom");
             setTab(Array.from(chats.keys())[0]);
         }
         if(userData.connected){

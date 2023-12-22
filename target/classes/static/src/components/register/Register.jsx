@@ -69,7 +69,6 @@ const Register = () => {
     }
 
     useEffect(() => {
-        console.log("se carga componente Register");
         //si se hace <- desde el navegador se cierra la conexion cuando se carga este componente pq no 
         //puedo capturar el evento cuando se hace para atrás en chatroom :(
         if (userData.connected && !channelExists &&

@@ -27,8 +27,6 @@ export const resetValues = (userDataContext) => {
   setPublicChats([]);
 
   resetChats();
-
-  setTab();
   setUserData({
     ...userData,
     receivername: "",

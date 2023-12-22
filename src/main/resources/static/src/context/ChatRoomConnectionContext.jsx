@@ -53,6 +53,7 @@ export function ChatRoomConnectionContext({ children }) {
             startedConnection.current = true;
             let Sock = new SockJS(serverURL);
             stompClient.current = over(Sock);
+            stompClient.current.debug = null
             stompClient.current.connect({}, onConnected, onError);
         }
     }
@@ -213,15 +214,6 @@ export function ChatRoomConnectionContext({ children }) {
         setChats(new Map(chats));
     };
 
-    /*const getUserSavedFromPrivateMenssage = (id) => {
-        for (var obj of privateChats) {
-            if (id === obj[0].id) {
-                return obj[0];
-            }
-        }
-        return undefined;
-    }
-*/
     const handlePrivateMessageReceived = (payloadData) => {
         let userSaved = getUserSavedFromChats(payloadData.senderId)
         //privateChats.get(payloadData.senderName)
