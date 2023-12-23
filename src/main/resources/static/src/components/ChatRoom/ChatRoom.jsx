@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'
 import { useNavigate } from 'react-router-dom';
 import './ChatRoom.css';
-import { useUserDataContext, userContext } from '../../context/UserDataContext.jsx';
-import { chatRoomConnectionContext, useChatRoomConnectionContext } from '../../context/ChatRoomConnectionContext.jsx';
+import { userContext } from '../../context/UserDataContext.jsx';
+import { chatRoomConnectionContext } from '../../context/ChatRoomConnectionContext.jsx';
 import ChatGeneral from "./Chat/ChatGeneral/ChatGeneral.jsx";
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';
@@ -13,11 +13,10 @@ import { createPrivateMessage, createPublicMessage } from './ChatRoomFunctions.j
 const ChatRoom = () => {
     const navigate = useNavigate();
 
-    const { isDataLoading, userData, setUserData, privateChats, setPrivateChats,
-        publicChats, setPublicChats, tab, setTab, stompClient, channelExists, setChannelExists,chats,setChats } = useContext(userContext);
+    const { isDataLoading, userData, setUserData,
+        tab, setTab, stompClient, channelExists, chats,setChats } = useContext(userContext);
 
     const {startedConnection} = useContext(chatRoomConnectionContext);
-    const userContextObj = useUserDataContext();
 
     const {disconnectChat,checkIfChannelExists} = useContext(chatRoomConnectionContext)
 
@@ -61,14 +60,12 @@ const ChatRoom = () => {
         }
     }
 
-    //Envia msj a todos
     const sendValue = (status) => {
         if(userData.message.trim() === ''){
             return;
         }
         if (stompClient.current) {
             var chatMessage = createPublicMessage(status, userData);
-            //Ahora enviamos un 'msj grupal' solo a los que esten en nuestra sala
             stompClient.current.send("/app/group-message", {}, JSON.stringify(chatMessage));
             if(status==="MESSAGE"){
                 setUserData({ ...userData, "message": "" });
@@ -84,10 +81,6 @@ const ChatRoom = () => {
             var chatMessage = createPrivateMessage('MESSAGE', userData, tab.username, tab.id);
             //si se envia un msj a alguien que no sea yo mismo
             if (userData.userId !== tab.id) {
-                //cuando un usuario se une se guarda su referencia en el map, por lo que nunca será vacio
-                //privateChats.get(tab).push(chatMessage);
-                //setPrivateChats(new Map(privateChats));
-
                 chats.get(tab).push(chatMessage);
                 setChats(new Map(chats));
             }
@@ -99,13 +92,14 @@ const ChatRoom = () => {
     const handleDisconnectChat = () => {
         disconnectChat();
         //avisamos a todos que nos desconectamos
-        var chatMessage = {
-            senderId:userData.userId,
-            senderName: userData.username,
-            urlSessionId: userData.URLSessionid,
-            status: 'LEAVE',
-            avatarImg: userData.avatarImg
-        }
+        // var chatMessage = {
+        //     senderId:userData.userId,
+        //     senderName: userData.username,
+        //     urlSessionId: userData.URLSessionid,
+        //     status: 'LEAVE',
+        //     avatarImg: userData.avatarImg
+        // }
+        var chatMessage = createPublicMessage('LEAVE', userData)
         stompClient.current.send("/app/user.disconnected", {}, JSON.stringify(chatMessage));
 
         navigate('/');
@@ -118,7 +112,6 @@ const ChatRoom = () => {
             key = e.key;
         }
         if(key === 'Enter'){
-            //if(tab === 'CHATROOM'){
             if(tab.username === 'CHATROOM'){
                 sendValue("MESSAGE");
             }else{
@@ -138,9 +131,8 @@ const ChatRoom = () => {
 
     useEffect(() => {
         connect();
-        //if (tab !== "CHATROOM" && chats.get(tab) === undefined) {
         if (tab !== Array.from(chats.keys())[0] && chats.get(tab) === undefined) {
-            //setTab("CHATROOM")
+            //se setea tab chatroom por defecto
             setTab(Array.from(chats.keys())[0]);
         }
         if(tab === undefined){
@@ -163,12 +155,10 @@ const ChatRoom = () => {
                         handleSideBarOpen={() => setSidebarOpen(!sidebarOpen)}
                     />
                     <div className={`chat-box ${sidebarOpen ? 'close' : ''}`}>
-                        {/*<div className={`chat-text-button ${sidebarOpen ? 'close' : ''}`}>*/}
                         <div className="home-content">
                             <span className="text">{`${tab === 'CHATROOM' ? 'CHAT GENERAL' : tab.username}`}</span>
                         </div>
 
-                        {/*tab !== "CHATROOM" ? <ChatPrivate/> : <ChatGeneral/>*/}
                         <ChatGeneral/>
                         <MessageInput
                             onSend={tab.username === 'CHATROOM' ? ()=>sendValue("MESSAGE") : sendPrivateValue}

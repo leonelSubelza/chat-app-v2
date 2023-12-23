@@ -23,7 +23,6 @@ export function UserDataContext({ children }) {
     userId:'',
     username: '',
     connected: false,
-    receivername: '',//este tal vez borrar
     message: '',
     URLSessionid: '',
     //el estado indica luego en el chatroom qué hay que hacer, si unirse auna sala o crear una
@@ -31,17 +30,8 @@ export function UserDataContext({ children }) {
     avatarImg: ''
   });
 
-  const [privateChats, setPrivateChats] = useState(new Map());     
-  const [publicChats, setPublicChats] = useState([]); 
   const [chats, setChats] = useState(new Map());
   const [tab,setTab] =useState();//tab es o 'CHATROOM' o un obj chatUser
-
-  //este no se usa tal vez borrar
-  const [messageData, setMessageData] = useState({
-    receivername: '',
-    message: '',
-    status: 'JOIN'
-  })
 
   const loadUserDataValues = () => {
     //setAvatarImage
@@ -89,8 +79,6 @@ export function UserDataContext({ children }) {
         channelExists,setChannelExists,
         isDataLoading, setIsDataLoading,
         userData, setUserData,
-        privateChats, setPrivateChats,
-        publicChats, setPublicChats,
         messageData, setMessageData,
         tab,setTab,
         stompClient,

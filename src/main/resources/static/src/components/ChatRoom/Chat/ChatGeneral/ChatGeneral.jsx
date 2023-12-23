@@ -4,19 +4,7 @@ import { userContext } from '../../../../context/UserDataContext.jsx';
 import { v4 as uuidv4 } from 'uuid';
 
 const ChatGeneral = () => {
-    const { userData,publicChats,chats,tab } = useContext(userContext);
-/*
-    useEffect(()=>{
-        console.log("--------------------------------");
-        console.log("se renderizan los msj, tab seleccionado: ");
-        console.log(tab);
-        console.log("Se deberían renderizar los mensajes?: "+(chats.size > 0 && chats.get(tab) !== undefined)+", mensajes: ");
-        console.log(chats.get(tab));
-        console.log("los chats: ");
-        console.log(chats);
-        console.log("--------------------------------");
-    })
-*/
+    const { userData,chats,tab } = useContext(userContext);
     return (
         <div className="chat-content">
             <div className='scroll-messages'>
