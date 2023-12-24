@@ -58,7 +58,7 @@ const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
                 <i className="bi bi-clipboard url-input-icon" style={{color:"white"}} onClick={copyInput}></i>
                 
                 <button className="btn-leave" onClick={handleDisconnectChat}>
-                    Leave <i className="bi bi-box-arrow-left"></i>
+                    <i className="bi bi-box-arrow-left"></i>
                 </button>
             </div>
 

@@ -79,7 +79,6 @@ export function UserDataContext({ children }) {
         channelExists,setChannelExists,
         isDataLoading, setIsDataLoading,
         userData, setUserData,
-        messageData, setMessageData,
         tab,setTab,
         stompClient,
         loadUserDataValues,

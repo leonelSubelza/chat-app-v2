@@ -3,6 +3,7 @@ import Chat from "../Chat.jsx";
 import { v4 as uuidv4 } from 'uuid';
 import { userContext } from '../../../../context/UserDataContext.jsx';
 
+//BORRAR ESTE COMPONENTE
 const ChatPrivate = () => {
     const { privateChats,tab,userData } = useContext(userContext);
     return (
