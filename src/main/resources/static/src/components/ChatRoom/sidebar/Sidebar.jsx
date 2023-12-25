@@ -2,7 +2,6 @@ import React,{useContext,useEffect,useState} from 'react';
 import MembersList from './MemberList/MembersList.jsx';
 import { userContext } from '../../../context/UserDataContext';
 import Toast from 'react-bootstrap/Toast';
-//import menuHamburger from '../../../assets/menu-burger.svg';
 import './Sidebar.css';
 import ModalIconChooser from '../../register/modals/item-chooser/ModalIconChooser.jsx';
 import { createPublicMessage } from '../ChatRoomFunctions.js';
@@ -10,7 +9,7 @@ import { createPublicMessage } from '../ChatRoomFunctions.js';
 const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
 
     const { userData,setUserData,
-        startedConnection,channelExists, stompClient } = useContext(userContext);
+        startedConnection, stompClient } = useContext(userContext);
 
     //MOdal icon chooser
     const [showModalIconChooser, setShowModalIconChooser] = useState(false);

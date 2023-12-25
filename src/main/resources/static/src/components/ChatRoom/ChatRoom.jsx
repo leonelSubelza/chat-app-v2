@@ -18,7 +18,7 @@ const ChatRoom = () => {
 
     const { startedConnection } = useContext(chatRoomConnectionContext);
 
-    const { disconnectChat, checkIfChannelExists } = useContext(chatRoomConnectionContext)
+    const { disconnectChat, checkIfChannelExists,chatUserTyping } = useContext(chatRoomConnectionContext)
 
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -66,6 +66,13 @@ const ChatRoom = () => {
         }
         if (stompClient.current) {
             var chatMessage = createPublicMessage(status, userData);
+            if(status === 'WRITING'){
+                if(tab.username === 'CHATROOM'){
+                    chatMessage.isPublicMessage = true;
+                }else{
+                    chatMessage.isPublicMessage = false;
+                }
+            }
             stompClient.current.send("/app/group-message", {}, JSON.stringify(chatMessage));
             if (status === "MESSAGE") {
                 setUserData({ ...userData, "message": "" });
@@ -98,6 +105,18 @@ const ChatRoom = () => {
         navigate('/');
     }
 
+    const setMessageTyping = () => {
+        if(chatUserTyping.chatUser === null || chatUserTyping.chatUser === undefined){
+            return;
+        }
+        if(chatUserTyping.isPublicMessage && tab.username === 'CHATROOM'){
+            return `${chatUserTyping.chatUser.username} is typing...`;
+        }
+        if(!chatUserTyping.isPublicMessage && tab.username !== 'CHATROOM'){
+            return 'Typing...';
+        }
+    }
+
     const handleKeyPressedMsg = (e) => {
         e.preventDefault()
         let key = e;
@@ -118,7 +137,7 @@ const ChatRoom = () => {
         } else {
             setTimeout(() => {
                 setWritingCooldown(false)
-            }, 6000);
+            }, 5000);
         }
     }
 
@@ -150,6 +169,10 @@ const ChatRoom = () => {
                     <div className={`chat-box ${sidebarOpen ? 'close' : ''}`}>
                         <div className="home-content">
                             <span className="text">{`${tab === 'CHATROOM' ? 'CHAT GENERAL' : tab.username}`}</span>
+                            <span 
+                            className={`user_writing ${chatUserTyping.chatUser!==null && chatUserTyping.isChatUserTyping && 'active'}`}>
+                                {setMessageTyping()}                                
+                            </span>
                         </div>
                         <ChatContainer />
                         <MessageInput

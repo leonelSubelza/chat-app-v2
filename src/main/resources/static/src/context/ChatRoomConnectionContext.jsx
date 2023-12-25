@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react'
+import React, { useContext, useEffect, useRef,useState } from 'react'
 import { userContext, useUserDataContext } from './UserDataContext';
 import { generateUserId } from '../utils/IdGenerator';
 import { createMessageJoin, createPrivateMessage, createPublicMessage, createUserChat, resetValues, updateChatData } from '../components/ChatRoom/ChatRoomFunctions.js';
@@ -27,11 +27,10 @@ export function ChatRoomConnectionContext({ children }) {
 
     const userDataContext = useUserDataContext();
 
-    const { setChannelExists,
-        userData, setUserData,
-        stompClient, loadUserDataValues,
+    const { setChannelExists, userData, setUserData, stompClient, loadUserDataValues, 
         chats, setChats, tab } = useContext(userContext)
 
+    const [chatUserTyping, setChatUserTyping] = useState({isChatUserTyping:false,chatUser:null,isPublicMessage:false});
 
     const disconnectChat = () => {
         if (stompClient.current !== null && Object.keys(stompClient.current.subscriptions).length > 0) {
@@ -41,13 +40,11 @@ export function ChatRoomConnectionContext({ children }) {
         }
     };
 
-
     const startServerConnection = () => {
         if (startedConnection.current) {
             return;
         }
         if (stompClient.current === null && !startedConnection.current) {
-            //     console.log("se conecta");
             startedConnection.current = true;
             let Sock = new SockJS(serverURL);
             stompClient.current = over(Sock);
@@ -84,10 +81,8 @@ export function ChatRoomConnectionContext({ children }) {
                 return;
             }
             setChannelExists(true);
-            //setUserData({ ...userData, "userId": payloadData.senderId });
             subscribeRoomChannels(roomId);
             userJoin(roomId);
-
             navigate(`/chatroom/${roomId}`);
         });
 
@@ -137,6 +132,11 @@ export function ChatRoomConnectionContext({ children }) {
             case "WRITING":
                 if (payloadData.senderId !== userData.userId) {
                     console.log(payloadData.senderName + " ESTÁ ESCRIBIENDO... ");
+                    let userWriting = getUserSavedFromChats(payloadData.senderId);
+                    setChatUserTyping({...chatUserTyping, 'isChatUserTyping':true,'chatUser':userWriting,isPublicMessage:payloadData.isPublicMessage});
+                    setTimeout(()=> {
+                        setChatUserTyping({...chatUserTyping, 'isChatUserTyping':false,'chatUser':null,isPublicMessage:false});
+                    },3000)
                 }
                 break;
             case "ERROR":
@@ -171,21 +171,16 @@ export function ChatRoomConnectionContext({ children }) {
             return;
         }
         let userSaved = getUserSavedFromChats(payloadData.senderId);
-
         if (!chats.get(userSaved)) {
-
             var chatUser = createUserChat(payloadData);
-
             chats.set(chatUser, []);
             setChats(new Map(chats));
-
             if (resend) {
                 //Generamos el msj de que alguien se unió
                 let joinMessage = createMessageJoin("JOIN", payloadData);
 
                 savePublicMessage(joinMessage);
 
-                //la poronga del urlSessionId no se por qué concha puta no se guarda
                 let roomId = userData.URLSessionid === '' ? payloadData.urlSessionId : userData.URLSessionid;
                 let userDataAux = userData;
                 userDataAux.URLSessionid = roomId;
@@ -258,7 +253,8 @@ export function ChatRoomConnectionContext({ children }) {
                 disconnectChat,
                 checkIfChannelExists,
                 startServerConnection,
-                startedConnection
+                startedConnection,
+                chatUserTyping
             }}
         >
             {children}

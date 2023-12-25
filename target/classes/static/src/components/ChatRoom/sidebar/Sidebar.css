@@ -1,3 +1,8 @@
+p{
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
 
 .sidebar{
     display: flex;
@@ -38,14 +43,14 @@
     margin:auto;
     font-size: 15px;
     color: #fff;
-    background-color: #38394D;
+    background-color: #c03939;
     border-radius:10px;
     border: 0;
     cursor: pointer;
-    padding: 4px;
+    padding: 8px;
 }
 .sidebar .menu-details .btn-leave:hover{
-    background-color: #58596f;
+    filter: brightness(70%);
 }
 
 .sidebar .menu-details .logo_name {

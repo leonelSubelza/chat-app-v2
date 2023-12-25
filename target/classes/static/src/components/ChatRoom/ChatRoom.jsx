@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import './ChatRoom.css';
 import { userContext } from '../../context/UserDataContext.jsx';
 import { chatRoomConnectionContext } from '../../context/ChatRoomConnectionContext.jsx';
-import ChatGeneral from "./Chat/ChatGeneral/ChatGeneral.jsx";
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';
 import { getRoomIdFromURL } from '../../utils/InputValidator.js';
@@ -152,7 +151,6 @@ const ChatRoom = () => {
                         <div className="home-content">
                             <span className="text">{`${tab === 'CHATROOM' ? 'CHAT GENERAL' : tab.username}`}</span>
                         </div>
-
                         <ChatContainer />
                         <MessageInput
                             onSend={tab.username === 'CHATROOM' ? () => sendValue("MESSAGE") : sendPrivateValue}
