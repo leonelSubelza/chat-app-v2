@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef,useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { userContext, useUserDataContext } from './UserDataContext';
 import { generateUserId } from '../utils/IdGenerator';
 import { createMessageJoin, createPrivateMessage, createPublicMessage, createUserChat, resetValues, updateChatData } from '../components/ChatRoom/ChatRoomFunctions.js';
@@ -27,10 +27,14 @@ export function ChatRoomConnectionContext({ children }) {
 
     const userDataContext = useUserDataContext();
 
-    const { setChannelExists, userData, setUserData, stompClient, loadUserDataValues, 
+    const { setChannelExists, userData, setUserData, stompClient, loadUserDataValues,
         chats, setChats, tab } = useContext(userContext)
 
-    const [chatUserTyping, setChatUserTyping] = useState({isChatUserTyping:false,chatUser:null,isPublicMessage:false});
+    const [chatUserTyping, setChatUserTyping] = useState({
+        'isChatUserTyping': false,
+        'chatUser': null,
+        'isPublicMessage': false
+    });
 
     const disconnectChat = () => {
         if (stompClient.current !== null && Object.keys(stompClient.current.subscriptions).length > 0) {
@@ -111,7 +115,7 @@ export function ChatRoomConnectionContext({ children }) {
         stompClient.current.send("/app/chat.join", {}, JSON.stringify(chatMessage));
     }
 
-    const onMessageReceived = (payload) => {
+    const onMessageReceived = useCallback((payload) => {
         var payloadData = JSON.parse(payload.body);
         switch (payloadData.status) {
             case "JOIN":
@@ -130,13 +134,9 @@ export function ChatRoomConnectionContext({ children }) {
                 handleUserLeave(payloadData);
                 break;
             case "WRITING":
-                if (payloadData.senderId !== userData.userId) {
-                    console.log(payloadData.senderName + " ESTÁ ESCRIBIENDO... ");
-                    let userWriting = getUserSavedFromChats(payloadData.senderId);
-                    setChatUserTyping({...chatUserTyping, 'isChatUserTyping':true,'chatUser':userWriting,isPublicMessage:payloadData.isPublicMessage});
-                    setTimeout(()=> {
-                        setChatUserTyping({...chatUserTyping, 'isChatUserTyping':false,'chatUser':null,isPublicMessage:false});
-                    },3000)
+                if (payloadData.senderId !== userData.userId
+                    && tab.username === 'CHATROOM') {
+                    setUserWriting(payloadData,true);
                 }
                 break;
             case "ERROR":
@@ -149,9 +149,9 @@ export function ChatRoomConnectionContext({ children }) {
             default:
                 break;
         }
-    }
+    },[tab]);
 
-    const onPrivateMessage = (payload) => {
+    const onPrivateMessage = useCallback((payload) => {
         var payloadData = JSON.parse(payload.body);
         switch (payloadData.status) {
             case "JOIN":
@@ -161,10 +161,25 @@ export function ChatRoomConnectionContext({ children }) {
             case "MESSAGE":
                 handlePrivateMessageReceived(payloadData);
                 break;
+            case 'WRITING':
+                console.log("tab: "+tab.username);
+                //EL PROBLEMA AHORA ES QUE ESTA FUNCIÓN SE CARGA UNA VEZ Y TODAS LAS VECES QUE SE 
+                //VUELVE A EJECUTAR TOMA LOS VALORES DE LA PRIMERA VEZ, ES DECIR
+                //CADA VEZ QUE SE EJECUTA ESTO NO TOMA EL VALOR DE TAB ACTUALIZADO, SIEMPRE TOMA CHATROOM
+                //CUANDO NO SE TIENE SELECCIONADO EL TAB CHATROOM
+
+
+
+
+                if (payloadData.senderId !== userData.userId
+                    && tab.username !== 'CHATROOM') {
+                    setUserWriting(payloadData,false);
+                }
+                break;
             default:
                 break;
         }
-    }
+    },[tab]);
 
     const handleJoinUser = (payloadData, resend) => {
         if (payloadData.senderId === userData.userId) {
@@ -224,6 +239,18 @@ export function ChatRoomConnectionContext({ children }) {
         let userSaved = getUserSavedFromChats(payloadData.senderId);
         chats.delete(userSaved);
         setChats(new Map(chats));
+    }
+
+    const setUserWriting = (payloadData,isPublicMessage) =>{
+        let userWriting = getUserSavedFromChats(payloadData.senderId);
+        setChatUserTyping({
+            'isChatUserTyping': true,
+            'chatUser': userWriting,
+            'isPublicMessage': isPublicMessage
+        });
+        setTimeout(() => {
+            setChatUserTyping({ ...chatUserTyping, 'isChatUserTyping': false, 'chatUser': null });
+        }, 3000)
     }
 
     const getUserSavedFromChats = (id) => {

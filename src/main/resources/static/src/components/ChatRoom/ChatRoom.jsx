@@ -18,7 +18,7 @@ const ChatRoom = () => {
 
     const { startedConnection } = useContext(chatRoomConnectionContext);
 
-    const { disconnectChat, checkIfChannelExists,chatUserTyping } = useContext(chatRoomConnectionContext)
+    const { disconnectChat, checkIfChannelExists, chatUserTyping } = useContext(chatRoomConnectionContext)
 
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -60,19 +60,12 @@ const ChatRoom = () => {
         }
     }
 
-    const sendValue = (status) => {
+    const sendValue = (status='MESSAGE') => {
         if (userData.message.trim() === '') {
             return;
         }
         if (stompClient.current) {
             var chatMessage = createPublicMessage(status, userData);
-            if(status === 'WRITING'){
-                if(tab.username === 'CHATROOM'){
-                    chatMessage.isPublicMessage = true;
-                }else{
-                    chatMessage.isPublicMessage = false;
-                }
-            }
             stompClient.current.send("/app/group-message", {}, JSON.stringify(chatMessage));
             if (status === "MESSAGE") {
                 setUserData({ ...userData, "message": "" });
@@ -80,12 +73,12 @@ const ChatRoom = () => {
         }
     }
 
-    const sendPrivateValue = () => {
+    const sendPrivateValue = (status='MESSAGE') => {
         if (userData.message.trim() === '') {
             return;
         }
         if (stompClient.current) {
-            var chatMessage = createPrivateMessage('MESSAGE', userData, tab.username, tab.id);
+            var chatMessage = createPrivateMessage(status, userData, tab.username, tab.id);
             //si se envia un msj a alguien que no sea yo mismo
             if (userData.userId !== tab.id) {
                 chats.get(tab).push(chatMessage);
@@ -94,6 +87,15 @@ const ChatRoom = () => {
             stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
             setUserData({ ...userData, "message": "" });
         }
+    }
+
+    const sendWritingNotification = () => {
+        if(tab.username==='CHATROOM'){
+            sendValue('WRITING');
+        }else{
+            sendPrivateValue('WRITING');
+        }
+        
     }
 
     const handleDisconnectChat = () => {
@@ -106,13 +108,15 @@ const ChatRoom = () => {
     }
 
     const setMessageTyping = () => {
-        if(chatUserTyping.chatUser === null || chatUserTyping.chatUser === undefined){
+        if (chatUserTyping.chatUser === null || chatUserTyping.chatUser === undefined) {
             return;
         }
-        if(chatUserTyping.isPublicMessage && tab.username === 'CHATROOM'){
+        if (chatUserTyping.isPublicMessage && tab.username === 'CHATROOM') {
             return `${chatUserTyping.chatUser.username} is typing...`;
         }
-        if(!chatUserTyping.isPublicMessage && tab.username !== 'CHATROOM'){
+
+        if (!chatUserTyping.isPublicMessage && tab.username !== 'CHATROOM') {
+            console.log("se retorna solo typing...");
             return 'Typing...';
         }
     }
@@ -125,15 +129,16 @@ const ChatRoom = () => {
         }
         if (key === 'Enter') {
             if (tab.username === 'CHATROOM') {
-                sendValue("MESSAGE");
+                sendValue();
             } else {
                 sendPrivateValue();
             }
             return;
         }
         if (!writingCooldown) {
-            sendValue("WRITING");
+            sendWritingNotification();
             setWritingCooldown(true);
+            console.log("se envía notificacion escribiendo");
         } else {
             setTimeout(() => {
                 setWritingCooldown(false)
@@ -146,9 +151,11 @@ const ChatRoom = () => {
         if (tab !== Array.from(chats.keys())[0] && chats.get(tab) === undefined) {
             //se setea tab chatroom por defecto
             setTab(Array.from(chats.keys())[0]);
+            //Array.from(chats.keys())[0].hasUnreadedMessages = false;
         }
         if (tab === undefined) {
             setTab(Array.from(chats.keys())[0]);
+            //Array.from(chats.keys())[0].hasUnreadedMessages = false;
         }
         if (userData.connected) {
             window.addEventListener('keyup', handleKeyPressedMsg);
@@ -169,14 +176,14 @@ const ChatRoom = () => {
                     <div className={`chat-box ${sidebarOpen ? 'close' : ''}`}>
                         <div className="home-content">
                             <span className="text">{`${tab === 'CHATROOM' ? 'CHAT GENERAL' : tab.username}`}</span>
-                            <span 
-                            className={`user_writing ${chatUserTyping.chatUser!==null && chatUserTyping.isChatUserTyping && 'active'}`}>
-                                {setMessageTyping()}                                
+                            <span
+                                className={`user_writing ${chatUserTyping.chatUser !== null && chatUserTyping.isChatUserTyping && 'active'}`}>
+                                {setMessageTyping()}
                             </span>
                         </div>
                         <ChatContainer />
                         <MessageInput
-                            onSend={tab.username === 'CHATROOM' ? () => sendValue("MESSAGE") : sendPrivateValue}
+                            onSend={tab.username === 'CHATROOM' ? sendValue : sendPrivateValue}
                         />
                     </div>
                 </div> : <div>Cargando...</div>}

@@ -40,10 +40,6 @@
     color:#fff;
 }
 
-.hasUnreadedMessages{
-    border:1px solid green;
-}
-
 .sidebar.close .sidebar-nav-links {
     overflow: visible;
 }
@@ -117,8 +113,17 @@
     display: none;
 }
 
+.member-item__icon-exclamation{
+    position: absolute;
+    top:0;
+    right: 0;
+    color:rgb(231, 52, 52);
+    display: none;
+}
 
-
+.member-item__icon-exclamation.active{
+    display: block;
+}
 
 /*
         TEXTO DIVISORIO "CHAT PRIVATE -----------"
