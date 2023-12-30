@@ -6,8 +6,8 @@ const Message = ({ message, userData, isPublicChat }) => {
         <>
             {(message.status === 'MESSAGE') ?
                 <li className={`message ${message.senderId === userData.userId && "self"}`}>
-                    { message.senderId !== userData.userId && !isPublicChat &&
-                    <div className='message-data-username'>{message.senderName}</div>}
+                    {message.senderId !== userData.userId && !isPublicChat &&
+                        <div className='message-data-username'>{message.senderName}</div>}
 
                     <div className='message-container'>
                         {message.senderId !== userData.userId &&
@@ -27,6 +27,7 @@ const Message = ({ message, userData, isPublicChat }) => {
                     </div>
                 </li>
                 :
+                (message.status === 'JOIN' || message.status === 'LEAVE') &&
                 <li className={'message message-connect-container'}>
                     <p className='message-connect'>
                         {message.senderName}{`${message.status === 'JOIN' ? ' joined!' : ' left!'}`}

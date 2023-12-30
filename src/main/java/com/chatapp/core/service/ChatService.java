@@ -23,7 +23,7 @@ public class ChatService {
 
     public User handleUserJoin(Message message, SimpMessageHeaderAccessor headerAccessor){
         String id = headerAccessor.getSessionId();
-        //Aca no se si guardar el id de la session de spring o el del frontend
+        //Aca guardamos en el obj de Spring HeaderAccesor en el map <String,Object> como clave la clave que genera spring
         User newUser = createUser(message);
         Room room = WebSocketRoomHandler.activeRooms.get(message.getUrlSessionId());
         //Si el id generado en el front ya existia
@@ -56,7 +56,11 @@ public class ChatService {
     }
 
     public void saveUser(User user,SimpMessageHeaderAccessor headerAccessor){
-        headerAccessor.getSessionAttributes().put("User",user);
+        String headerAccessorId = headerAccessor.getSessionId();
+        if(headerAccessorId == null){
+            throw new NullPointerException();
+        }
+        headerAccessor.getSessionAttributes().put(headerAccessorId,user);
         WebSocketSessionHandler.addSession(user);
         log.info("User connected!:{}",user.getUsername());
         log.info("number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());

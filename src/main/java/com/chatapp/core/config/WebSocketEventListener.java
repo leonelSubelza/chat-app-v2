@@ -29,7 +29,7 @@ public class WebSocketEventListener {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(disconnectEvent.getMessage());
         String id = headerAccessor.getSessionId();
         //UsersessionHandler es un objeto que maneja Spring, guardamos ahi una referencia al usuario para obtenerlo acá
-        User userSessionHandler = (User) headerAccessor.getSessionAttributes().get("User");
+        User userSessionHandler = (User) headerAccessor.getSessionAttributes().get(id);
         if(userSessionHandler==null) return;
         User user = WebSocketSessionHandler.getUser(userSessionHandler.getId());
         if(user==null) return;

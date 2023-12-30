@@ -30,6 +30,15 @@ export function ChatRoomConnectionContext({ children }) {
     const { setChannelExists, userData, setUserData, stompClient, loadUserDataValues,
         chats, setChats, tab } = useContext(userContext)
 
+
+    //Esto lo tuve que hacer porque no sabía como hacer que la funcion onMessageReceived y onPrivateMessage
+    //obtengan en sus funciones valores de los estados actualizados. Se define la funcion y se quedan los valores
+    //guardados de la primera vez que se carga la función.
+    const [receivedMessageUserTyping,setReceivedMessageUserTyping] = useState({
+        received:false,
+        receivedInPublicMessage:false,
+        payloadData:null
+    });
     const [chatUserTyping, setChatUserTyping] = useState({
         'isChatUserTyping': false,
         'chatUser': null,
@@ -115,7 +124,7 @@ export function ChatRoomConnectionContext({ children }) {
         stompClient.current.send("/app/chat.join", {}, JSON.stringify(chatMessage));
     }
 
-    const onMessageReceived = useCallback((payload) => {
+    const onMessageReceived = (payload) => {
         var payloadData = JSON.parse(payload.body);
         switch (payloadData.status) {
             case "JOIN":
@@ -131,13 +140,20 @@ export function ChatRoomConnectionContext({ children }) {
                 }
                 break;
             case "LEAVE":
+                console.log("se recibe msj de que alguien se desconectó ⬅︎");
                 handleUserLeave(payloadData);
                 break;
             case "WRITING":
-                if (payloadData.senderId !== userData.userId
-                    && tab.username === 'CHATROOM') {
-                    setUserWriting(payloadData,true);
-                }
+                setReceivedMessageUserTyping({
+                    received:true,
+                    receivedInPublicMessage:true,
+                    payloadData:payloadData
+                })
+                
+                // if (payloadData.senderId !== userData.userId
+                //     && tab.username === 'CHATROOM') {
+                //     setUserWriting(payloadData,true);
+                // }
                 break;
             case "ERROR":
                 alert('Error conectando al chat. Nose que pudo haber sido, se enviaron mal los datos xD');
@@ -149,9 +165,9 @@ export function ChatRoomConnectionContext({ children }) {
             default:
                 break;
         }
-    },[tab]);
+    };
 
-    const onPrivateMessage = useCallback((payload) => {
+    const onPrivateMessage = (payload) => {
         var payloadData = JSON.parse(payload.body);
         switch (payloadData.status) {
             case "JOIN":
@@ -162,24 +178,21 @@ export function ChatRoomConnectionContext({ children }) {
                 handlePrivateMessageReceived(payloadData);
                 break;
             case 'WRITING':
-                console.log("tab: "+tab.username);
-                //EL PROBLEMA AHORA ES QUE ESTA FUNCIÓN SE CARGA UNA VEZ Y TODAS LAS VECES QUE SE 
-                //VUELVE A EJECUTAR TOMA LOS VALORES DE LA PRIMERA VEZ, ES DECIR
-                //CADA VEZ QUE SE EJECUTA ESTO NO TOMA EL VALOR DE TAB ACTUALIZADO, SIEMPRE TOMA CHATROOM
-                //CUANDO NO SE TIENE SELECCIONADO EL TAB CHATROOM
-
-
-
-
-                if (payloadData.senderId !== userData.userId
-                    && tab.username !== 'CHATROOM') {
-                    setUserWriting(payloadData,false);
-                }
+                setReceivedMessageUserTyping({
+                    received:true,
+                    receivedInPublicMessage:false,
+                    payloadData:payloadData
+                })
+                
+                // if (payloadData.senderId !== userData.userId
+                //     && tab.username !== 'CHATROOM') {
+                //     setUserWriting(payloadData,false);
+                // }
                 break;
             default:
                 break;
         }
-    },[tab]);
+    };
 
     const handleJoinUser = (payloadData, resend) => {
         if (payloadData.senderId === userData.userId) {
@@ -219,13 +232,14 @@ export function ChatRoomConnectionContext({ children }) {
             chats.get(userSaved).push(payloadData);
             setChats(new Map(chats));
         } else {
+            //esto no debería pasar porque el usuario se guarda cuando se une al chat
             console.log("no se tenia un obj privado guardado");
-            var chatUser = createUserChat(payloadData);
-            let list = [];
-            list.push(payloadData);
-            chatUser.hasUnreadedMessages = true;
-            chats.set(chatUser, list);
-            setChats(new Map(chats));
+            // var chatUser = createUserChat(payloadData);
+            // let list = [];
+            // list.push(payloadData);
+            // chatUser.hasUnreadedMessages = true;
+            // chats.set(chatUser, list);
+            // setChats(new Map(chats));
         }
     }
 
@@ -249,7 +263,7 @@ export function ChatRoomConnectionContext({ children }) {
             'isPublicMessage': isPublicMessage
         });
         setTimeout(() => {
-            setChatUserTyping({ ...chatUserTyping, 'isChatUserTyping': false, 'chatUser': null });
+            setChatUserTyping({'isChatUserTyping': false, 'chatUser': null });
         }, 3000)
     }
 
@@ -257,8 +271,13 @@ export function ChatRoomConnectionContext({ children }) {
         return Array.from(chats.keys()).find(k => k.id === id)
     }
 
+
+//FALTA ARREGLAR QUE NO DESAPAREZCA LOS CHATS CUANDO GUARDO
+
     useEffect(() => {
         //COSO PARA MARCAR MSJ NO LEIDO
+        console.log(chats);
+        console.log("-------------");
         let unreadChat = Array.from(chats.keys()).find(c => c.hasUnreadedMessages);
         if (unreadChat === undefined || tab === undefined) {
             return;
@@ -267,7 +286,24 @@ export function ChatRoomConnectionContext({ children }) {
             Array.from(chats.keys()).find(c => c.id === unreadChat.id).hasUnreadedMessages = false;
             setChats(new Map(chats))
         }
+        
     }, [chats])
+
+    useEffect(()=>{
+        if(receivedMessageUserTyping.received){
+            if(receivedMessageUserTyping.receivedInPublicMessage){
+                setUserWriting(receivedMessageUserTyping.payloadData,true);
+            }else{
+                setUserWriting(receivedMessageUserTyping.payloadData,false);
+            }
+            setReceivedMessageUserTyping({
+                received:false,
+                receivedInPublicMessage:false,
+                payloadData:null
+            })
+            
+        }
+    },[receivedMessageUserTyping,setReceivedMessageUserTyping])
 
     useEffect(() => {
         loadUserDataValues();

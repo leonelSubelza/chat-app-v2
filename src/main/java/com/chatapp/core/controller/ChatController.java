@@ -111,8 +111,11 @@ public class ChatController {
 
     //Un usuario se desconectó pero no cerró la ventana del navegador
     @MessageMapping("/user.disconnected")
-    public void handleUserDisconnected(@Payload Message message){
-        User user = WebSocketSessionHandler.getUser(message.getSenderId());
+    public void handleUserDisconnected(@Payload Message message,SimpMessageHeaderAccessor headerAccessor){
+        String headerAccessorId = headerAccessor.getSessionId();
+        //User user = WebSocketSessionHandler.getUser(message.getSenderId());
+        //Este sirve por si el cliente manda un message que le falten datos, entonces obtenemos el User por el map de Spring
+        User user = (User) headerAccessor.getSessionAttributes().get(headerAccessorId);
         System.out.println("se desonecta el usuario: "+user);
         if(user==null){
             log.error("Trying to delete user {} who doesn't exists",message.getSenderName());
