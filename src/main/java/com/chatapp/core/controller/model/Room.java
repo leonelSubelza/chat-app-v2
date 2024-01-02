@@ -16,5 +16,5 @@ import java.util.Set;
 public class Room {
     private String id;
     private Set<User> users = new HashSet<>();
-
+    private Set<User> bannedUsers = new HashSet<>();
 }

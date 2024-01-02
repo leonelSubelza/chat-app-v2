@@ -2,10 +2,7 @@ package com.chatapp.core.service;
 
 import com.chatapp.core.config.WebSocketRoomHandler;
 import com.chatapp.core.config.WebSocketSessionHandler;
-import com.chatapp.core.controller.model.Message;
-import com.chatapp.core.controller.model.Room;
-import com.chatapp.core.controller.model.Status;
-import com.chatapp.core.controller.model.User;
+import com.chatapp.core.controller.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -139,11 +136,29 @@ public class ChatService {
     }
 
     public boolean handleAdminAction(Message message) {
+        User user = WebSocketSessionHandler.getUser(message.getSenderId());
+        if(!user.getChatRole().equals(ChatUserRole.ADMIN)){
+            log.warn("Trying to execute an admin action without being an admin");
+            return false;
+        }
         if(message.getStatus().equals(Status.BANNED)){
-            //borrar de la room a un usuario especifico
+            //El baneo funciona como un flag, si esta baneado se banea, sino se desbanea
+            User userToBan = WebSocketSessionHandler.getUser(message.getReceiverId());
+            User userBannedExists = WebSocketRoomHandler.getRoom(message.getUrlSessionId()).getBannedUsers()
+            .stream()
+            .filter(u -> u.getId().equals(user.getId()))
+            .findFirst().orElse(null);
+            if(userBannedExists != null){
+                WebSocketRoomHandler.getRoom(message.getUrlSessionId()).getBannedUsers().add(userToBan);
+            }else{
+                WebSocketRoomHandler.getRoom(message.getUrlSessionId()).getBannedUsers().remove(userToBan);
+            }
+            return true;
         }
         if (message.getStatus().equals(Status.MAKE_ADMIN)){
-            //volver admin al receiverId y al senderId quitar el admin
+            User userToMakeAdmin = WebSocketSessionHandler.getUser(message.getReceiverId());
+            user.setChatRole(ChatUserRole.CLIENT);
+            userToMakeAdmin.setChatRole(ChatUserRole.ADMIN);
         }
         return true;
     }
