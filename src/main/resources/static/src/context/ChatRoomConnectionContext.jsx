@@ -271,13 +271,8 @@ export function ChatRoomConnectionContext({ children }) {
         return Array.from(chats.keys()).find(k => k.id === id)
     }
 
-
-//FALTA ARREGLAR QUE NO DESAPAREZCA LOS CHATS CUANDO GUARDO
-
     useEffect(() => {
         //COSO PARA MARCAR MSJ NO LEIDO
-        console.log(chats);
-        console.log("-------------");
         let unreadChat = Array.from(chats.keys()).find(c => c.hasUnreadedMessages);
         if (unreadChat === undefined || tab === undefined) {
             return;

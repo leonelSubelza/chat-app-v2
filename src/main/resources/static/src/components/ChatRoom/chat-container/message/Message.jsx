@@ -30,7 +30,7 @@ const Message = ({ message, userData, isPublicChat }) => {
                 (message.status === 'JOIN' || message.status === 'LEAVE') &&
                 <li className={'message message-connect-container'}>
                     <p className='message-connect'>
-                        {message.senderName}{`${message.status === 'JOIN' ? ' joined!' : ' left!'}`}
+                        {message.senderName}{`${message.status === 'JOIN' ? ' joined!' : ' left!'}`}{ ` at ${getHourFromUTCFormatDate(message.date)}` }
                     </p>
                 </li>
             }

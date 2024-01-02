@@ -1,7 +1,6 @@
 package com.chatapp.core.controller;
 
 import com.chatapp.core.config.WebSocketRoomHandler;
-import com.chatapp.core.config.WebSocketSessionHandler;
 import com.chatapp.core.controller.model.Message;
 import com.chatapp.core.controller.model.Room;
 import com.chatapp.core.controller.model.Status;
@@ -15,8 +14,6 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-
-import java.util.HashSet;
 
 @Controller
 @Slf4j
@@ -49,21 +46,9 @@ public class ChatController {
     // /user/nombreReceptor/private. Cada usuario que se suscriba pro primera vez deberá poner su nombre en
     // esa url para recibir este msj priv
     public Message recMessage(@Payload Message message){
-        //El método convertAndSendToUser detecta automáticamente el
-        // "prefijo de destino del usuario" que se seteó en el método
-        //configureMessageBroker()en el método registry.setUserDestinationPrefix("/user");
-
-        //El método convertAndSendToUser() toma tres argumentos:
-        // el nombre del usuario, el destino y el mensaje. En este caso,
-        // se utiliza message.getReceiverName() como nombre de usuario para enviar el mensaje,
-        // "/private" como destino y el propio objeto message como mensaje.
-        //simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(),"/"+message.getReceiverName()+"/"+message.getUrlSessionId()+"/private",message);
         simpMessagingTemplate.convertAndSend(
                 "/user/"+message.getReceiverId()+"/"+message.getUrlSessionId()+"/private",message);
         //El cliente para conectarse deberá establecer una URL de tipo /user/David/private
-        //System.out.println("se envia mensaje privado a "+"/user/"+message.getReceiverName()+"/"+message.getUrlSessionId()+"/private");
-        //'/user/'+userData.username+"/"+userData.URLSessionid+'/private'
-
         return message;
     }
 

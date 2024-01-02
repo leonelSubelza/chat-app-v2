@@ -15,7 +15,6 @@ import java.util.Set;
 @AllArgsConstructor
 public class Room {
     private String id;
-    //IdRoom, User
     private Set<User> users = new HashSet<>();
     //Despues habria que tener un admin no jajajjs y le metes un Enum RoomRole {ADMIN, CLIENT}
 }

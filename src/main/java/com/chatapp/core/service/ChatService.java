@@ -12,6 +12,8 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 
 @Service
@@ -63,12 +65,12 @@ public class ChatService {
         headerAccessor.getSessionAttributes().put(headerAccessorId,user);
         WebSocketSessionHandler.addSession(user);
         log.info("User connected!:{}",user.getUsername());
-        log.info("number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
+        log.info("Number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
     }
     public void saveRoom(Room room){
         WebSocketRoomHandler.addRoom(room);
         log.info("New Room created!:{}",room.getId());
-        log.info("number of rooms created:{}",WebSocketRoomHandler.getActiveRoomsCount());
+        log.info("Number of rooms created:{}",WebSocketRoomHandler.getActiveRoomsCount());
     }
 
     public Room createNewRoom(User user){
@@ -88,23 +90,37 @@ public class ChatService {
                 .build();
     }
 
+    public String getActualDate() {
+        // Obtener la fecha y hora actual en UTC
+        LocalDateTime actualDate = LocalDateTime.now();
+        // Formatear la fecha y hora en el formato deseado (solo hora, minutos y segundos)
+        DateTimeFormatter formatTime = DateTimeFormatter.ofPattern("HH:mm:ss");
+        return actualDate.format(formatTime);
+    }
+
+    public String getUTCFormatDate() {
+        LocalDateTime actualDate = LocalDateTime.now();
+        DateTimeFormatter formatUTC = DateTimeFormatter.ISO_DATE_TIME;
+        return actualDate.format(formatUTC);
+    }
+
     public void disconnectUserFromRoom(User user){
         //Tener en cuenta que existe una referencia en el obj headerAccesor manejado por Spring que no se borra
         //sino que se borrará cuando el usuario cierre la ventana del navegador
 
         Room userRoom = WebSocketRoomHandler.activeRooms.get(user.getRoomId());
 
-        log.info("User disconnected!:{}",user.getUsername());
+        log.info("User {} disconnected! at {}",user.getUsername(),getActualDate());
+
         Message chatMessage = Message.builder()
                 .senderId(user.getId())
                 .senderName(user.getUsername())
                 .status(Status.LEAVE)
-                //GENERAR UNA FECHA EN FORMATO UTC O SEA FORMATO UNIVERSAL
-                .date("")
+                .date(getUTCFormatDate())
                 .urlSessionId(user.getRoomId())
                 .build();
         WebSocketSessionHandler.removeSession(user);
-        log.info("number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
+        log.info("Number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
 
         //informamos a todos los demas que alguien se desconectó
         this.messageTemplate.convertAndSend("/chatroom/"+user.getRoomId(),chatMessage);
@@ -112,7 +128,7 @@ public class ChatService {
         //checkeo si la room a la que pertenecía ya no existe
         boolean remove = WebSocketRoomHandler.activeRooms.get(user.getRoomId()).getUsers().remove(user);
         if(!remove){
-            log.warn("Tryied to delete a user from an inxisting room");
+            log.warn("Trying to delete a user from an non-existent room");
             return;
         }
         if(userRoom.getUsers().isEmpty()) {
