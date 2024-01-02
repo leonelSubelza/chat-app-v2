@@ -137,4 +137,14 @@ public class ChatService {
                     userRoom.getId(), WebSocketSessionHandler.getActiveSessionsCount());
         }
     }
+
+    public boolean handleAdminAction(Message message) {
+        if(message.getStatus().equals(Status.BANNED)){
+            //borrar de la room a un usuario especifico
+        }
+        if (message.getStatus().equals(Status.MAKE_ADMIN)){
+            //volver admin al receiverId y al senderId quitar el admin
+        }
+        return true;
+    }
 }

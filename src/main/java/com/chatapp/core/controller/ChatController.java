@@ -57,7 +57,14 @@ public class ChatController {
     //En esta función se tiene un control más programático del envío del mensaje
     @MessageMapping("/group-message")
     public Message recGroupMessage(@Payload Message message){
-        //System.out.println("se envia mensaje grupal a "+"/chatroom/"+message.getUrlSessionId()  );
+        if(message.getStatus().equals(Status.BANNED) || message.getStatus().equals(Status.MAKE_ADMIN)){
+            boolean handleAdminAction = this.chatService.handleAdminAction(message);
+            if(!handleAdminAction){
+                log.error("Error occurred while handling an admin action from the user: {}",message.getSenderName());
+                message.setStatus(Status.ERROR);
+                message.setMessage("Error occurred while handling an admin action");
+            }
+        }
         simpMessagingTemplate.convertAndSend("/chatroom/"+message.getUrlSessionId(),message);
         return message;
     }
@@ -77,6 +84,7 @@ public class ChatController {
         //si hubo un error intentando conectar
         if(userJoinCorrect == null){
             message.setStatus(Status.ERROR);
+            message.setMessage("Error occurred while trying to join the user");
         }
         simpMessagingTemplate.convertAndSend("/chatroom/"+message.getUrlSessionId(),message);
         return message;
@@ -101,9 +109,10 @@ public class ChatController {
         //User user = WebSocketSessionHandler.getUser(message.getSenderId());
         //Este sirve por si el cliente manda un message que le falten datos, entonces obtenemos el User por el map de Spring
         User user = (User) headerAccessor.getSessionAttributes().get(headerAccessorId);
-        System.out.println("se desonecta el usuario: "+user);
         if(user==null){
             log.error("Trying to delete user {} who doesn't exists",message.getSenderName());
+            message.setStatus(Status.ERROR);
+            message.setMessage("Error occurred while trying to disconnect");
         }else{
             this.chatService.disconnectUserFromRoom(user);
         }

@@ -9,5 +9,7 @@ public enum Status {
     EXISTS,
     NOT_EXISTS,
     ERROR,
-    WRITING
+    WRITING,
+    BANNED,
+    MAKE_ADMIN
 }

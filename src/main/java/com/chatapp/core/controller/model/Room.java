@@ -16,5 +16,5 @@ import java.util.Set;
 public class Room {
     private String id;
     private Set<User> users = new HashSet<>();
-    //Despues habria que tener un admin no jajajjs y le metes un Enum RoomRole {ADMIN, CLIENT}
+
 }
