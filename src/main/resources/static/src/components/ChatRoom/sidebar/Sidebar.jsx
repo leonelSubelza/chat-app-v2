@@ -5,11 +5,12 @@ import Toast from 'react-bootstrap/Toast';
 import './Sidebar.css';
 import ModalIconChooser from '../../register/modals/item-chooser/ModalIconChooser.jsx';
 import { createPublicMessage } from '../ChatRoomFunctions.js';
+import { chatRoomConnectionContext } from '../../../context/ChatRoomConnectionContext.jsx';
 
 const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
 
-    const { userData,setUserData,
-        startedConnection, stompClient } = useContext(userContext);
+    const { userData,setUserData, stompClient } = useContext(userContext);
+    const { startedConnection } = useContext(chatRoomConnectionContext);
 
     //MOdal icon chooser
     const [showModalIconChooser, setShowModalIconChooser] = useState(false);
