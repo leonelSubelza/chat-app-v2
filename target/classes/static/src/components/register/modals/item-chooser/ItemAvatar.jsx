@@ -9,7 +9,7 @@ const ItemAvatar = ({ url,i,handleItemChoosed }) => {
 
     return (
         <div key={i} 
-        className={`avatar`}
+        className={`avatar-icon-chooser`}
         onClick={handleClickAvatar} 
         style={{ backgroundImage: `url(${url})` }}></div>
     )

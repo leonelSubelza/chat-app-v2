@@ -1,160 +1,90 @@
+@import url("https://fonts.googleapis.com/css2?family=Righteous&display=swap");
 
-
-
-.chat-box{
-    height: 100vh;
-}
-.sidebar{
-    position: fixed;
-    top: 0;
-    left: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 15rem; /*260px*/
-    background: #38394D;
-    z-index: 100;
-    transition: all 0.5s ease;
+.chat-box {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  margin: 0 0 0 auto;
+  transition: all 0.5s ease;
 }
 
-.sidebar .menu-details{
-    height: 60px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    background-color: #6A6B7A;
+.chat-box.close {
+  width: 75%;
 }
 
-.sidebar .menu-details .menu-hamburger{
-    font-size: 30px;
-    color: #fff;
-    height: 20px;
-    min-width: 20px;
-    text-align: center;
-    line-height: 50px;
-    cursor: pointer;
-    margin: 10px;
-}
-.sidebar .menu-details .btn-leave{
-    display: flex;
-    align-items: center;
-    font-size: 15px;
-    color: #fff;
-    background-color: #38394D;
-    border-radius:10px;
-    border: 0;
-    cursor: pointer;
-    padding: 4px;
-    margin-right: 10px;
-    margin-left: auto;
-}
-.sidebar .menu-details .btn-leave:hover{
-    background-color: #58596f;
+.chat-text-button {
+  display: flex;
+  flex-direction: column;
+  margin-left: 15rem;
+  height: 100%;
+  width: 90%;
 }
 
-.sidebar .menu-details .logo_name {
-    font-size: 22px;
-    color: #fff;
-    font-weight: 600;
-    transition: 0.3s ease;
-    transition-delay: 0.1s;
+.chat-text-button.close {
+  margin-left: 4rem;
 }
 
-
-/*
-  DETALLE DEL PERFIL PARTE DE ABAJO DEL SIDEBAR
-*/
-
-
-
-.sidebar .profile-details {
-    position: fixed;
-    bottom: 0;
-    width: 15rem;
-    display: flex;
-    flex-direction: column; /* Cambiado a dirección de columna */
-    align-items: center;
-    justify-content: center; /* Cambiado a justificación centrada */
-    background: #383258;
-    padding: 12px 0;
-    transition: all 0.5s ease;
+.home-content {
+  background: #d9d9d9;
+  transition: all 0.5s ease;
+  height: 10%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  padding-left: 20px;
 }
 
-.sidebar .profile-details .profile_img{
-    width: 5rem;
-    margin-bottom: 1rem;
-}
-
-.sidebar .profile-details .profile_name{
-    color: #fff;
-    font-size: 18px;
-    font-weight: 500;
-    white-space: nowrap;
-}
-
-.chat-text-button{
-    display: flex;
-    flex-direction: column;
-    margin-left: 15rem;
-    height: 100%;
-}
-
-.chat-text-button.close{
-    margin-left: 4rem;
-}
-
-.home-content{
-    background: #E4E9F7;
-    transition: all 0.5s ease;
-    height: 10%;
-}
-
-.home-content{
-    height: 60px;
-    display: flex;
-    align-items: center;
-}
 .home-content .bx-menu,
-.home-content .text{
-    color: #11101d;
-    font-size: 35px;
+.home-content .text {
+  color: #11101d;
+  font-size: 35px;
 }
-.home-content .bx-menu{
-    margin: 0 15px;
-    cursor: pointer;
+.home-content .bx-menu {
+  margin: 0 15px;
+  cursor: pointer;
 }
-.home-content .text{
-    font-size: 26px;
-    font-weight: 600;
-}
-
-
-/*
-            SIDEBAR CLOSE
- */
-
-.sidebar.close{
-    width: 4rem;
+.home-content .text {
+  font-size: 26px;
+  /*font-weight: 600;*/
+  font-family: "Righteous", sans-serif;
+  width: 100%;
+  margin:0;
+  user-select: none;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
-.sidebar.close .profile-details img{
-    width: 3rem;
+.home-content .text::-webkit-scrollbar {
+  height: 3px;
+  margin: auto;
+  border-radius: 20px;
+  background-color: transparent;
 }
 
-.sidebar.close .profile-details {
-    width: 4rem;
+.home-content .text::-webkit-scrollbar-thumb {
+  background: #212529;
+  border-radius: 20px;
 }
 
-.sidebar.close .menu-details .logo_name,
-.sidebar.close .menu-details .btn-leave{
-    pointer-events: none;
-    display: none;
-    transition: all 0.5s ease;
-}
-.sidebar.close .menu-details img{
-    margin: auto;
+.user_writing {
+  margin: auto auto 0 0;
+  padding:0;
+  display: none;
 }
 
-.sidebar.close .profile-details .profile_name {
-    display: none;
+.user_writing.active{
+    display: block;
+}
+
+@media screen and (max-width: 768px) and (min-width: 376px) {
+  .chat-box {
+    width: 85%;
+  }
+}
+@media (max-width: 376px) {
+  .chat-box {
+    width: 85%;
+  }
 }

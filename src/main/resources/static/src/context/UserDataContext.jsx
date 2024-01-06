@@ -1,58 +1,99 @@
-import React, { useEffect, useState } from 'react'
-import {imageLinks} from '../services/avatarsLinks.js';
-
+import React, { useEffect, useState,useRef,useContext } from 'react'
+import { imageLinks } from '../services/avatarsLinks.js';
+import { generateUserId } from '../utils/IdGenerator.js';
+import chatRoomIcon from '../assets/people-icon.svg';
 export const userContext = React.createContext();
 
-export function UserDataContext({children}) {
-    const [userData, setUserData] = useState({
-        username: '',
-        connected: false,
-        receivername: '',
-        message: '',
-        URLSessionid:'pene',
-        //el estado indica luego en el chatroom qué hay que hacer, si unirse auna sala o crear una
-        status:'JOIN',
-        avatarImg: ''
-      });
+export function useUserDataContext (){
+  return useContext(userContext);
+}
 
-      const [messageData, setMessageData] = useState({
-        receivername: '',
-        message: '',
-        status:'JOIN'
-      })
+export function UserDataContext({ children }) {
 
-      const loadUserDataValues = () => {
-        //setAvatarImage
-        let urlImg = '';
-        if(localStorage.getItem('avatarImg')===null){
-            localStorage.setItem('avatarImg',imageLinks[0]);
-            urlImg = imageLinks[0];
-        }else{
-            urlImg = localStorage.getItem('avatarImg')
-        }
-        //setUserName
-        let username='';
-        if(localStorage.getItem('username')===null){
-            username='';
-        }else{
-            username=localStorage.getItem('username');
-        }
-        localStorage.setItem('connected',false);
-        setUserData({...userData,"avatarImg": urlImg,"username":username});
+  //flag que hace que se espere hasta que este componente se termine de cargar
+  const [isDataLoading, setIsDataLoading] = useState(true);
 
-      }
+  //verifica que la room a la que se quiere conectar existe
+  const [channelExists,setChannelExists] = useState(false);
 
-      useEffect(() => {
-        loadUserDataValues();  
-      },[])
+  //OBJ que contiene la conexion con el ws
+  const stompClient = useRef(null);
 
-      return (
-        <userContext.Provider
-            value={{
-                userData,setUserData
-            }}
-        >
-            {children}
-        </userContext.Provider>
-    )
+  const [userData, setUserData] = useState({
+    userId:'',
+    username: '',
+    connected: false,
+    message: '',
+    URLSessionid: '',
+    //el estado indica luego en el chatroom qué hay que hacer, si unirse auna sala o crear una
+    status: 'JOIN',
+    avatarImg: ''
+  });
+
+  const [chats, setChats] = useState(new Map());
+  const [tab,setTab] =useState();//tab es o 'CHATROOM' o un obj chatUser
+
+  const resetChats = () => {
+    let chatsAux = chats;
+    for (var obj of chatsAux) {
+      chats.delete(obj[0]);
+    }
+    let chatRoomObject = {
+      id: 0,
+      username: "CHATROOM",
+      joinData: "-",
+      avatarImg: chatRoomIcon,
+      hasUnreadedMessages:false
+    }
+
+    chats.set(chatRoomObject, []);
+    setChats(new Map(chats));
+    setTab(Array.from(chats.keys())[0])
+  }
+
+  const loadUserDataValues = () => {
+    //setId
+    let userId;
+    if (localStorage.getItem('id') === null) {
+      userId = generateUserId();
+      localStorage.setItem('id', userId);
+      userData.userId = userId;
+    } else {
+      userId = localStorage.getItem('id')
+    }
+    //setAvatarImage
+    if (localStorage.getItem('avatarImg') === null) {
+      localStorage.setItem('avatarImg', imageLinks[0]);
+      userData.avatarImg = imageLinks[0];
+    } else {
+      userData.avatarImg = localStorage.getItem('avatarImg')
+    }
+       
+    if (localStorage.getItem('username') === null) {
+      userData.username = '';
+    } else {
+      userData.username = localStorage.getItem('username');
+    }
+    setUserData({ ...userData, 
+      "userId":userId, "avatarImg": userData.avatarImg, "username": userData.username });
+    setIsDataLoading(false);
+    resetChats();
+  }
+
+  return (
+    <userContext.Provider
+      value={{
+        channelExists,setChannelExists,
+        isDataLoading, setIsDataLoading,
+        userData, setUserData,
+        tab,setTab,
+        stompClient,
+        loadUserDataValues,
+        resetChats,
+        chats, setChats
+      }}
+    >
+      {children}
+    </userContext.Provider>
+  )
 }

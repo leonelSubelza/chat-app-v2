@@ -1,0 +1,41 @@
+.chat-content {
+    /*header 10%, input 10%*/
+    height: 78%;
+  
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  .scroll-messages {
+    min-height: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    width: 100%;
+    height: 100% !important;
+    position: relative;
+    display: flex;
+  }
+  
+  .scroll-messages::-webkit-scrollbar {
+    width: 8px;
+    border-radius: 10px;
+    background-color: transparent
+  }
+  
+  .scroll-messages::-webkit-scrollbar-thumb {
+    background: #212529;
+    border-radius: 5px;
+  }
+  
+  .chat-messages{
+    /*creo que hay una clase de bootstrap que se llama asi, quito los estilos*/
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+  
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  

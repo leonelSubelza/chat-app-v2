@@ -13,4 +13,5 @@ public class User {
     String id;
     String username;
     String roomId;
+    ChatUserRole chatRole;
 }

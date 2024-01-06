@@ -1,4 +1,5 @@
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css");
+@import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
 
 .register-container{
     /*background-color: #E0E0E0;*/
@@ -25,6 +26,7 @@
     font-size: 50px;
     margin:20px 5px;
     color:#38394D;
+    font-family: 'Righteous', sans-serif;
 }
 
 .register-icon-container{

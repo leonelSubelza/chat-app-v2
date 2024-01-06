@@ -1,17 +1,28 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import './MessageInput.css'
-const MessageInput = ({ value, onChange, onSend }) => {
+import { userContext } from '../../../context/UserDataContext';
+
+const MessageInput = ({ onSend }) => {
+    const { userData, setUserData} = useContext(userContext);
+
+    const handleMessage = (event) => {
+        const { value } = event.target;
+        setUserData({ ...userData, "message": value });
+    }
+    
     return (
         <div className="send-message">
             <input
                 type="text"
                 className="input-message"
-                placeholder="enter the message"
-                value={value}
-                onChange={onChange}
+                placeholder="Write a message..."
+                value={userData.message}
+                onChange={handleMessage}
+                autoFocus
             />
-            <button type="button" className="send-button" onClick={onSend}>
-                Send
+            <button type="button" className="send-button" onClick={()=> onSend()}>
+                <p className='send-button-type1'>Send</p>
+                <p className='send-button-type2'><i className="bi bi-send-fill"></i></p>
             </button>
         </div>
     );

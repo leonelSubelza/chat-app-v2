@@ -40,14 +40,16 @@ const ModalIconChooser = ({ showModalIconChooser, handleCloseModalIconChooser })
               {imageLinks.map((url,i=uuidv4()) => (
                 <li
                   key={i}
-                  className={`list-item-item ${i === itemActiveIndex ? 'item-active' : ''}`}
+                  className={`list-item-item ${
+                    itemActiveIndex===null ? 
+                    (iconChoosed===url ? 'item-active' : '') :
+                    (i === itemActiveIndex ? 'item-active' : '')}`}
                   onClick={() => { setItemActiveIndex(i) }}
                 >
                   <ItemAvatar url={url} i={i} handleItemChoosed={handleItemChoosed} />
                 </li>
               ))
               }
-
             </ul>
           </div>
         </div>

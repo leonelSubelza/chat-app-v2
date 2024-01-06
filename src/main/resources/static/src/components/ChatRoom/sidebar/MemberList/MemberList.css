@@ -1,0 +1,161 @@
+.sidebar-nav-links-container{
+    height: 75%;
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    padding-top: 10px;
+}
+
+.sidebar-nav-links {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    padding: 0 10px 0 10px;
+}
+
+.member{
+    display: flex;
+    cursor: pointer;
+
+}
+
+.member-item{
+    margin:auto;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    /*margin:auto auto auto 10px;*/
+    width: 95%;
+}
+
+.member.active{
+    color:#fff;
+    padding: 5px;
+    border-radius: 10px;
+    background: #4E4F5B;
+
+}
+.member:hover{
+    filter: brightness(70%);
+    color:#fff;
+}
+
+.sidebar.close .sidebar-nav-links {
+    overflow: visible;
+}
+
+.sidebar-nav-links::-webkit-scrollbar {
+    display: none;
+}
+
+.sidebar-nav-links li {
+    position: relative;
+    list-style: none;
+    transition: all 0.4s ease;
+}
+
+.sidebar-nav-links li:hover {
+    filter: brightness(70%);
+}
+
+.sidebar-nav-links li .iocn-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sidebar-nav-links li{
+    margin-bottom: 20px;
+}
+
+.profile_img {
+    height: 50px;
+    width: 50px;
+    max-width: 100%;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    margin:auto;
+    background-size: cover;
+}
+
+.link_name{
+    /*margin-left: 10px;*/
+    width: 70%;
+    overflow-y: hidden;
+    overflow-x: auto;
+
+}
+
+.link_name::-webkit-scrollbar {
+    height: 5px;
+    margin:auto;
+    border-radius: 20px;
+    background-color: transparent
+  }
+  
+.link_name::-webkit-scrollbar-thumb {
+    background: #212529;
+    border-radius: 20px;
+}
+
+.member-item .link_name {
+    font-size: 18px;
+    font-weight: 400;
+    color: #fff;
+    transition: all 0.4s ease;
+}
+
+.sidebar.close .member-item .link_name {
+    opacity: 0;
+    pointer-events: none;
+    display: none;
+}
+
+.member-item__icon-exclamation{
+    position: absolute;
+    top:0;
+    right: 0;
+    color:rgb(231, 52, 52);
+    display: none;
+}
+
+.member-item__icon-exclamation.active{
+    display: block;
+}
+
+/*
+        TEXTO DIVISORIO "CHAT PRIVATE -----------"
+ */
+
+
+
+.info-sidebar {
+    width: 90%;
+    margin: 20px auto;
+    display: flex;
+}
+
+.info-sidebar p {
+    width: 55%;
+    font-size: 10px;
+    color: #dee2e6;
+    font-weight: 600;
+}
+
+.sidebar.close .info-sidebar p {
+    opacity: 0;
+    pointer-events: none;
+    display: none;
+    transition: all 0.5s ease;
+}
+
+.separator-sidebar {
+    width: 90%;
+    height: 1px;
+    border: 1px solid #dee2e6;
+    background-color: #dee2e6;
+    margin: auto;
+    /*margin-right: 15px;*/
+}

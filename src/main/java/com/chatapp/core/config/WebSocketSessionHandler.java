@@ -29,8 +29,14 @@ public class WebSocketSessionHandler {
         return activeSessions.size();
     }
 
-    public static User getUser(String username){
-        Optional<User> user = activeSessions.stream().filter(u -> u.getUsername().equals(username)).findFirst();
+    public static User getUser(String id){
+        Optional<User> user = activeSessions.stream().filter(u -> u.getId().equals(id)).findFirst();
         return user.orElse(null);
+    }
+
+    public static User existsUser(String id){
+        return WebSocketSessionHandler.activeSessions.stream().filter(user -> user.getId().equals(id))
+                .findFirst()
+                .orElse(null);
     }
 }

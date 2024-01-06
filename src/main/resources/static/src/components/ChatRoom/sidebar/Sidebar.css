@@ -1,0 +1,230 @@
+p{
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+
+.sidebar{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 25%;
+    background: #38394D;
+    z-index: 100;
+    transition: all 0.5s ease;
+    align-items: center;
+    font-size: 15px;
+    color: #fff;
+}
+
+
+.menu-details{
+    display: flex;
+    height: 10%;
+    width: 100%;
+    background-color: #6A6B7A;
+}
+
+
+.menu-hamburger{
+    margin:auto;
+    cursor: pointer;
+    font-size: 30px;
+}
+.menu-hamburger:hover{
+    filter: brightness(70%);
+}
+
+.logo_name{
+    margin:auto
+}
+
+.btn-leave{
+    margin:auto;
+    font-size: 15px;
+    color: #fff;
+    background-color: #c03939;
+    border-radius:10px;
+    border: 0;
+    cursor: pointer;
+    padding: 8px;
+}
+.sidebar .menu-details .btn-leave:hover{
+    filter: brightness(70%);
+}
+
+.sidebar .menu-details .logo_name {
+    font-size: 22px;
+    color: #fff;
+    font-weight: 600;
+    transition: 0.3s ease;
+    transition-delay: 0.1s;
+}
+
+
+/*
+  DETALLE DEL PERFIL PARTE DE ABAJO DEL SIDEBAR
+*/
+
+.sidebar-user-info-container{
+    height: 15%;
+    margin: auto 0 0 0;
+    width: 100%;
+}
+
+.sidebar .profile-details {
+    /*position: fixed;*/
+    /*bottom: 0;*/
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column; /* Cambiado a dirección de columna */
+    align-items: center;
+    justify-content: center; /* Cambiado a justificación centrada */
+    background: #383258;
+    /*padding: 12px 0;*/
+    transition: all 0.5s ease;
+}
+
+/*
+.sidebar .profile-details .profile_img{
+    width: 5rem;
+    margin-bottom: 1rem;
+}
+*/
+
+.sidebar .profile-details .profile_name{
+    color: #fff;
+    font-size: 18px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+
+.profile-details__img{
+    margin:0 auto;
+    height: 50px;
+    width: 50px;
+    max-width: 100%;
+    width: auto;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+
+    background-size: cover;
+}
+
+.profile_name{
+    width: auto;
+    max-width: 80%;
+    height: auto;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-x: auto;
+    overflow-y: hidden;
+    cursor: pointer;
+}
+.profile_name::-webkit-scrollbar {
+    height:5px;
+    border-radius: 20px;
+    background-color: #bfbee0;
+}
+
+.profile_name::-webkit-scrollbar-thumb{
+    background: #38394D;
+    border-radius: 20px;
+}
+
+
+/*
+            SIDEBAR CLOSE
+ */
+
+ .sidebar.close{
+    width: 10%;
+}
+
+.sidebar.close .profile-details img{
+    width: 3rem;
+}
+
+.sidebar.close .profile-details {
+    width: 100%;
+}
+
+.sidebar.close .menu-details .logo_name,
+.sidebar.close .menu-details .btn-leave,
+.sidebar.close .menu-details .url-input-icon{
+    pointer-events: none;
+    display: none;
+    transition: all 0.5s ease;
+}
+
+.url-input-icon{
+    cursor: copy !important;
+}
+
+.sidebar.close .menu-details img{
+    margin: auto;
+}
+
+.sidebar.close .profile-details .profile_name {
+    display: none;
+}
+
+.copy-animation-active {
+    opacity: 1;
+    transition: opacity .2s;
+}
+.copy-animation {
+    background-color: rgba(61, 61, 61, 0.937);
+    color: white;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 15%;
+    margin: 0 auto;
+    width: 150px;
+    max-width: 50%;
+    height: 40px;
+    border-radius: 10px;
+    opacity: 0;
+    transition: opacity .2s;
+    user-select: none;
+}
+
+.toast{
+    position:fixed;
+    bottom: 10%;
+    left: 50%;
+    width: auto !important;
+    background-color: #383258 !important;
+}
+
+.toast-body{
+    text-align: center;
+    color: #fff;
+}
+
+@media screen and (max-width: 768px) and (min-width: 376px) {
+    .sidebar{
+        position: fixed;
+        width: 50%;
+        max-height: 100%;
+        height: 100vh;
+    }
+    .sidebar.close{
+        width: 15%;
+    }
+}
+@media (max-width: 376px){
+    .sidebar{
+        position: fixed;
+        width: 80%;
+        max-height: 100%;
+        height: 100vh;
+    }
+    .sidebar.close{
+        width: 15%;
+    }
+}

@@ -1,7 +1,6 @@
 package com.chatapp.core.controller;
 
 import com.chatapp.core.config.WebSocketRoomHandler;
-import com.chatapp.core.config.WebSocketSessionHandler;
 import com.chatapp.core.controller.model.Message;
 import com.chatapp.core.controller.model.Room;
 import com.chatapp.core.controller.model.Status;
@@ -15,8 +14,6 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-
-import java.util.HashSet;
 
 @Controller
 @Slf4j
@@ -49,21 +46,9 @@ public class ChatController {
     // /user/nombreReceptor/private. Cada usuario que se suscriba pro primera vez deberá poner su nombre en
     // esa url para recibir este msj priv
     public Message recMessage(@Payload Message message){
-        //El método convertAndSendToUser detecta automáticamente el
-        // "prefijo de destino del usuario" que se seteó en el método
-        //configureMessageBroker()en el método registry.setUserDestinationPrefix("/user");
-
-        //El método convertAndSendToUser() toma tres argumentos:
-        // el nombre del usuario, el destino y el mensaje. En este caso,
-        // se utiliza message.getReceiverName() como nombre de usuario para enviar el mensaje,
-        // "/private" como destino y el propio objeto message como mensaje.
-        //simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(),"/"+message.getReceiverName()+"/"+message.getUrlSessionId()+"/private",message);
         simpMessagingTemplate.convertAndSend(
-                "/user/"+message.getReceiverName()+"/"+message.getUrlSessionId()+"/private",message);
+                "/user/"+message.getReceiverId()+"/"+message.getUrlSessionId()+"/private",message);
         //El cliente para conectarse deberá establecer una URL de tipo /user/David/private
-        //System.out.println("se envia mensaje privado a "+"/user/"+message.getReceiverName()+"/"+message.getUrlSessionId()+"/private");
-        //'/user/'+userData.username+"/"+userData.URLSessionid+'/private'
-
         return message;
     }
 
@@ -72,7 +57,14 @@ public class ChatController {
     //En esta función se tiene un control más programático del envío del mensaje
     @MessageMapping("/group-message")
     public Message recGroupMessage(@Payload Message message){
-        //System.out.println("se envia mensaje grupal a "+"/chatroom/"+message.getUrlSessionId()  );
+        if(message.getStatus().equals(Status.BANNED) || message.getStatus().equals(Status.MAKE_ADMIN)){
+            boolean handleAdminAction = this.chatService.handleAdminAction(message);
+            if(!handleAdminAction){
+                log.error("Error occurred while handling an admin action from the user: {}",message.getSenderName());
+                message.setStatus(Status.ERROR);
+                message.setMessage("Error occurred while handling an admin action");
+            }
+        }
         simpMessagingTemplate.convertAndSend("/chatroom/"+message.getUrlSessionId(),message);
         return message;
     }
@@ -88,10 +80,11 @@ public class ChatController {
     @MessageMapping("/chat.join")
     //@SendTo("/chatroom/{urlSessionId}")
     public Message userJoin(@Payload Message message, SimpMessageHeaderAccessor headerAccessor){
-        boolean userJoinCorrect = this.chatService.handleUserJoin(message,headerAccessor);
+        User userJoinCorrect = this.chatService.handleUserJoin(message,headerAccessor);
         //si hubo un error intentando conectar
-        if(!userJoinCorrect){
+        if(userJoinCorrect == null){
             message.setStatus(Status.ERROR);
+            message.setMessage("Error occurred while trying to join the user");
         }
         simpMessagingTemplate.convertAndSend("/chatroom/"+message.getUrlSessionId(),message);
         return message;
@@ -106,6 +99,22 @@ public class ChatController {
         }else {
             message.setStatus(Status.NOT_EXISTS);
         }
-        simpMessagingTemplate.convertAndSendToUser(message.getSenderName(),"/exists-channel",message);
+        simpMessagingTemplate.convertAndSendToUser(message.getSenderId(),"/exists-channel",message);
+    }
+
+    //Un usuario se desconectó pero no cerró la ventana del navegador
+    @MessageMapping("/user.disconnected")
+    public void handleUserDisconnected(@Payload Message message,SimpMessageHeaderAccessor headerAccessor){
+        String headerAccessorId = headerAccessor.getSessionId();
+        //User user = WebSocketSessionHandler.getUser(message.getSenderId());
+        //Este sirve por si el cliente manda un message que le falten datos, entonces obtenemos el User por el map de Spring
+        User user = (User) headerAccessor.getSessionAttributes().get(headerAccessorId);
+        if(user==null){
+            log.error("Trying to delete user {} who doesn't exists",message.getSenderName());
+            message.setStatus(Status.ERROR);
+            message.setMessage("Error occurred while trying to disconnect");
+        }else{
+            this.chatService.disconnectUserFromRoom(user);
+        }
     }
 }
