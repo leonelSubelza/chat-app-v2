@@ -33,28 +33,6 @@ export function UserDataContext({ children }) {
   const [chats, setChats] = useState(new Map());
   const [tab,setTab] =useState();//tab es o 'CHATROOM' o un obj chatUser
 
-  const loadUserDataValues = () => {
-    //setAvatarImage
-    if (localStorage.getItem('avatarImg') === null) {
-      localStorage.setItem('avatarImg', imageLinks[0]);
-      userData.avatarImg = imageLinks[0];
-    } else {
-      userData.avatarImg = localStorage.getItem('avatarImg')
-    }
-       
-    if (localStorage.getItem('username') === null) {
-      userData.username = '';
-    } else {
-      userData.username = localStorage.getItem('username');
-    }
-    //localStorage.setItem('connected', false);
-    userData.userId = generateUserId();
-    setUserData({ ...userData, "userId":userData.userId, "avatarImg": userData.avatarImg, "username": userData.username });
-    setIsDataLoading(false);
-
-    resetChats();
-  }
-
   const resetChats = () => {
     let chatsAux = chats;
     for (var obj of chatsAux) {
@@ -71,6 +49,35 @@ export function UserDataContext({ children }) {
     chats.set(chatRoomObject, []);
     setChats(new Map(chats));
     setTab(Array.from(chats.keys())[0])
+  }
+
+  const loadUserDataValues = () => {
+    //setId
+    let userId;
+    if (localStorage.getItem('id') === null) {
+      userId = generateUserId();
+      localStorage.setItem('id', userId);
+      userData.userId = userId;
+    } else {
+      userId = localStorage.getItem('id')
+    }
+    //setAvatarImage
+    if (localStorage.getItem('avatarImg') === null) {
+      localStorage.setItem('avatarImg', imageLinks[0]);
+      userData.avatarImg = imageLinks[0];
+    } else {
+      userData.avatarImg = localStorage.getItem('avatarImg')
+    }
+       
+    if (localStorage.getItem('username') === null) {
+      userData.username = '';
+    } else {
+      userData.username = localStorage.getItem('username');
+    }
+    setUserData({ ...userData, 
+      "userId":userId, "avatarImg": userData.avatarImg, "username": userData.username });
+    setIsDataLoading(false);
+    resetChats();
   }
 
   return (

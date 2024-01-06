@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
-
+import React from 'react'
 import ChatRoom from "./components/ChatRoom/ChatRoom.jsx";
 import Register from "./components/register/Register.jsx";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -20,9 +19,3 @@ function App() {
 }
 
 export default App;
-
-/*
-    <div className='chatRoom-global'>
-
-  </div>
-*/

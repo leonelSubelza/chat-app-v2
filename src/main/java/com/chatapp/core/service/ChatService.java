@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -148,10 +149,11 @@ public class ChatService {
             .stream()
             .filter(u -> u.getId().equals(user.getId()))
             .findFirst().orElse(null);
+            Set<User> usersBanned = WebSocketRoomHandler.getRoom(message.getUrlSessionId()).getBannedUsers();
             if(userBannedExists != null){
-                WebSocketRoomHandler.getRoom(message.getUrlSessionId()).getBannedUsers().add(userToBan);
+                usersBanned.add(userToBan);
             }else{
-                WebSocketRoomHandler.getRoom(message.getUrlSessionId()).getBannedUsers().remove(userToBan);
+                usersBanned.remove(userToBan);
             }
             return true;
         }

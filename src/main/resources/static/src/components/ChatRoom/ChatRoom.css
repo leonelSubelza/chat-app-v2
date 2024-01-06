@@ -2,10 +2,6 @@
 
 .chat-box {
   height: 100%;
-  /*
-    max-width: 90%;
-    min-width: 80%;
-    width: 100%;*/
   display: flex;
   flex-direction: column;
   width: 90%;
