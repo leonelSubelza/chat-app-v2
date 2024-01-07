@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useContext, useRef } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom';
 import './ChatRoom.css';
-import { userContext } from '../../context/UserDataContext.jsx';
+import { userContext } from '../../context/UserDataContext.tsx';
 import { chatRoomConnectionContext } from '../../context/ChatRoomConnectionContext.jsx';
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';

@@ -1,48 +1,55 @@
-import React, { useEffect, useState,useRef,useContext } from 'react'
+import type { UserData } from './types/types.js';
+import React, { useState,useRef,useContext, ReactNode } from 'react'
 import { imageLinks } from '../services/avatarsLinks.js';
 import { generateUserId } from '../utils/IdGenerator.js';
-import chatRoomIcon from '../assets/people-icon.svg';
-export const userContext = React.createContext();
+import { MessagesStatus } from '../components/interfaces/messages.status.js';
+import { UserChat } from '../components/interfaces/chatRoom.types.js';
+
+interface UserDataProviderProps {
+  children: ReactNode;
+}
+
+export const userContext = React.createContext({});
 
 export function useUserDataContext (){
   return useContext(userContext);
 }
 
-export function UserDataContext({ children }) {
+export function UserDataContext({ children }: UserDataProviderProps){
 
   //flag que hace que se espere hasta que este componente se termine de cargar
-  const [isDataLoading, setIsDataLoading] = useState(true);
+  const [isDataLoading, setIsDataLoading] = useState<boolean>(true);
 
   //verifica que la room a la que se quiere conectar existe
-  const [channelExists,setChannelExists] = useState(false);
+  const [channelExists,setChannelExists] = useState<boolean>(false);
 
   //OBJ que contiene la conexion con el ws
-  const stompClient = useRef(null);
+  const stompClient = useRef<any>(null);
 
-  const [userData, setUserData] = useState({
+  const [userData, setUserData] = useState<UserData>({
     userId:'',
     username: '',
     connected: false,
     message: '',
     URLSessionid: '',
     //el estado indica luego en el chatroom qué hay que hacer, si unirse auna sala o crear una
-    status: 'JOIN',
+    status: MessagesStatus.JOIN,
     avatarImg: ''
   });
 
-  const [chats, setChats] = useState(new Map());
-  const [tab,setTab] =useState();//tab es o 'CHATROOM' o un obj chatUser
+  const [chats, setChats] = useState<Map<UserChat,[]>>(new Map());
+  const [tab,setTab] = useState<UserChat>();
 
-  const resetChats = () => {
+  const resetChats = ():void => {
     let chatsAux = chats;
     for (var obj of chatsAux) {
       chats.delete(obj[0]);
     }
-    let chatRoomObject = {
-      id: 0,
+    let chatRoomObject: UserChat = {      
+      id: '0',
       username: "CHATROOM",
       joinData: "-",
-      avatarImg: chatRoomIcon,
+      avatarImg: imageLinks[0],
       hasUnreadedMessages:false
     }
 
@@ -51,28 +58,28 @@ export function UserDataContext({ children }) {
     setTab(Array.from(chats.keys())[0])
   }
 
-  const loadUserDataValues = () => {
+  const loadUserDataValues = ():void => {
     //setId
-    let userId;
+    let userId:string;
     if (localStorage.getItem('id') === null) {
       userId = generateUserId();
       localStorage.setItem('id', userId);
       userData.userId = userId;
     } else {
-      userId = localStorage.getItem('id')
+      userId = localStorage.getItem('id')+'';
     }
     //setAvatarImage
     if (localStorage.getItem('avatarImg') === null) {
       localStorage.setItem('avatarImg', imageLinks[0]);
       userData.avatarImg = imageLinks[0];
     } else {
-      userData.avatarImg = localStorage.getItem('avatarImg')
+      userData.avatarImg = localStorage.getItem('avatarImg')+'';
     }
        
     if (localStorage.getItem('username') === null) {
       userData.username = '';
     } else {
-      userData.username = localStorage.getItem('username');
+      userData.username = localStorage.getItem('username')+'';
     }
     setUserData({ ...userData, 
       "userId":userId, "avatarImg": userData.avatarImg, "username": userData.username });

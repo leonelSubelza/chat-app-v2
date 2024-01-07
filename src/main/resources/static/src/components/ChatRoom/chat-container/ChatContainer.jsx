@@ -1,6 +1,6 @@
 import React, { useContext, } from 'react'
 import { v4 as uuidv4 } from 'uuid';
-import { userContext } from '../../../context/UserDataContext.jsx';
+import { userContext } from '../../../context/UserDataContext.tsx';
 import './ChatContainer.css';
 import Message from './message/Message.jsx';
 

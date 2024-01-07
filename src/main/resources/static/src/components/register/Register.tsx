@@ -1,23 +1,28 @@
+import type { UserDataContextType } from '../../context/types/types.js';
+import type { Message } from '../interfaces/messages.js';
 import React, { useContext, useState } from 'react'
-import { useUserDataContext, userContext } from '../../context/UserDataContext';
+import { useUserDataContext, userContext } from '../../context/UserDataContext.jsx';
 import { chatRoomConnectionContext } from '../../context/ChatRoomConnectionContext.jsx';
 import ModalIconChooser from './modals/item-chooser/ModalIconChooser.jsx';
 import ModalJoinChat from './modals/join-chat/ModalJoinChat.jsx';
 import { useEffect } from 'react';
 import { imageLinks } from '../../services/avatarsLinks.js';
 import './Register.css'
+import { getActualDate } from '../../utils/MessageDateConvertor.js';
+import { MessagesStatus } from '../interfaces/messages.status.js';
 
 const Register = () => {
-    const { userData, setUserData, isDataLoading,stompClient,channelExists } = useContext(userContext);
+    const { userData, setUserData, 
+        isDataLoading,stompClient } = useContext(userContext) as UserDataContextType;
     const { checkIfChannelExists, disconnectChat, startedConnection } = useContext(chatRoomConnectionContext)
 
     //MOdal icon chooser
-    const [showModalIconChooser, setShowModalIconChooser] = useState(false);
+    const [showModalIconChooser, setShowModalIconChooser] = useState<boolean>(false);
     //Modal join chat
-    const [showModalJoinChat, setShowModalJoinChat] = useState(false);
+    const [showModalJoinChat, setShowModalJoinChat] = useState<boolean>(false);
 
-    const handleCloseModalIconChooser = (iconChoosed) => {
-        setShowModalIconChooser(false)
+    const handleCloseModalIconChooser = (iconChoosed: string) => {
+        setShowModalIconChooser(false);
         if (iconChoosed !== '') {
             setUserData({ ...userData, "avatarImg": iconChoosed });
 
@@ -25,7 +30,7 @@ const Register = () => {
     };
     const handleShowModalIconChooser = () => setShowModalIconChooser(true);
 
-    const handleShowModalJoinChat = (e) => {
+    const handleShowModalJoinChat = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if (userData.username === '') {
             alert('Se debe poner un nombre de usuario!');
@@ -34,14 +39,18 @@ const Register = () => {
         setShowModalJoinChat(true);
     }
 
-    const handleUsername = (event) => {
+    const handleUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = event.target;
         setUserData({ ...userData, "username": value });
         localStorage.setItem('username', value);
     }
 
     //esta funcion solo se ejecuta si cerras el modal, la conexion se realiza en ModalJoinChat
-    const handleCloseModalJoinChat = (e) => {
+    const handleCloseModalJoinChat = (e: any) => {
+        console.log("evento que ocurre cuando se sale de modalJOinChat: ");
+        console.log(e);
+        
+        
         if (e === undefined) {
             //se hizo click en la x del modal (no hay evento creo)
             setShowModalJoinChat(false);
@@ -50,7 +59,7 @@ const Register = () => {
         e.preventDefault();
     }
 
-    const handleCreateRoom = (e) => {
+    const handleCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if (userData.username === '' && localStorage.getItem('username') === null ||
             localStorage.getItem('username') === '') {
@@ -62,9 +71,9 @@ const Register = () => {
             return;
         }
         //se debería crear un id
-        let idRoom = '1234';
-        userData.status = 'CREATE';
-        setUserData({ ...userData, "status": 'CREATE', "URLSessionid": idRoom });
+        let idRoom: string = '1234';
+        userData.status = MessagesStatus.CREATE;
+        setUserData({ ...userData, "status": MessagesStatus.CREATE, "URLSessionid": idRoom });
         checkIfChannelExists(idRoom);
     }
 
@@ -73,14 +82,21 @@ const Register = () => {
         //puedo capturar el evento cuando se hace para atrás en chatroom :(
         if (userData.connected && 
             Object.keys(stompClient.current.subscriptions).length>0) {
-            var chatMessage = {
-                senderId:userData.userId,
+            // var chatMessage = {
+            //     senderId:userData.userId,
+            //     senderName: userData.username,
+            //     urlSessionId: userData.URLSessionid,
+            //     status: 'LEAVE',
+            //     avatarImg: userData.avatarImg
+            // }
+            let leaveMessage: Message = {  
+                senderId: userData.userId,
                 senderName: userData.username,
+                date: getActualDate(),
+                status: MessagesStatus.LEAVE,
                 urlSessionId: userData.URLSessionid,
-                status: 'LEAVE',
-                avatarImg: userData.avatarImg
-            }
-            stompClient.current.send("/app/user.disconnected", {}, JSON.stringify(chatMessage));
+                avatarImg: userData.avatarImg}
+            stompClient.current.send("/app/user.disconnected", {}, JSON.stringify(leaveMessage));
             disconnectChat();
         }
     }, [])
@@ -115,7 +131,6 @@ const Register = () => {
                                     name="userName"
                                     value={userData.username}
                                     onChange={handleUsername}
-                                    margin="normal"
                                     autoFocus
                                 />
                                 <button type="button" className='button btn-join-chat' onClick={handleShowModalJoinChat}>
@@ -137,3 +152,19 @@ const Register = () => {
 
 }
 export default Register;
+
+/*
+margin no me andaba
+                            <div className='register-input__container'>
+                                <input
+                                    id="user-name"
+                                    className="user-name"
+                                    placeholder="Enter a username"
+                                    name="userName"
+                                    value={userData.username}
+                                    onChange={handleUsername}
+                                    margin="normal"
+                                    autoFocus
+                                />
+
+*/
