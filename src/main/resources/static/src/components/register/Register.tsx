@@ -1,4 +1,4 @@
-import type { UserDataContextType } from '../../context/types/types.js';
+import type { ChatRoomConnectionContextType, UserDataContextType } from '../../context/types/types.js';
 import type { Message } from '../interfaces/messages.js';
 import React, { useContext, useState } from 'react'
 import { useUserDataContext, userContext } from '../../context/UserDataContext.jsx';
@@ -11,10 +11,10 @@ import './Register.css'
 import { getActualDate } from '../../utils/MessageDateConvertor.js';
 import { MessagesStatus } from '../interfaces/messages.status.js';
 
-const Register = () => {
+const Register: React.FC = () => {
     const { userData, setUserData, 
         isDataLoading,stompClient } = useContext(userContext) as UserDataContextType;
-    const { checkIfChannelExists, disconnectChat, startedConnection } = useContext(chatRoomConnectionContext)
+    const { checkIfChannelExists, disconnectChat, startedConnection } = useContext(chatRoomConnectionContext) as ChatRoomConnectionContextType;
 
     //MOdal icon chooser
     const [showModalIconChooser, setShowModalIconChooser] = useState<boolean>(false);
@@ -47,10 +47,6 @@ const Register = () => {
 
     //esta funcion solo se ejecuta si cerras el modal, la conexion se realiza en ModalJoinChat
     const handleCloseModalJoinChat = (e: any) => {
-        console.log("evento que ocurre cuando se sale de modalJOinChat: ");
-        console.log(e);
-        
-        
         if (e === undefined) {
             //se hizo click en la x del modal (no hay evento creo)
             setShowModalJoinChat(false);

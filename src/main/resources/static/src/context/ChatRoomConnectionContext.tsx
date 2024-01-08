@@ -1,6 +1,7 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { userContext, useUserDataContext } from './UserDataContext';
-import { generateUserId } from '../utils/IdGenerator';
+import type { ChatUserTypingType, MessageUserTyping, PayloadData, UserData, UserDataContextType } from './types/types.js';
+import React, { ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import { userContext, useUserDataContext } from './UserDataContext.js';
+import { generateUserId } from '../utils/IdGenerator.js';
 import { createMessageJoin, createPrivateMessage, createPublicMessage, createUserChat, resetValues, updateChatData } from '../components/ChatRoom/ChatRoomFunctions.js';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,39 +14,48 @@ import { over } from 'stompjs';
 //Esta sirve para que pueda ser usada en navegadores más viejos.
 import SockJS from 'sockjs-client';
 import { serverURL } from '../config/chatConfiguration.js';
+import { MessagesStatus } from '../components/interfaces/messages.status.js';
+import { Message } from '../components/interfaces/messages.js';
+import { getActualDate } from '../utils/MessageDateConvertor.js';
+import { UserChat } from '../components/interfaces/chatRoom.types.js';
 
-export const chatRoomConnectionContext = React.createContext();
+
+export const chatRoomConnectionContext = React.createContext({});
 
 export function useChatRoomConnectionContext() {
     return useContext(chatRoomConnectionContext);
 }
 
-export function ChatRoomConnectionContext({ children }) {
+interface ChatRoomConnectionProviderProps {
+    children: ReactNode;
+  }
+
+export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProviderProps) {
     const navigate = useNavigate();
     //flag para que no ejecute el método connect() más de una vez
-    const startedConnection = useRef(false);
+    const startedConnection = useRef<boolean>(false);
 
     const userDataContext = useUserDataContext();
 
     const { setChannelExists, userData, setUserData, stompClient, loadUserDataValues,
-        chats, setChats, tab } = useContext(userContext)
+        chats, setChats, tab } = useContext(userContext) as UserDataContextType;
 
 
     //Esto lo tuve que hacer porque no sabía como hacer que la funcion onMessageReceived y onPrivateMessage
     //obtengan en sus funciones valores de los estados actualizados. Se define la funcion y se quedan los valores
     //guardados de la primera vez que se carga la función.
-    const [receivedMessageUserTyping,setReceivedMessageUserTyping] = useState({
+    const [receivedMessageUserTyping,setReceivedMessageUserTyping] = useState<MessageUserTyping>({
         received:false,
         receivedInPublicMessage:false,
         payloadData:null
     });
-    const [chatUserTyping, setChatUserTyping] = useState({
-        'isChatUserTyping': false,
-        'chatUser': null,
-        'isPublicMessage': false
+    const [chatUserTyping, setChatUserTyping] = useState<ChatUserTypingType>({
+        isChatUserTyping: false,
+        chatUser: null,
+        isPublicMessage: false
     });
 
-    const disconnectChat = () => {
+    const disconnectChat = ():void => {
         if (stompClient.current !== null && Object.keys(stompClient.current.subscriptions).length > 0) {
             //se desuscribe de todos los canales
             Object.keys(stompClient.current.subscriptions).forEach((s) => stompClient.current.unsubscribe(s));
@@ -53,7 +63,7 @@ export function ChatRoomConnectionContext({ children }) {
         }
     };
 
-    const startServerConnection = () => {
+    const startServerConnection = (): void => {
         if (startedConnection.current) {
             return;
         }
@@ -66,28 +76,28 @@ export function ChatRoomConnectionContext({ children }) {
         }
     }
 
-    const onConnected = () => {
+    const onConnected = ():void => {
         userData.connected = true
         setUserData({ ...userData });
     }
 
-    const onError = (err) => {
+    const onError = (err: unknown) => {
         console.log("Error conectando al wb: " + err);
         alert(err);
         disconnectChat()
         navigate('/')
     }
 
-    const checkIfChannelExists = (roomId) => {
-        stompClient.current.subscribe('/user/' + userData.userId + '/exists-channel', (payload) => {
-            var payloadData = JSON.parse(payload.body);
-            if ((payloadData.status === 'EXISTS' && userData.status === 'CREATE')) {
+    const checkIfChannelExists = (roomId: string): void => {
+        stompClient.current.subscribe('/user/' + userData.userId + '/exists-channel', (payload: any) => {
+            var message: Message = JSON.parse(payload.body);
+            if ((message.status === MessagesStatus.EXISTS && userData.status === MessagesStatus.CREATE)) {
                 alert('Se intenta crear una sala con un id que ya existe');
                 disconnectChat();
                 navigate('/');
                 return;
             }
-            if ((payloadData.status === 'NOT_EXISTS' && userData.status === 'JOIN')) {
+            if ((message.status === MessagesStatus.NOT_EXISTS && userData.status === MessagesStatus.JOIN)) {
                 alert('el canal al que se intenta conectar no existe');
                 disconnectChat();
                 navigate('/');
@@ -99,63 +109,60 @@ export function ChatRoomConnectionContext({ children }) {
             navigate(`/chatroom/${roomId}`);
         });
 
-        var chatMessage = {
+        var chatMessage: Message = {
             senderId: userData.userId,
             senderName: userData.username,
-            urlSessionId: roomId,
-        };
+            date: getActualDate(),
+            status: userData.status,
+            urlSessionId: roomId
+        }
         stompClient.current.send("/app/check-channel", {}, JSON.stringify(chatMessage))
     }
 
-    const subscribeRoomChannels = (roomId) => {
+    const subscribeRoomChannels = (roomId: string) => {
         stompClient.current.subscribe('/chatroom/public', onMessageReceived);
         stompClient.current.subscribe('/chatroom/' + roomId, onMessageReceived);
         stompClient.current.subscribe(
             '/user/' + userData.userId + "/" + roomId + '/private', onPrivateMessage);
     }
 
-    const userJoin = (roomId) => {
-        let userDataAux = userData;
+    const userJoin = (roomId: string) => {
+        let userDataAux: UserData = userData;
         userDataAux.URLSessionid = roomId;
         //despues fijarse si se carga bien el url session id asi no hago esta variable 
 
         //aca el status puede ser CREATE o JOIN depende
-        var chatMessage = createPublicMessage(userData.status, userDataAux);
+        var chatMessage: Message = createPublicMessage(userData.status, userDataAux);
         stompClient.current.send("/app/chat.join", {}, JSON.stringify(chatMessage));
     }
 
-    const onMessageReceived = (payload) => {
-        var payloadData = JSON.parse(payload.body);
-        switch (payloadData.status) {
-            case "JOIN":
-                handleJoinUser(payloadData, true);
+    const onMessageReceived = (payload: any) => {
+        var message: Message = JSON.parse(payload.body);
+        switch (message.status) {
+            case MessagesStatus.JOIN:
+                handleJoinUser(message, true);
                 break;
-            case "MESSAGE":
-                savePublicMessage(payloadData);
+            case MessagesStatus.MESSAGE:
+                savePublicMessage(message);
                 break;
-            case "UPDATE":
-                let userToUpdate = getUserSavedFromChats(payloadData.senderId);
+            case MessagesStatus.UPDATE:
+                let userToUpdate: UserChat = getUserSavedFromChats(message.senderId);
                 if (userToUpdate) {
-                    updateChatData(payloadData, userDataContext, userToUpdate);
+                    updateChatData(message, userDataContext, userToUpdate);
                 }
                 break;
-            case "LEAVE":
+            case MessagesStatus.LEAVE:
                 console.log("se recibe msj de que alguien se desconectó ⬅︎");
-                handleUserLeave(payloadData);
+                handleUserLeave(message);
                 break;
-            case "WRITING":
+            case MessagesStatus.WRITING:
                 setReceivedMessageUserTyping({
                     received:true,
                     receivedInPublicMessage:true,
-                    payloadData:payloadData
+                    payloadData:message
                 })
-                
-                // if (payloadData.senderId !== userData.userId
-                //     && tab.username === 'CHATROOM') {
-                //     setUserWriting(payloadData,true);
-                // }
                 break;
-            case "ERROR":
+            case MessagesStatus.ERROR:
                 alert('Error conectando al chat. Nose que pudo haber sido, se enviaron mal los datos xD');
                 //Por las dudas si se genero mal el id que se haga uno nuevo 
                 setUserData({ ...userData, 'userId': generateUserId() });
@@ -167,21 +174,21 @@ export function ChatRoomConnectionContext({ children }) {
         }
     };
 
-    const onPrivateMessage = (payload) => {
-        var payloadData = JSON.parse(payload.body);
-        switch (payloadData.status) {
-            case "JOIN":
+    const onPrivateMessage = (payload: any) => {
+        var message: Message = JSON.parse(payload.body);
+        switch (message.status) {
+            case MessagesStatus.JOIN:
                 //Los usuarios que no conzco me dicen quienes son uwu
-                handleJoinUser(payloadData, false);
+                handleJoinUser(message, false);
                 break;
-            case "MESSAGE":
-                handlePrivateMessageReceived(payloadData);
+            case MessagesStatus.MESSAGE:
+                handlePrivateMessageReceived(message);
                 break;
-            case 'WRITING':
+            case MessagesStatus.WRITING:
                 setReceivedMessageUserTyping({
                     received:true,
                     receivedInPublicMessage:false,
-                    payloadData:payloadData
+                    payloadData:message
                 })
                 
                 // if (payloadData.senderId !== userData.userId
@@ -194,43 +201,55 @@ export function ChatRoomConnectionContext({ children }) {
         }
     };
 
-    const handleJoinUser = (payloadData, resend) => {
-        if (payloadData.senderId === userData.userId) {
+    const handleJoinUser = (message: Message, resend:boolean) => {
+        if (message.senderId === userData.userId) {
             return;
         }
-        let userSaved = getUserSavedFromChats(payloadData.senderId);
+        let userSaved: UserChat = getUserSavedFromChats(message.senderId);
         if (!chats.get(userSaved)) {
-            var chatUser = createUserChat(payloadData);
-            chats.set(chatUser, []);
-            setChats(new Map(chats));
+            var chatUser: UserChat = createUserChat(message);
+            // chats.set(chatUser, []);
+            // setChats(new Map(chats));
+            saveMessage(chatUser,message)
             if (resend) {
                 //Generamos el msj de que alguien se unió
-                let joinMessage = createMessageJoin("JOIN", payloadData);
+                let joinMessage: Message = createMessageJoin("JOIN", message);
 
                 savePublicMessage(joinMessage);
 
-                let roomId = userData.URLSessionid === '' ? payloadData.urlSessionId : userData.URLSessionid;
-                let userDataAux = userData;
+                let roomId: string = userData.URLSessionid === '' ? message.urlSessionId : userData.URLSessionid;
+                let userDataAux: UserData = userData;
                 userDataAux.URLSessionid = roomId;
-                var chatMessage = createPrivateMessage('JOIN', userDataAux, payloadData.senderName, payloadData.senderId);
+                var chatMessage: Message = createPrivateMessage(
+                    MessagesStatus.JOIN, userDataAux, message.senderName, message.senderId);
                 stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
             }
         }
     }
 
-    const savePublicMessage = (payloadData) => {
-        let chatRoomElement = Array.from(chats.keys())[0];
-        chatRoomElement.hasUnreadedMessages = true;
-        chats.get(chatRoomElement).push(payloadData);
-        setChats(new Map(chats));
+    const saveMessage = (user: UserChat, message: Message)=>{
+        const updatedChats: Map<UserChat, Message[]> = new Map(chats);
+        const currentMessages: Message[]= updatedChats.get(user) || new Array<Message>;
+        const updatedMessages: Message[] = [...currentMessages, message];
+        updatedChats.set(user, updatedMessages);
+        setChats(new Map(updatedChats));
+    }
+
+    const savePublicMessage = (message: Message) => {
+        let chatRoomElement: UserChat = Array.from(chats.keys())[0];
+        chatRoomElement.hasUnreadedMessages = true;        
+        // chats.get(chatRoomElement).push(message);
+        // setChats(new Map(chats));
+        saveMessage(chatRoomElement,message);
     };
 
-    const handlePrivateMessageReceived = (payloadData) => {
-        let userSaved = getUserSavedFromChats(payloadData.senderId)
+    const handlePrivateMessageReceived = (message: Message) => {
+        let userSaved: UserChat = getUserSavedFromChats(message.senderId)
         if (userSaved) {
-            Array.from(chats.keys()).find(c => c.id === userSaved.id).hasUnreadedMessages = true;
-            chats.get(userSaved).push(payloadData);
-            setChats(new Map(chats));
+            Array.from(chats.keys())!.find(c => c.id === userSaved.id)!.hasUnreadedMessages = true;
+            // chats.get(userSaved)!.push(message);
+            // setChats(new Map(chats));
+            saveMessage(userSaved,message);
         } else {
             //esto no debería pasar porque el usuario se guarda cuando se une al chat
             console.log("no se tenia un obj privado guardado");
@@ -243,53 +262,56 @@ export function ChatRoomConnectionContext({ children }) {
         }
     }
 
-    const handleUserLeave = (payloadData) => {
-        if (payloadData.senderId === userData.userId) {
+    const handleUserLeave = (message: Message) => {
+        if (message.senderId === userData.userId) {
             return;
         }
-        let joinMessage = createMessageJoin("LEAVE", payloadData);
-        savePublicMessage(joinMessage)
+        let joinMessage: Message = createMessageJoin("LEAVE", message);
+        savePublicMessage(joinMessage);
 
-        let userSaved = getUserSavedFromChats(payloadData.senderId);
-        chats.delete(userSaved);
-        setChats(new Map(chats));
+        let userSaved: UserChat = getUserSavedFromChats(message.senderId);
+        // chats.delete(userSaved);
+        // setChats(new Map(chats));
+        saveMessage(userSaved,message)
     }
 
-    const setUserWriting = (payloadData,isPublicMessage) =>{
-        let userWriting = getUserSavedFromChats(payloadData.senderId);
+    const setUserWriting = (message: Message, isPublicMessage: boolean) =>{
+        let userWriting = getUserSavedFromChats(message.senderId);
         setChatUserTyping({
             'isChatUserTyping': true,
             'chatUser': userWriting,
             'isPublicMessage': isPublicMessage
         });
         setTimeout(() => {
-            setChatUserTyping({'isChatUserTyping': false, 'chatUser': null });
+            setChatUserTyping({
+                'isChatUserTyping': false, 
+                'chatUser': null,
+             });
         }, 3000)
     }
 
-    const getUserSavedFromChats = (id) => {
-        return Array.from(chats.keys()).find(k => k.id === id)
+    const getUserSavedFromChats = (id: string): UserChat => {
+        return Array.from(chats.keys()).find(k => k.id === id)!;
     }
 
     useEffect(() => {
         //COSO PARA MARCAR MSJ NO LEIDO
-        let unreadChat = Array.from(chats.keys()).find(c => c.hasUnreadedMessages);
+        let unreadChat: UserChat = Array.from(chats.keys())!.find(c => c.hasUnreadedMessages)!;
         if (unreadChat === undefined || tab === undefined) {
             return;
         }
         if (tab.id === unreadChat.id) {
-            Array.from(chats.keys()).find(c => c.id === unreadChat.id).hasUnreadedMessages = false;
+            Array.from(chats.keys())!.find(c => c.id === unreadChat.id)!.hasUnreadedMessages = false;
             setChats(new Map(chats))
-        }
-        
+        }        
     }, [chats])
 
     useEffect(()=>{
         if(receivedMessageUserTyping.received){
             if(receivedMessageUserTyping.receivedInPublicMessage){
-                setUserWriting(receivedMessageUserTyping.payloadData,true);
+                setUserWriting(receivedMessageUserTyping.payloadData!,true);
             }else{
-                setUserWriting(receivedMessageUserTyping.payloadData,false);
+                setUserWriting(receivedMessageUserTyping.payloadData!,false);
             }
             setReceivedMessageUserTyping({
                 received:false,

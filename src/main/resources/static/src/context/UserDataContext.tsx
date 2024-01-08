@@ -1,9 +1,10 @@
-import type { UserData } from './types/types.js';
+import type { PayloadData, UserData } from './types/types.js';
 import React, { useState,useRef,useContext, ReactNode } from 'react'
 import { imageLinks } from '../services/avatarsLinks.js';
 import { generateUserId } from '../utils/IdGenerator.js';
 import { MessagesStatus } from '../components/interfaces/messages.status.js';
 import { UserChat } from '../components/interfaces/chatRoom.types.js';
+import { Message } from '../components/interfaces/messages.js';
 
 interface UserDataProviderProps {
   children: ReactNode;
@@ -37,11 +38,11 @@ export function UserDataContext({ children }: UserDataProviderProps){
     avatarImg: ''
   });
 
-  const [chats, setChats] = useState<Map<UserChat,[]>>(new Map());
+  const [chats, setChats] = useState<Map<UserChat, Message[]>>(new Map);
   const [tab,setTab] = useState<UserChat>();
 
   const resetChats = ():void => {
-    let chatsAux = chats;
+    let chatsAux: Map<UserChat, Message[]> = chats;
     for (var obj of chatsAux) {
       chats.delete(obj[0]);
     }
@@ -53,12 +54,12 @@ export function UserDataContext({ children }: UserDataProviderProps){
       hasUnreadedMessages:false
     }
 
-    chats.set(chatRoomObject, []);
+    chats.set(chatRoomObject, new Array<Message>);
     setChats(new Map(chats));
     setTab(Array.from(chats.keys())[0])
   }
 
-  const loadUserDataValues = ():void => {
+  const loadUserDataValues = (): void => {
     //setId
     let userId:string;
     if (localStorage.getItem('id') === null) {

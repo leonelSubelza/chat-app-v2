@@ -1,9 +1,13 @@
 export enum MessagesStatus {
     "JOIN",
-    'MESSAGE',
+    "MESSAGE",
     "UPDATE",
     "LEAVE",
     "CREATE",
+    "EXISTS",
+    "NOT_EXISTS",
+    "ERROR",
     "WRITING",
-    "ERROR"
+    "BANNED",
+    "MAKE_ADMIN"
 }
