@@ -1,49 +1,58 @@
 import React,{useContext,useEffect,useState} from 'react';
 import MembersList from './MemberList/MembersList.jsx';
-import { userContext } from '../../../context/UserDataContext';
+import { userContext } from '../../../context/UserDataContext.js';
 import Toast from 'react-bootstrap/Toast';
 import './Sidebar.css';
 import ModalIconChooser from '../../register/modals/item-chooser/ModalIconChooser.jsx';
-import { createPublicMessage } from '../ChatRoomFunctions.ts';
-import { chatRoomConnectionContext } from '../../../context/ChatRoomConnectionContext.tsx';
+import { createPublicMessage } from '../ChatRoomFunctions.js';
+import { chatRoomConnectionContext } from '../../../context/ChatRoomConnectionContext.js';
+import { UserData } from '../../../context/types/types.js';
+import { MessagesStatus } from '../../interfaces/messages.status.js';
+import { Message } from '../../interfaces/messages.js';
 
-const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {
+interface Props {
+    sidebarOpen: boolean;
+    disconnectChat: ()=>void;
+    handleSideBarOpen: ()=>void;
+}
+
+const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }: Props) => {
 
     const { userData,setUserData, stompClient } = useContext(userContext);
     const { startedConnection } = useContext(chatRoomConnectionContext);
 
     //MOdal icon chooser
-    const [showModalIconChooser, setShowModalIconChooser] = useState(false);
+    const [showModalIconChooser, setShowModalIconChooser] = useState<boolean>(false);
 
-    const [showToastCopied, setShowToastMessage] = useState(false);
+    const [showToastCopied, setShowToastMessage] = useState<boolean>(false);
 
-    const handleDisconnectChat = ()=>{
+    const handleDisconnectChat = (): void =>{
         return disconnectChat();
     }
-    const toggleSidebar = () => {
+    const toggleSidebar = (): void => {
         return handleSideBarOpen();
     };
 
 
-    const handleCloseModalIconChooser = (iconChoosed) => {
-        setShowModalIconChooser(false)
+    const handleCloseModalIconChooser = (iconChoosed: string): void => {
+        setShowModalIconChooser(false);
         if (iconChoosed !== '') {
             //Preguntamos si está conectado en una sala, entonces le avisamos a todos de act
             if(startedConnection.current && userData.connected
                 && stompClient.current !== null){
-                    let userUpdate = {...userData, "avatarImg": iconChoosed};
-                    var chatMessage = createPublicMessage('UPDATE', userUpdate);
+                    let userUpdate : UserData = {...userData, "avatarImg": iconChoosed};
+                    var chatMessage: Message = createPublicMessage(MessagesStatus.UPDATE,userUpdate);
                     stompClient.current.send("/app/group-message", {}, JSON.stringify(chatMessage));
                 }
             setUserData({ ...userData, "avatarImg": iconChoosed });
         }
     };
 
-    const copyInput = () => {
+    const copyInput = (): void => {
         setShowToastMessage(true);
-        navigator.clipboard.writeText(window.location)
+        navigator.clipboard.writeText(window.location.toString())
         .then(() => {
-            console.log('Text copied to clipboard');
+            console.log('Text copied to clipboard! 📎');
         })
         .catch(err => {
             console.error('Error in copying text: ', err);

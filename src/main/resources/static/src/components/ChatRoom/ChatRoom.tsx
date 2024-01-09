@@ -12,7 +12,7 @@ import { MessagesStatus } from '../interfaces/messages.status';
 import { Message } from '../interfaces/messages';
 
 
-const ChatRoom: React.FC  = () => {
+const ChatRoom: React.FC = () => {
     const navigate: NavigateFunction = useNavigate();
 
     const { isDataLoading, userData, setUserData,
