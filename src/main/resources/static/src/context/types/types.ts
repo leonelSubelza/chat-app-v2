@@ -32,7 +32,7 @@ export type UserDataContextType = {
     tab: UserChat,setTab: (value: UserChat)=> void,
     stompClient:any,
     loadUserDataValues: ()=>void,
-    resetChats:void,
+    resetChats: ()=>void,
     chats:Map<UserChat,Message[]>, setChats:(value: Map<UserChat,Message[]>)=> void
 }
 

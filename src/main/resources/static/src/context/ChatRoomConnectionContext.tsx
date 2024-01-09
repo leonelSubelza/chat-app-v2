@@ -35,7 +35,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     //flag para que no ejecute el método connect() más de una vez
     const startedConnection = useRef<boolean>(false);
 
-    const userDataContext = useUserDataContext();
+    const userDataContext: UserDataContextType = useUserDataContext();
 
     const { setChannelExists, userData, setUserData, stompClient, loadUserDataValues,
         chats, setChats, tab } = useContext(userContext) as UserDataContextType;
@@ -108,7 +108,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             userJoin(roomId);
             navigate(`/chatroom/${roomId}`);
         });
-
+        
         var chatMessage: Message = {
             senderId: userData.userId,
             senderName: userData.username,
@@ -213,7 +213,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             saveMessage(chatUser,message)
             if (resend) {
                 //Generamos el msj de que alguien se unió
-                let joinMessage: Message = createMessageJoin("JOIN", message);
+                let joinMessage: Message = createMessageJoin(MessagesStatus.JOIN, message);
 
                 savePublicMessage(joinMessage);
 
@@ -232,6 +232,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         const currentMessages: Message[]= updatedChats.get(user) || new Array<Message>;
         const updatedMessages: Message[] = [...currentMessages, message];
         updatedChats.set(user, updatedMessages);
+        chats.set(user, updatedMessages);
         setChats(new Map(updatedChats));
     }
 
@@ -266,7 +267,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         if (message.senderId === userData.userId) {
             return;
         }
-        let joinMessage: Message = createMessageJoin("LEAVE", message);
+        let joinMessage: Message = createMessageJoin(MessagesStatus.LEAVE, message);
         savePublicMessage(joinMessage);
 
         let userSaved: UserChat = getUserSavedFromChats(message.senderId);
@@ -304,6 +305,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             Array.from(chats.keys())!.find(c => c.id === unreadChat.id)!.hasUnreadedMessages = false;
             setChats(new Map(chats))
         }        
+        console.log("cant de chats actuales: "+Array.from(chats.keys()).length);
     }, [chats])
 
     useEffect(()=>{

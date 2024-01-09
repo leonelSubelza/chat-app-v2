@@ -6,7 +6,7 @@ import { chatRoomConnectionContext } from '../../context/ChatRoomConnectionConte
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';
 import { getRoomIdFromURL } from '../../utils/InputValidator.js';
-import { createPrivateMessage, createPublicMessage } from './ChatRoomFunctions.js';
+import { createPrivateMessage, createPublicMessage } from './ChatRoomFunctions.ts';
 import ChatContainer from './chat-container/ChatContainer.jsx';
 
 

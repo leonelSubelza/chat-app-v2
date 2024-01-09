@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom';
 import './ChatRoom.css';
-import { userContext } from '../../context/UserDataContext.tsx';
-import { chatRoomConnectionContext } from '../../context/ChatRoomConnectionContext.jsx';
+import { userContext } from '../../context/UserDataContext';
+import { chatRoomConnectionContext } from '../../context/ChatRoomConnectionContext.tsx';
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';
 import { getRoomIdFromURL } from '../../utils/InputValidator.js';
-import { createPrivateMessage, createPublicMessage } from './ChatRoomFunctions.js';
+import { createPrivateMessage, createPublicMessage } from './ChatRoomFunctions.ts';
 import ChatContainer from './chat-container/ChatContainer.jsx';
 
 

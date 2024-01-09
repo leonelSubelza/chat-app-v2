@@ -4,7 +4,7 @@ import { userContext } from '../../../context/UserDataContext';
 import Toast from 'react-bootstrap/Toast';
 import './Sidebar.css';
 import ModalIconChooser from '../../register/modals/item-chooser/ModalIconChooser.jsx';
-import { createPublicMessage } from '../ChatRoomFunctions.js';
+import { createPublicMessage } from '../ChatRoomFunctions.ts';
 import { chatRoomConnectionContext } from '../../../context/ChatRoomConnectionContext.tsx';
 
 const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }) => {

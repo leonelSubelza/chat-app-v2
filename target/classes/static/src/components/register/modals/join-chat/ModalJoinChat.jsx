@@ -4,7 +4,7 @@ import Modal from 'react-bootstrap/Modal';
 import './ModalJoinChat.css'
 import { isCorrectURL } from '../../../../utils/InputValidator';
 import {userContext} from '../../../../context/UserDataContext.tsx';
-import { chatRoomConnectionContext } from '../../../../context/ChatRoomConnectionContext.jsx';
+import { chatRoomConnectionContext } from '../../../../context/ChatRoomConnectionContext.tsx';
 const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }) => {
 
     const [inputValue, setInputValue] = useState('');

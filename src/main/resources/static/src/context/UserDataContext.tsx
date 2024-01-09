@@ -1,4 +1,4 @@
-import type { PayloadData, UserData } from './types/types.js';
+import type { PayloadData, UserData, UserDataContextType } from './types/types.js';
 import React, { useState,useRef,useContext, ReactNode } from 'react'
 import { imageLinks } from '../services/avatarsLinks.js';
 import { generateUserId } from '../utils/IdGenerator.js';
@@ -10,11 +10,19 @@ interface UserDataProviderProps {
   children: ReactNode;
 }
 
+/*
 export const userContext = React.createContext({});
 
 export function useUserDataContext (){
   return useContext(userContext);
 }
+*/
+export const userContext = React.createContext<UserDataContextType>(undefined);
+
+export function useUserDataContext (): UserDataContextType{
+  return useContext(userContext);
+}
+
 
 export function UserDataContext({ children }: UserDataProviderProps){
 
@@ -67,7 +75,7 @@ export function UserDataContext({ children }: UserDataProviderProps){
       localStorage.setItem('id', userId);
       userData.userId = userId;
     } else {
-      userId = localStorage.getItem('id')+'';
+      userId = localStorage.getItem('id');
     }
     //setAvatarImage
     if (localStorage.getItem('avatarImg') === null) {
@@ -82,6 +90,7 @@ export function UserDataContext({ children }: UserDataProviderProps){
     } else {
       userData.username = localStorage.getItem('username')+'';
     }
+    userData.userId = userId;
     setUserData({ ...userData, 
       "userId":userId, "avatarImg": userData.avatarImg, "username": userData.username });
     setIsDataLoading(false);
