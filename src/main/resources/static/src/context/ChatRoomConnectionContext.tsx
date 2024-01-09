@@ -1,4 +1,4 @@
-import type { ChatUserTypingType, MessageUserTyping, PayloadData, UserData, UserDataContextType } from './types/types.js';
+import type { ChatRoomConnectionContextType, ChatUserTypingType, MessageUserTyping, PayloadData, UserData, UserDataContextType } from './types/types.js';
 import React, { ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { userContext, useUserDataContext } from './UserDataContext.js';
 import { generateUserId } from '../utils/IdGenerator.js';
@@ -20,9 +20,9 @@ import { getActualDate } from '../utils/MessageDateConvertor.js';
 import { UserChat } from '../components/interfaces/chatRoom.types.js';
 
 
-export const chatRoomConnectionContext = React.createContext({});
+export const chatRoomConnectionContext = React.createContext<ChatRoomConnectionContextType>(undefined);
 
-export function useChatRoomConnectionContext() {
+export function useChatRoomConnectionContext(): ChatRoomConnectionContextType{
     return useContext(chatRoomConnectionContext);
 }
 
@@ -271,9 +271,9 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         savePublicMessage(joinMessage);
 
         let userSaved: UserChat = getUserSavedFromChats(message.senderId);
-        // chats.delete(userSaved);
-        // setChats(new Map(chats));
-        saveMessage(userSaved,message)
+        chats.delete(userSaved);
+        setChats(new Map(chats));
+        //saveMessage(userSaved,message)
     }
 
     const setUserWriting = (message: Message, isPublicMessage: boolean) =>{
@@ -305,7 +305,6 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             Array.from(chats.keys())!.find(c => c.id === unreadChat.id)!.hasUnreadedMessages = false;
             setChats(new Map(chats))
         }        
-        console.log("cant de chats actuales: "+Array.from(chats.keys()).length);
     }, [chats])
 
     useEffect(()=>{

@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { NavigateFunction, useNavigate } from 'react-router-dom';
 import './ChatRoom.css';
 import { userContext } from '../../context/UserDataContext';
-import { chatRoomConnectionContext } from '../../context/ChatRoomConnectionContext.tsx';
+import { chatRoomConnectionContext } from '../../context/ChatRoomConnectionContext';
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from './sidebar/Sidebar.jsx';
 import { getRoomIdFromURL } from '../../utils/InputValidator.js';
-import { createPrivateMessage, createPublicMessage } from './ChatRoomFunctions.ts';
+import { createPrivateMessage, createPublicMessage } from './ChatRoomFunctions';
 import ChatContainer from './chat-container/ChatContainer.jsx';
+import { MessagesStatus } from '../interfaces/messages.status';
+import { Message } from '../interfaces/messages';
 
 
-const ChatRoom = () => {
-    const navigate = useNavigate();
+const ChatRoom: React.FC  = () => {
+    const navigate: NavigateFunction = useNavigate();
 
     const { isDataLoading, userData, setUserData,
         tab, setTab, stompClient, channelExists, chats, setChats } = useContext(userContext);
@@ -20,11 +22,11 @@ const ChatRoom = () => {
 
     const { disconnectChat, checkIfChannelExists, chatUserTyping } = useContext(chatRoomConnectionContext)
 
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
 
-    const [writingCooldown, setWritingCooldown] = useState(false);
+    const [writingCooldown, setWritingCooldown] = useState<boolean>(false);
 
-    const connect = () => {
+    const connect = (): void => {
         if (stompClient.current === null) {
             return;
         }
@@ -34,7 +36,7 @@ const ChatRoom = () => {
 
         if (userData.username === '' || localStorage.getItem('username') === null
             || localStorage.getItem('username') === 'null') {
-            let nombre = prompt("Ingrese un nombre de usuario");
+            let nombre: string = prompt("Ingrese un nombre de usuario");
             if (nombre === null) {
                 disconnectChat();
                 navigate("/");
@@ -45,8 +47,8 @@ const ChatRoom = () => {
             return;
         }
         if (userData.URLSessionid === '') {
-            const url = window.location + "";
-            let urlSessionIdAux = getRoomIdFromURL(url);
+            const url: string = window.location + "";
+            let urlSessionIdAux: string = getRoomIdFromURL(url);
             if (urlSessionIdAux === undefined) {
                 disconnectChat();
                 navigate("/");
@@ -60,25 +62,25 @@ const ChatRoom = () => {
         }
     }
 
-    const sendValue = (status='MESSAGE') => {
+    const sendValue = (status: MessagesStatus = MessagesStatus.MESSAGE): void => {
         if (userData.message.trim() === '') {
             return;
         }
         if (stompClient.current) {
-            var chatMessage = createPublicMessage(status, userData);
+            var chatMessage: Message = createPublicMessage(status, userData);
             stompClient.current.send("/app/group-message", {}, JSON.stringify(chatMessage));
-            if (status === "MESSAGE") {
+            if (status === MessagesStatus.MESSAGE) {
                 setUserData({ ...userData, "message": "" });
             }
         }
     }
 
-    const sendPrivateValue = (status='MESSAGE') => {
+    const sendPrivateValue = (status: MessagesStatus = MessagesStatus.MESSAGE) => {
         if (userData.message.trim() === '') {
             return;
         }
         if (stompClient.current) {
-            var chatMessage = createPrivateMessage(status, userData, tab.username, tab.id);
+            var chatMessage: Message = createPrivateMessage(status, userData, tab.username, tab.id);
             //si se envia un msj a alguien que no sea yo mismo
             if (userData.userId !== tab.id) {
                 chats.get(tab).push(chatMessage);
@@ -89,27 +91,26 @@ const ChatRoom = () => {
         }
     }
 
-    const sendWritingNotification = () => {
+    const sendWritingNotification = (): void => {
         if(tab.username==='CHATROOM'){
-            sendValue('WRITING');
+            sendValue(MessagesStatus.WRITING);
         }else{
-            sendPrivateValue('WRITING');
+            sendPrivateValue(MessagesStatus.WRITING);
         }
         
     }
 
-    const handleDisconnectChat = () => {
+    const handleDisconnectChat = ():void => {
         disconnectChat();
         //avisamos a todos que nos desconectamos
-        var chatMessage = createPublicMessage('LEAVE', userData)
+        var chatMessage: Message = createPublicMessage(MessagesStatus.LEAVE, userData)
         stompClient.current.send("/app/user.disconnected", {}, JSON.stringify(chatMessage));
-
         navigate('/');
     }
 
-    const setMessageTyping = () => {
+    const setMessageTyping = (): string => {
         if (chatUserTyping.chatUser === null || chatUserTyping.chatUser === undefined) {
-            return;
+            return '';
         }
         if (chatUserTyping.isPublicMessage && tab.username === 'CHATROOM') {
             return `${chatUserTyping.chatUser.username} is typing...`;
@@ -120,9 +121,9 @@ const ChatRoom = () => {
         }
     }
 
-    const handleKeyPressedMsg = (e) => {
+    const handleKeyPressedMsg = (e: KeyboardEvent): void => {
         e.preventDefault()
-        let key = e;
+        let key: KeyboardEvent|string = e;
         if (typeof e !== 'string') {
             key = e.key;
         }
@@ -173,7 +174,7 @@ const ChatRoom = () => {
                     />
                     <div className={`chat-box ${sidebarOpen ? 'close' : ''}`}>
                         <div className="home-content">
-                            <span className="text">{`${tab === 'CHATROOM' ? 'CHAT GENERAL' : tab.username}`}</span>
+                            <span className="text">{`${tab.username === 'CHATROOM' ? 'CHAT GENERAL' : tab.username}`}</span>
                             <span
                                 className={`user_writing ${chatUserTyping.chatUser !== null && chatUserTyping.isChatUserTyping && 'active'}`}>
                                 {setMessageTyping()}
