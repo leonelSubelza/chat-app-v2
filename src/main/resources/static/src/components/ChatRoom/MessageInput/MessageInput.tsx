@@ -2,10 +2,14 @@ import React, { useContext } from 'react';
 import './MessageInput.css'
 import { userContext } from '../../../context/UserDataContext';
 
-const MessageInput = ({ onSend }) => {
+interface Props {
+    onSend: ()=>void;
+}
+
+const MessageInput = ({ onSend }: Props) => {
     const { userData, setUserData} = useContext(userContext);
 
-    const handleMessage = (event) => {
+    const handleMessage = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = event.target;
         setUserData({ ...userData, "message": value });
     }

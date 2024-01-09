@@ -1,7 +1,15 @@
+import { UserData } from '../../../../context/types/types';
 import { getHourFromUTCFormatDate } from '../../../../utils/MessageDateConvertor';
-import './Message.css';
+import { Message } from '../../../interfaces/messages';
+import './ChatMessage.css';
 
-const Message = ({ message, userData, isPublicChat }) => {
+interface Props {
+    message: Message;
+    userData: UserData;
+    isPublicChat: boolean;
+}
+
+const Message = ({ message, userData, isPublicChat }: Props) => {
     return (
         <>
             {(message.status === 'MESSAGE') ?

@@ -32,7 +32,7 @@ const MembersList = () => {
                     <div className="separator-sidebar"></div>
                 </div>
 
-                {chats.size > 0 && Array.from(chats.keys()).map((chatData) => (
+                {chats.size > 0 && Array.from(chats.keys()).map((chatData: UserChat) => (
                     chatData.username !== 'CHATROOM' &&
                     <li
                         onClick={(e) => onUserChatClick(e,chatData)}
