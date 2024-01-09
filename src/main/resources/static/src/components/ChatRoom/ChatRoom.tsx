@@ -147,14 +147,17 @@ const ChatRoom: React.FC = () => {
 
     useEffect(() => {
         connect();
-        if (tab !== Array.from(chats.keys())[0] && chats.get(tab) === undefined) {
+        let chatRoomElement = Array.from(chats.keys())[0];
+        if (tab !== chatRoomElement && chats.get(tab) === undefined) {
             //se setea tab chatroom por defecto
-            setTab(Array.from(chats.keys())[0]);
-            //Array.from(chats.keys())[0].hasUnreadedMessages = false;
+            setTab(chatRoomElement);
+            Array.from(chats.keys())[0].hasUnreadedMessages = false;
+            setChats(new Map(chats));
         }
         if (tab === undefined) {
-            setTab(Array.from(chats.keys())[0]);
-            //Array.from(chats.keys())[0].hasUnreadedMessages = false;
+            setTab(chatRoomElement);
+            Array.from(chats.keys())[0].hasUnreadedMessages = false;
+            setChats(new Map(chats));
         }
         if (userData.connected) {
             window.addEventListener('keyup', handleKeyPressedMsg);

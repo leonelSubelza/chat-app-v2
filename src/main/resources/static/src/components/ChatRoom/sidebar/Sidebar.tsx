@@ -1,4 +1,4 @@
-import React,{useContext,useEffect,useState} from 'react';
+import React,{useContext,useState} from 'react';
 import MembersList from './MemberList/MembersList.jsx';
 import { userContext } from '../../../context/UserDataContext.js';
 import Toast from 'react-bootstrap/Toast';

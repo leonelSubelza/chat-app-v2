@@ -208,9 +208,9 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         let userSaved: UserChat = getUserSavedFromChats(message.senderId);
         if (!chats.get(userSaved)) {
             var chatUser: UserChat = createUserChat(message);
-            // chats.set(chatUser, []);
-            // setChats(new Map(chats));
-            saveMessage(chatUser,message)
+            chats.set(chatUser, new Array<Message>);
+            setChats(new Map(chats));
+            //saveMessage(chatUser,message);
             if (resend) {
                 //Generamos el msj de que alguien se unió
                 let joinMessage: Message = createMessageJoin(MessagesStatus.JOIN, message);
@@ -238,7 +238,9 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
 
     const savePublicMessage = (message: Message) => {
         let chatRoomElement: UserChat = Array.from(chats.keys())[0];
-        chatRoomElement.hasUnreadedMessages = true;        
+        chatRoomElement.hasUnreadedMessages = true;  
+        console.log("se guarda un msj en "+chatRoomElement.username);
+              
         // chats.get(chatRoomElement).push(message);
         // setChats(new Map(chats));
         saveMessage(chatRoomElement,message);

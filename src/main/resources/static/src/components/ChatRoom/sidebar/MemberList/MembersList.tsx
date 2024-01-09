@@ -3,11 +3,13 @@ import './MemberList.css'
 import { userContext } from '../../../../context/UserDataContext';
 import chatRoomIcon from '../../../../assets/people-icon.svg';
 import { v4 as uuidv4 } from 'uuid';
+import { UserChat } from '../../../interfaces/chatRoom.types';
 
 const MembersList = () => {
     const { tab, setTab, chats } = useContext(userContext);
 
-    const onUserChatClick = (e,chatData) =>{
+    //const chatRoomIcon = require('../../../../assets/people-icon.svg') as string;
+    const onUserChatClick = (e: React.MouseEvent<HTMLLIElement>,chatData: UserChat) =>{
         chatData.hasUnreadedMessages = false;
         setTab(chatData);
     }

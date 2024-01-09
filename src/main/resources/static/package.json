@@ -26,6 +26,7 @@
     "@types/react-dom": "^18.2.7",
     "@types/sockjs-client": "^1.5.4",
     "@types/stompjs": "^2.3.9",
+    "@types/uuid": "^9.0.7",
     "@vitejs/plugin-react-swc": "^3.3.2",
     "eslint": "^8.45.0",
     "eslint-plugin-react": "^7.32.2",
