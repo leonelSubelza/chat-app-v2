@@ -1,15 +1,15 @@
-import type { ChatRoomConnectionContextType, UserDataContextType,} from "../../context/types/types.js";
-import type { Message } from "../interfaces/messages.js";
+import type { ChatRoomConnectionContextType, UserDataContextType,} from "../../context/types/types.ts";
+import type { Message } from "../interfaces/messages.ts";
 import React, { useContext, useState } from "react";
-import { userContext} from "../../context/UserDataContext.jsx";
-import { chatRoomConnectionContext } from "../../context/ChatRoomConnectionContext.jsx";
+import { userContext} from "../../context/UserDataContext.tsx";
+import { chatRoomConnectionContext } from "../../context/ChatRoomConnectionContext.tsx";
 import ModalIconChooser from "./modals/item-chooser/ModalIconChooser.tsx";
 import ModalJoinChat from "./modals/join-chat/ModalJoinChat.tsx";
 import { useEffect } from "react";
-import { imageLinks } from "../../services/avatarsLinks.js";
+import { imageLinks } from "../../services/avatarsLinks.ts";
 import "./Register.css";
-import { MessagesStatus } from "../interfaces/messages.status.js";
-import { createPublicMessage } from "../ChatRoom/ChatRoomFunctions.js";
+import { MessagesStatus } from "../interfaces/messages.status.ts";
+import { createPublicMessage } from "../ChatRoom/ChatRoomFunctions.ts";
 
 const Register: React.FC = () => {
   const { userData, setUserData, isDataLoading, stompClient } = useContext(userContext) as UserDataContextType;

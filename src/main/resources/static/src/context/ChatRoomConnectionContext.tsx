@@ -1,16 +1,16 @@
-import type { ChatRoomConnectionContextType, ChatUserTypingType, MessageUserTyping, PayloadData, UserData, UserDataContextType } from './types/types.js';
+import type { ChatRoomConnectionContextType, ChatUserTypingType, MessageUserTyping, PayloadData, UserData, UserDataContextType } from './types/types.ts';
 import React, { ReactNode, useContext, useEffect, useRef, useState } from 'react'
-import { userContext, useUserDataContext } from './UserDataContext.js';
-import { generateUserId } from '../utils/IdGenerator.js';
-import { createMessageJoin, createPrivateMessage, createPublicMessage, createUserChat, resetValues, updateChatData } from '../components/ChatRoom/ChatRoomFunctions.js';
+import { userContext, useUserDataContext } from './UserDataContext.tsx';
+import { generateUserId } from '../utils/IdGenerator.ts';
+import { createMessageJoin, createPrivateMessage, createPublicMessage, createUserChat, resetValues, updateChatData } from '../components/ChatRoom/ChatRoomFunctions.ts';
 import { useNavigate } from 'react-router-dom';
 import { over } from 'stompjs';
 import SockJS from 'sockjs-client';
-import { serverURL } from '../config/chatConfiguration.js';
-import { MessagesStatus } from '../components/interfaces/messages.status.js';
-import { Message } from '../components/interfaces/messages.js';
-import { getActualDate } from '../utils/MessageDateConvertor.js';
-import { UserChat } from '../components/interfaces/chatRoom.types.js';
+import { serverURL } from '../config/chatConfiguration.ts';
+import { MessagesStatus } from '../components/interfaces/messages.status.ts';
+import { Message } from '../components/interfaces/messages.ts';
+import { getActualDate } from '../utils/MessageDateConvertor.ts';
+import { UserChat } from '../components/interfaces/chatRoom.types.ts';
 
 
 export const chatRoomConnectionContext = React.createContext<ChatRoomConnectionContextType>(undefined);

@@ -1,8 +1,7 @@
-import React from 'react'
-import ChatRoom from "./components/ChatRoom/ChatRoom.jsx";
-import Register from "./components/register/Register.jsx";
+import ChatRoom from "./components/ChatRoom/ChatRoom.tsx";
+import Register from "./components/register/Register.tsx";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { ChatRoomConnectionContext } from './context/ChatRoomConnectionContext.jsx';
+import { ChatRoomConnectionContext } from './context/ChatRoomConnectionContext.tsx';
 
 function App() {
   return (

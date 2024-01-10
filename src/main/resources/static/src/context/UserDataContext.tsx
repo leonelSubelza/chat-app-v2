@@ -1,10 +1,10 @@
-import type { PayloadData, UserData, UserDataContextType } from './types/types.js';
+import type { PayloadData, UserData, UserDataContextType } from './types/types.ts';
 import React, { useState,useRef,useContext, ReactNode } from 'react'
-import { imageLinks } from '../services/avatarsLinks.js';
-import { generateUserId } from '../utils/IdGenerator.js';
-import { MessagesStatus } from '../components/interfaces/messages.status.js';
-import { UserChat } from '../components/interfaces/chatRoom.types.js';
-import { Message } from '../components/interfaces/messages.js';
+import { imageLinks } from '../services/avatarsLinks.ts';
+import { generateUserId } from '../utils/IdGenerator.ts';
+import { MessagesStatus } from '../components/interfaces/messages.status.ts';
+import { UserChat } from '../components/interfaces/chatRoom.types.ts';
+import { Message } from '../components/interfaces/messages.ts';
 
 interface UserDataProviderProps {
   children: ReactNode;

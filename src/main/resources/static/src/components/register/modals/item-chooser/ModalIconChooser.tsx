@@ -2,7 +2,7 @@ import Modal from 'react-bootstrap/Modal';
 import { v4 as uuidv4 } from 'uuid';
 import '../../Register.css';
 import './ModalIconChooser.css';
-import { imageLinks } from '../../../../services/avatarsLinks.js';
+import { imageLinks } from '../../../../services/avatarsLinks.ts';
 import { useState } from 'react';
 import ItemAvatar from './ItemAvatar.tsx';
 
