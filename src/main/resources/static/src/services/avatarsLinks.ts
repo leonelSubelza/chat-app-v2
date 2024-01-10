@@ -1,4 +1,4 @@
-export const imageLinks = [
+export const imageLinks: string[] = [
   "https://stopots.com/images/avatares/0.svg",
   "https://stopots.com/images/avatares/1.svg",
   "https://stopots.com/images/avatares/2.svg",

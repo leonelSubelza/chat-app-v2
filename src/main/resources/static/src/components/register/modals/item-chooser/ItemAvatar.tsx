@@ -1,12 +1,15 @@
-import { useState } from "react";
 import './ModalIconChooser.css'
 
-const ItemAvatar = ({ url,i,handleItemChoosed }) => {
+interface Props {
+    url:string;
+    i:number;
+    handleItemChoosed:(url:string,i:number)=>void;
+}
 
+const ItemAvatar = ({ url,i,handleItemChoosed }:Props) => {
     const handleClickAvatar = () => {
         return handleItemChoosed(url,i);
     }
-
     return (
         <div key={i} 
         className={`avatar-icon-chooser`}
