@@ -115,6 +115,7 @@ export const createPrivateMessage = (
   };
 };
 
+//Crea un msj de que se unió alguien
 export const createMessageJoin = (status: MessagesStatus, message: Message): Message => {
   return {
     senderId: message.senderId,

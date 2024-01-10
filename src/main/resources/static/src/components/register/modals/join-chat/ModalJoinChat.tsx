@@ -2,20 +2,26 @@ import React, { useState,useContext, useEffect } from 'react'
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import './ModalJoinChat.css'
-import { isCorrectURL } from '../../../../utils/InputValidator';
+import { isCorrectURL } from '../../../../utils/InputValidator.js';
 import {userContext} from '../../../../context/UserDataContext.tsx';
 import { chatRoomConnectionContext } from '../../../../context/ChatRoomConnectionContext.tsx';
-const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }) => {
+
+interface Props {
+    showModalJoinChat: boolean;
+    handleCloseModalJoinChat: ()=>void;
+}
+
+const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) => {
 
     const [inputValue, setInputValue] = useState('');
     const { userData,setUserData } = useContext(userContext);
     const {checkIfChannelExists} = useContext(chatRoomConnectionContext)
 
-    const handleCloseModal = (e) => {
-        if(e===undefined){
-            closeModal(e);
-            return;
-        }
+    const handleCloseModal = () => {
+        // if(e===undefined){
+        //     closeModal(e);
+        //     return;
+        // }
         if (inputValue === '') {
             alert('Debe escribir un link para unirse a una sala!');
             return;
@@ -36,20 +42,22 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }) => {
 
             const domain = window.location.origin;
             let urlSessionIdAux = inputValue.split(domain+'/chatroom/')[1];
+            userData.URLSessionid = urlSessionIdAux;
             setUserData({...userData,"URLSessionid": urlSessionIdAux});
             //navigate(`/chatroom/${urlSessionIdAux}`);
             window.removeEventListener('keyup', handleKeyPressed);
             setInputValue('');
-            checkIfChannelExists(urlSessionIdAux);
+            checkIfChannelExists();
         }else{
             //si el link escrito no es una url válida, entonces se verifica que sea solo una contraseña
             if( /^[a-zA-Z\d]+$/.test(inputValue)){
                 console.log("el link escrito es una contraseña valida");
+                userData.URLSessionid = inputValue;
                 setUserData({...userData,"URLSessionid": inputValue});
                 //navigate(`/chatroom/${inputValue}`);
                 window.removeEventListener('keyup', handleKeyPressed);
                 setInputValue('');
-                checkIfChannelExists(inputValue);
+                checkIfChannelExists();
             }else{
                 alert("el link escrito NO es una contraseña valida")
             }
@@ -58,10 +66,10 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }) => {
         //return handleCloseModalJoinChat(e,inputValue);
     }
 
-    const closeModal = (e) => {
+    const closeModal = () => {
         setInputValue('');
         window.removeEventListener('keyup', handleKeyPressed);
-        return handleCloseModalJoinChat(e);
+        return handleCloseModalJoinChat();
     }
 
     const copyInput = () => {
@@ -74,14 +82,13 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }) => {
         });
     }
 
-    const handleKeyPressed = (e) => {
+    const handleKeyPressed = (e:KeyboardEvent|string) => {
         let key = e;
         if (typeof e !== 'string') {
             key = e.key;
         }
         if(key === 'Enter'){
-            console.log("se pulsó enter en ModalJoinChat");
-            handleCloseModal(e);
+            handleCloseModal();
         }
     }
 
@@ -98,7 +105,7 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }) => {
     return (
         <Modal
             show={showModalJoinChat}
-            onHide={(e)=>handleCloseModal(e)}
+            onHide={closeModal}
             centered>
             <Modal.Header closeButton>
                 <Modal.Title>Join a Chat</Modal.Title>

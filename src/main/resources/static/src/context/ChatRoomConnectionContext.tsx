@@ -4,14 +4,7 @@ import { userContext, useUserDataContext } from './UserDataContext.js';
 import { generateUserId } from '../utils/IdGenerator.js';
 import { createMessageJoin, createPrivateMessage, createPublicMessage, createUserChat, resetValues, updateChatData } from '../components/ChatRoom/ChatRoomFunctions.js';
 import { useNavigate } from 'react-router-dom';
-
-/*
-Stomp es una biblioteca JavaScript que se utiliza para enviar y recibir 
-mensajes a través del protocolo STOMP (Simple Text Oriented Messaging Protocol).
-*/
 import { over } from 'stompjs';
-//Es una librearia de JS. A diferencia de usar la api WebSocket para crear la conexion,
-//Esta sirve para que pueda ser usada en navegadores más viejos.
 import SockJS from 'sockjs-client';
 import { serverURL } from '../config/chatConfiguration.js';
 import { MessagesStatus } from '../components/interfaces/messages.status.js';
@@ -88,7 +81,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         navigate('/')
     }
 
-    const checkIfChannelExists = (roomId: string): void => {
+    const checkIfChannelExists = (): void => {
         stompClient.current.subscribe('/user/' + userData.userId + '/exists-channel', (payload: any) => {
             var message: Message = JSON.parse(payload.body);
             if ((message.status === MessagesStatus.EXISTS && userData.status === MessagesStatus.CREATE)) {
@@ -104,9 +97,9 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 return;
             }
             setChannelExists(true);
-            subscribeRoomChannels(roomId);
-            userJoin(roomId);
-            navigate(`/chatroom/${roomId}`);
+            subscribeRoomChannels();
+            userJoin();
+            navigate(`/chatroom/${userData.URLSessionid}`);
         });
         
         var chatMessage: Message = {
@@ -114,25 +107,20 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             senderName: userData.username,
             date: getActualDate(),
             status: userData.status,
-            urlSessionId: roomId
+            urlSessionId: userData.URLSessionid
         }
         stompClient.current.send("/app/check-channel", {}, JSON.stringify(chatMessage))
     }
 
-    const subscribeRoomChannels = (roomId: string) => {
+    const subscribeRoomChannels = () => {
         stompClient.current.subscribe('/chatroom/public', onMessageReceived);
-        stompClient.current.subscribe('/chatroom/' + roomId, onMessageReceived);
+        stompClient.current.subscribe('/chatroom/' + userData.URLSessionid, onMessageReceived);
         stompClient.current.subscribe(
-            '/user/' + userData.userId + "/" + roomId + '/private', onPrivateMessage);
+            '/user/' + userData.userId + "/" + userData.URLSessionid + '/private', onPrivateMessage);
     }
 
-    const userJoin = (roomId: string) => {
-        let userDataAux: UserData = userData;
-        userDataAux.URLSessionid = roomId;
-        //despues fijarse si se carga bien el url session id asi no hago esta variable 
-
-        //aca el status puede ser CREATE o JOIN depende
-        var chatMessage: Message = createPublicMessage(userData.status, userDataAux);
+    const userJoin = () => {
+        var chatMessage: Message = createPublicMessage(userData.status, userData);
         stompClient.current.send("/app/chat.join", {}, JSON.stringify(chatMessage));
     }
 
@@ -210,7 +198,6 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             var chatUser: UserChat = createUserChat(message);
             chats.set(chatUser, new Array<Message>);
             setChats(new Map(chats));
-            //saveMessage(chatUser,message);
             if (resend) {
                 //Generamos el msj de que alguien se unió
                 let joinMessage: Message = createMessageJoin(MessagesStatus.JOIN, message);
@@ -239,10 +226,6 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     const savePublicMessage = (message: Message) => {
         let chatRoomElement: UserChat = Array.from(chats.keys())[0];
         chatRoomElement.hasUnreadedMessages = true;  
-        console.log("se guarda un msj en "+chatRoomElement.username);
-              
-        // chats.get(chatRoomElement).push(message);
-        // setChats(new Map(chats));
         saveMessage(chatRoomElement,message);
     };
 
@@ -250,8 +233,6 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         let userSaved: UserChat = getUserSavedFromChats(message.senderId)
         if (userSaved) {
             Array.from(chats.keys())!.find(c => c.id === userSaved.id)!.hasUnreadedMessages = true;
-            // chats.get(userSaved)!.push(message);
-            // setChats(new Map(chats));
             saveMessage(userSaved,message);
         } else {
             //esto no debería pasar porque el usuario se guarda cuando se une al chat
@@ -275,7 +256,6 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         let userSaved: UserChat = getUserSavedFromChats(message.senderId);
         chats.delete(userSaved);
         setChats(new Map(chats));
-        //saveMessage(userSaved,message)
     }
 
     const setUserWriting = (message: Message, isPublicMessage: boolean) =>{
@@ -321,7 +301,6 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 receivedInPublicMessage:false,
                 payloadData:null
             })
-            
         }
     },[receivedMessageUserTyping,setReceivedMessageUserTyping])
 

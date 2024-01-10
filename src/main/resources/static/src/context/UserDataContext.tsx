@@ -93,8 +93,8 @@ export function UserDataContext({ children }: UserDataProviderProps){
     userData.userId = userId;
     setUserData({ ...userData, 
       "userId":userId, "avatarImg": userData.avatarImg, "username": userData.username });
-    setIsDataLoading(false);
     resetChats();
+    setIsDataLoading(false);
   }
 
   return (

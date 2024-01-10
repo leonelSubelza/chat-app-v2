@@ -38,6 +38,7 @@ const ChatRoom: React.FC = () => {
             || localStorage.getItem('username') === 'null') {
             let nombre: string = prompt("Ingrese un nombre de usuario");
             if (nombre === null) {
+                alert('El nombre no puede ser vacío')
                 disconnectChat();
                 navigate("/");
                 return;
@@ -54,9 +55,10 @@ const ChatRoom: React.FC = () => {
                 navigate("/");
                 return;
             }
+            userData.URLSessionid = urlSessionIdAux;
             setUserData({ ...userData, "URLSessionid": urlSessionIdAux });
             if (stompClient.current !== null) {
-                checkIfChannelExists(urlSessionIdAux);
+                checkIfChannelExists();
             }
             return;
         }
@@ -148,6 +150,9 @@ const ChatRoom: React.FC = () => {
     useEffect(() => {
         connect();
         let chatRoomElement = Array.from(chats.keys())[0];
+        if(chatRoomElement === undefined){
+            return;
+        }
         if (tab !== chatRoomElement && chats.get(tab) === undefined) {
             //se setea tab chatroom por defecto
             setTab(chatRoomElement);
