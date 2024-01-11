@@ -81,6 +81,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         navigate('/')
     }
 
+    //si la room no existe, se procede a crear una, si si existe te desconecto
     const checkIfChannelExists = (): void => {
         stompClient.current.subscribe('/user/' + userData.userId + '/exists-channel', (payload: any) => {
             var message: Message = JSON.parse(payload.body);

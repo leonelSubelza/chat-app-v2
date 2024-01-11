@@ -47,6 +47,7 @@ const ChatRoom: React.FC = () => {
             setUserData({ ...userData, "username": nombre });
             return;
         }
+        //Caso en el que se conecta copiando la url, no se tiene cargado e idRoom, entonces se carga
         if (userData.URLSessionid === '') {
             const url: string = window.location + "";
             let urlSessionIdAux: string = getRoomIdFromURL(url);

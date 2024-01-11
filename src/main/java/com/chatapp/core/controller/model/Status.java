@@ -11,5 +11,6 @@ public enum Status {
     ERROR,
     WRITING,
     BANNED,
-    MAKE_ADMIN
+    MAKE_ADMIN,
+    ALREADY_CONNECTED
 }
