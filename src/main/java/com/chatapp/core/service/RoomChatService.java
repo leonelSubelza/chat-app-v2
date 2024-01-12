@@ -62,7 +62,6 @@ public class RoomChatService {
         }
         headerAccessor.getSessionAttributes().put(headerAccessorId,user);
         WebSocketSessionHandler.addSession(user);
-        log.info("User connected!:{}",user.getUsername());
         log.info("Number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
     }
     public void saveRoom(Room room){

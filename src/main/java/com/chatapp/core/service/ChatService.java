@@ -32,6 +32,9 @@ public class ChatService {
             message.setStatus(Status.EXISTS);
 
             User userConnecting = WebSocketSessionHandler.getUser(message.getSenderId());
+            if(userConnecting == null){
+                return;
+            }
             boolean userExistsInRoom = roomExist.getUsers().stream()
                     .anyMatch(u -> u.getId().equals(userConnecting.getId()));
             if(userExistsInRoom){

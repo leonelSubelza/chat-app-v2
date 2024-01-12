@@ -50,7 +50,7 @@
   /*font-weight: 600;*/
   font-family: "Righteous", sans-serif;
   width: 100%;
-  margin:0;
+  margin:auto 0;
   user-select: none;
   overflow-x: auto;
   overflow-y: hidden;
