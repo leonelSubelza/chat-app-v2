@@ -1,4 +1,4 @@
-import type { PayloadData, UserData, UserDataContextType } from './types/types.ts';
+import type { UserData, UserDataContextType } from './types/types.ts';
 import React, { useState,useRef,useContext, ReactNode } from 'react'
 import { imageLinks } from '../services/avatarsLinks.ts';
 import { generateUserId } from '../utils/IdGenerator.ts';

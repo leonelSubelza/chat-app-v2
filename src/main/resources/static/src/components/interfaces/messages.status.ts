@@ -9,5 +9,6 @@ export enum MessagesStatus {
     ERROR = "ERROR",
     WRITING = "WRITING",
     BANNED = "BANNED",
-    MAKE_ADMIN = "MAKE_ADMIN"
+    MAKE_ADMIN = "MAKE_ADMIN",
+    ALREADY_CONNECTED = "ALREADY_CONNECTED"
 }

@@ -1,6 +1,7 @@
 package com.chatapp.core.service;
 
 import com.chatapp.core.config.WebSocketRoomHandler;
+import com.chatapp.core.config.WebSocketSessionHandler;
 import com.chatapp.core.controller.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +28,17 @@ public class ChatService {
 
     public void checkIfChannelExists(Message message){
         Room roomExist = WebSocketRoomHandler.activeRooms.get(message.getUrlSessionId());
-        //System.out.println("existe una room con id:"+message.getUrlSessionId()+"?,: "+roomExist);
         if(roomExist!=null){
             message.setStatus(Status.EXISTS);
+
+            User userConnecting = WebSocketSessionHandler.getUser(message.getSenderId());
+            boolean userExistsInRoom = roomExist.getUsers().stream()
+                    .anyMatch(u -> u.getId().equals(userConnecting.getId()));
+            if(userExistsInRoom){
+                message.setStatus(Status.ALREADY_CONNECTED);
+                log.warn("User {} trying to connect to Room {} in which is already connected!",
+                        userConnecting.getUsername(),roomExist.getId());
+            }
         }else {
             message.setStatus(Status.NOT_EXISTS);
         }

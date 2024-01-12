@@ -13,18 +13,6 @@ export type UserData = {
     avatarImg: string,
   }
 
-export type PayloadData = {
-    senderId: string,
-	senderName: string,
-	receiverName: string,
-	receiverId: string,
-	message: string,
-    date: string,
-	status: MessagesStatus,
-	urlSessionId: string,
-	avatarImg: string
-}
-
 export type UserDataContextType = {
     channelExists: boolean,setChannelExists: (value: boolean)=> void,
     isDataLoading: boolean, setIsDataLoading: (value: boolean)=> void,

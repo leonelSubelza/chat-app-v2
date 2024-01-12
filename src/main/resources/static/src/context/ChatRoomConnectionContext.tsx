@@ -1,4 +1,4 @@
-import type { ChatRoomConnectionContextType, ChatUserTypingType, MessageUserTyping, PayloadData, UserData, UserDataContextType } from './types/types.ts';
+import type { ChatRoomConnectionContextType, ChatUserTypingType, MessageUserTyping, UserData, UserDataContextType } from './types/types.ts';
 import React, { ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { userContext, useUserDataContext } from './UserDataContext.tsx';
 import { generateUserId } from '../utils/IdGenerator.ts';
@@ -85,6 +85,12 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     const checkIfChannelExists = (): void => {
         stompClient.current.subscribe('/user/' + userData.userId + '/exists-channel', (payload: any) => {
             var message: Message = JSON.parse(payload.body);
+            if(message.status === MessagesStatus.ALREADY_CONNECTED){
+                alert('Ya se encuentra conectado a esta sala!');
+                disconnectChat();
+                navigate('/');
+                return;
+            }
             if ((message.status === MessagesStatus.EXISTS && userData.status === MessagesStatus.CREATE)) {
                 alert('Se intenta crear una sala con un id que ya existe');
                 disconnectChat();
@@ -97,6 +103,13 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 navigate('/');
                 return;
             }
+            
+            //Me desuscribo a este canal para que no rompa las bolas
+            let channelsSusbribed = Object.keys(stompClient.current.subscriptions)
+            let latestChannelSubscribed = channelsSusbribed[ channelsSusbribed.length-1 ];
+            stompClient.current.unsubscribe(latestChannelSubscribed);
+
+            
             setChannelExists(true);
             subscribeRoomChannels();
             userJoin();
