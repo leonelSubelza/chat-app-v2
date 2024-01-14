@@ -3,7 +3,7 @@ import React, { useState,useRef,useContext, ReactNode } from 'react'
 import { imageLinks } from '../services/avatarsLinks.ts';
 import { generateUserId } from '../utils/IdGenerator.ts';
 import { MessagesStatus } from '../components/interfaces/messages.status.ts';
-import { UserChat } from '../components/interfaces/chatRoom.types.ts';
+import { ChatRole, UserChat } from '../components/interfaces/chatRoom.types.ts';
 import { Message } from '../components/interfaces/messages.ts';
 
 interface UserDataProviderProps {
@@ -43,7 +43,8 @@ export function UserDataContext({ children }: UserDataProviderProps){
     URLSessionid: '',
     //el estado indica luego en el chatroom qué hay que hacer, si unirse auna sala o crear una
     status: MessagesStatus.JOIN,
-    avatarImg: ''
+    avatarImg: '',
+    chatRole: ChatRole.CLIENT
   });
 
   const [chats, setChats] = useState<Map<UserChat, Message[]>>(new Map);
@@ -59,7 +60,8 @@ export function UserDataContext({ children }: UserDataProviderProps){
       username: "CHATROOM",
       joinData: "-",
       avatarImg: imageLinks[0],
-      hasUnreadedMessages:false
+      hasUnreadedMessages:false,
+      chatRole: ChatRole.CLIENT
     }
 
     chats.set(chatRoomObject, new Array<Message>);

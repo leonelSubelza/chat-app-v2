@@ -80,7 +80,8 @@ export const createUserChat = (message: Message): UserChat => {
     username: message.senderName,
     joinData: message.date,
     avatarImg: message.avatarImg,
-    hasUnreadedMessages:false
+    hasUnreadedMessages:false,
+    chatRole: message.chatRole
   };
 };
 
@@ -93,6 +94,7 @@ export const createPublicMessage = (status: MessagesStatus, userData: UserData):
     status: status,
     urlSessionId: userData.URLSessionid,
     avatarImg: userData.avatarImg,
+    chatRole: userData.chatRole
   };
 };
 
@@ -112,6 +114,7 @@ export const createPrivateMessage = (
     status: status,
     urlSessionId: userData.URLSessionid,
     avatarImg: userData.avatarImg,
+    chatRole: userData.chatRole
   };
 };
 
@@ -123,6 +126,7 @@ export const createMessageJoin = (status: MessagesStatus, message: Message): Mes
     urlSessionId:message.urlSessionId,
     date: getActualDate(),
     status: status,
-    avatarImg: message.avatarImg
+    avatarImg: message.avatarImg,
+    chatRole: message.chatRole
   };
 };

@@ -2,8 +2,9 @@ import React, { useContext } from 'react'
 import './MemberList.css'
 import { userContext } from '../../../../context/UserDataContext';
 import chatRoomIcon from '../../../../assets/people-icon.svg';
+import adminImg from '../../../../assets/crown-icon.svg';
 import { v4 as uuidv4 } from 'uuid';
-import { UserChat } from '../../../interfaces/chatRoom.types';
+import { ChatRole, UserChat } from '../../../interfaces/chatRoom.types';
 
 const MembersList = () => {
     const { tab, setTab, chats } = useContext(userContext);
@@ -41,6 +42,8 @@ const MembersList = () => {
                         <div className='member-item'>
                             <img className="profile_img" src={`${chatData.avatarImg}`} alt="icon" />
                             <span className="link_name">{chatData.username}</span>
+                            <img className={`admin_img ${chatData.chatRole === ChatRole.ADMIN && 'active'}`} src={adminImg} alt="icon" />
+                            <i className="bi bi-three-dots-vertical"></i>
                         </div>
                         <div className={`member-item__icon-exclamation ${chatData.hasUnreadedMessages && 'active'}`}><i className="bi bi-exclamation-octagon-fill"></i></div>
                     </li>

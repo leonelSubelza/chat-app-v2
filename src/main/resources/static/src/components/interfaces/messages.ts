@@ -1,3 +1,4 @@
+import { ChatRole } from "./chatRoom.types";
 import { MessagesStatus } from "./messages.status";
 
 export interface Message {
@@ -10,4 +11,5 @@ export interface Message {
   urlSessionId: string;
   message?: string;
   avatarImg?: string;
+  chatRole?: ChatRole
 }

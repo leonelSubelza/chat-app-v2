@@ -11,6 +11,7 @@ import "./Register.css";
 import { MessagesStatus } from "../interfaces/messages.status.ts";
 import { createPublicMessage } from "../ChatRoom/ChatRoomFunctions.ts";
 import { generateRoomId } from "../../utils/IdGenerator.ts";
+import { ChatRole } from "../interfaces/chatRoom.types.ts";
 
 const Register: React.FC = () => {
   const { userData, setUserData, isDataLoading, stompClient } = useContext(userContext) as UserDataContextType;
@@ -61,13 +62,14 @@ const Register: React.FC = () => {
       alert("Debe seleccionar una imagen");
       return;
     }
-    //se debería crear un id
     let idRoom: string = generateRoomId();
     userData.status = MessagesStatus.CREATE;
+    userData.chatRole = ChatRole.ADMIN;
     userData.URLSessionid = idRoom;
     setUserData({
       ...userData,
       status: MessagesStatus.CREATE,
+      chatRole: ChatRole.ADMIN,
       URLSessionid: idRoom,
     });
     checkIfChannelExists();

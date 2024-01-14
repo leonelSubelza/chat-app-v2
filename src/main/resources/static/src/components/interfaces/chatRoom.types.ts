@@ -3,5 +3,11 @@ export interface UserChat {
     username: string,
     joinData: string,
     avatarImg: string,
-    hasUnreadedMessages:boolean
+    hasUnreadedMessages:boolean,
+    chatRole: ChatRole
+}
+
+export enum ChatRole {
+    ADMIN = "ADMIN",
+    CLIENT = "CLIENT"
 }
