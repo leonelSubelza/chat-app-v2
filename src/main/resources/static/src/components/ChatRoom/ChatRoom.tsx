@@ -90,7 +90,9 @@ const ChatRoom: React.FC = () => {
                 setChats(new Map(chats));
             }
             stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
-            setUserData({ ...userData, "message": "" });
+            if (status === MessagesStatus.MESSAGE) {
+                setUserData({ ...userData, "message": "" });
+            }
         }
     }
 

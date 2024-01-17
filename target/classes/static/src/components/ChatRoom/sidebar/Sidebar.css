@@ -92,6 +92,14 @@ p{
     margin-bottom: 1rem;
 }
 */
+.admin_img{
+    height: 15px;
+    width: 10%;
+    display: none;
+}
+.admin_img.active{
+    display: block;
+}
 
 .sidebar .profile-details .profile_name{
     color: #fff;
@@ -158,6 +166,10 @@ p{
     pointer-events: none;
     display: none;
     transition: all 0.5s ease;
+}
+
+.sidebar.close .profile_img{
+    width: 50px;
 }
 
 .url-input-icon{
