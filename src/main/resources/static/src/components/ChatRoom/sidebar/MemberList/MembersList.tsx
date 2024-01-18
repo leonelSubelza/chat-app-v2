@@ -10,9 +10,14 @@ import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import SplitButton from "react-bootstrap/SplitButton";
 
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
+import InfoModal from "../../../register/modals/info-modal/InfoModal";
+
 const MembersList = () => {
-  const { tab, setTab, chats } = useContext(userContext);
-  const [showOptBtn, setShowOptBtn] = useState<boolean>(false);
+  const { tab, setTab, chats, userData } = useContext(userContext);
+
+  const [show, setShow] = useState(false);
 
   //const chatRoomIcon = require('../../../../assets/people-icon.svg') as string;
   const onUserChatClick = (
@@ -23,11 +28,30 @@ const MembersList = () => {
     setTab(chatData);
   };
 
-  const handleBtnMenu = () => {
-    console.log("se hizo click");
-
-    setShowOptBtn(!showOptBtn);
+  const handleCloseModalBanning = (resp: boolean) => {
+    setShow(false)
+    if (!resp) {
+      return;
+    }
+    console.log("se banea al wacho");
+    
   };
+
+  //React.MouseEvent<HTMLButtonElement>
+  const handleBanUser = (
+    event: React.MouseEvent<HTMLElement, MouseEvent>,
+    id: string
+  ) => {
+    console.log("se esechucha el banbtn");
+    setShow(true)
+    /*return (
+    )
+    */
+  };
+  const handleMakeAdmin = (
+    event: React.MouseEvent<HTMLElement, MouseEvent>,
+    id: string
+  ) => {};
 
   return (
     <div className="sidebar-nav-links-container">
@@ -83,13 +107,27 @@ const MembersList = () => {
                   <DropdownButton
                     key={"end"}
                     id={`dropdown-button-drop`}
-                    className="member"
+                    className={`${
+                      userData.chatRole === ChatRole.ADMIN && "active"
+                    }`}
                     drop={"end"}
                     variant="secondary"
                     title=<i className="bi bi-three-dots-vertical"></i>
                   >
-                    <Dropdown.Item eventKey="1">Ban</Dropdown.Item>
-                    <Dropdown.Item eventKey="2">Make admin</Dropdown.Item>
+                    <Dropdown.Item
+                      className="dropdown-ban-btn"
+                      eventKey="1"
+                      onClick={(e) => handleBanUser(e, chatData.id)}
+                    >
+                      Ban
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      className="dropdown-make-admin-btn"
+                      eventKey="2"
+                      onClick={(e) => handleMakeAdmin(e, chatData.id)}
+                    >
+                      Make admin
+                    </Dropdown.Item>
                   </DropdownButton>
                   <div
                     className={`member-item__icon-exclamation ${
@@ -101,6 +139,14 @@ const MembersList = () => {
                 </li>
               )
           )}
+        <InfoModal
+          title={"Warning"}
+          text={"Esta seguro que desea expulsar de la sala a este usuario"}
+          show={show}
+          infoCloseBtn={"Cancel"}
+          infoAcceptBtn={"Accept"}
+          handleCloseInfoModal={handleCloseModalBanning}
+        />
       </ul>
     </div>
   );

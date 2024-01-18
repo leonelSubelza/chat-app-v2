@@ -16,7 +16,8 @@
 .member{
     display: flex;
     cursor: pointer;
-
+    padding: 5px;
+    border-radius: 10px;
 }
 
 .member-item{
@@ -30,10 +31,9 @@
 
 .member.active{
     color:#fff;
-    padding: 5px;
-    border-radius: 10px;
-    background: #4E4F5B;
 
+    background: #4E4F5B;
+    transition: all 0.4s ease;
 }
 
 .member:hover .member-item {
@@ -120,9 +120,14 @@
 
 .dropend {
     position:absolute;
-    right: 15px;
+    right: 5%;
     height: 50%;
     margin: auto;
+    opacity: 0;
+}
+
+.dropend.active{
+    opacity: 1;
 }
 
 .dropend .dropdown-toggle::after{
@@ -130,6 +135,10 @@
 }
 #dropdown-button-drop {
     padding: 0;
+}
+
+.dropdown-item.active, .dropdown-item:active{
+    background-color: #38394D !important;
 }
 
 .member-item .link_name {
