@@ -1,0 +1,33 @@
+.btn-primary{
+    color: initial;
+    background-color: initial;
+    border-color: initial;
+}
+
+.modal-body{
+    font-weight: 400;
+}
+
+.footer-info-modal.modal-footer{
+    border:none;
+}
+
+.button-info-modal {
+    width: 30% !important;
+    margin: 0 auto !important;
+    height: 40px;
+    background-color: #383258;
+    border:none;
+    color: white;
+    border-radius: 20px;
+    text-align: center;
+}
+.btn-cancel{
+    background-color: #4E4F5B;
+}
+
+.button-info-modal:hover, .button-info-modal:focus, .button-info-modal:active{
+    filter: brightness(70%);
+}
+
+

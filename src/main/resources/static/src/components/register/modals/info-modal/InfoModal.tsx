@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import './InfoModal.css';
 
 interface Props {
   title: string;
@@ -21,17 +22,14 @@ const InfoModal = ({title, text, show, infoCloseBtn, infoAcceptBtn,handleCloseIn
     return (
         <>
       <Modal show={show} onHide={()=>handleClose(false)} animation={true} centered size='sm'>
-        <Modal.Header closeButton>
-          <Modal.Title>{title}</Modal.Title>
-        </Modal.Header>
         <Modal.Body>{text}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={()=>handleClose(false)}>
+        <Modal.Footer className='footer-info-modal'>
+          <button onClick={()=>handleClose(false)} className='button-info-modal btn-cancel'>
           {infoCloseBtn}
-          </Button>
-          <Button variant="primary" onClick={()=>handleClose(true)}>
+          </button>
+          <button onClick={()=>handleClose(true)} className='button-info-modal'>
             {infoAcceptBtn}
-          </Button>
+          </button>
         </Modal.Footer>
       </Modal>
       </>

@@ -17,7 +17,7 @@ const ChatContainer = () => {
                             key={uuidv4()}
                             message={message}
                             userData={userData}
-                            isPublicChat={message.senderName==='CHATROOM'}
+                            isPublicChat={tab.username==='CHATROOM'}
                         />
                     ))}
                 </ul>

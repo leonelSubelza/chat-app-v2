@@ -8,16 +8,13 @@ import { ChatRole, UserChat } from "../../../interfaces/chatRoom.types";
 
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
-import SplitButton from "react-bootstrap/SplitButton";
-
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
 import InfoModal from "../../../register/modals/info-modal/InfoModal";
 
 const MembersList = () => {
   const { tab, setTab, chats, userData } = useContext(userContext);
 
-  const [show, setShow] = useState(false);
+  const [showModalBanUser, setShowModalBanUser] = useState<boolean>(false);
+  const [showModalMakeAdmin, setShowModalMakeAdmin] = useState<boolean>(false);
 
   //const chatRoomIcon = require('../../../../assets/people-icon.svg') as string;
   const onUserChatClick = (
@@ -29,13 +26,19 @@ const MembersList = () => {
   };
 
   const handleCloseModalBanning = (resp: boolean) => {
-    setShow(false)
+    setShowModalBanUser(false);
     if (!resp) {
       return;
     }
     console.log("se banea al wacho");
-    
   };
+
+  const handleCloseModalMakeAdmin = (resp: boolean) => {
+    setShowModalMakeAdmin(false);
+    if (!resp) {
+      return;
+    }
+  }
 
   //React.MouseEvent<HTMLButtonElement>
   const handleBanUser = (
@@ -43,7 +46,7 @@ const MembersList = () => {
     id: string
   ) => {
     console.log("se esechucha el banbtn");
-    setShow(true)
+    setShowModalBanUser(true);
     /*return (
     )
     */
@@ -51,7 +54,9 @@ const MembersList = () => {
   const handleMakeAdmin = (
     event: React.MouseEvent<HTMLElement, MouseEvent>,
     id: string
-  ) => {};
+  ) => {
+    setShowModalMakeAdmin(true);
+  };
 
   return (
     <div className="sidebar-nav-links-container">
@@ -141,11 +146,19 @@ const MembersList = () => {
           )}
         <InfoModal
           title={"Warning"}
-          text={"Esta seguro que desea expulsar de la sala a este usuario"}
-          show={show}
-          infoCloseBtn={"Cancel"}
-          infoAcceptBtn={"Accept"}
+          text={"Está seguro que desea expulsar de la sala a este usuario?"}
+          show={showModalBanUser}
+          infoCloseBtn={"Cancelar"}
+          infoAcceptBtn={"Expulsar"}
           handleCloseInfoModal={handleCloseModalBanning}
+        />
+        <InfoModal
+          title={"Warning"}
+          text={"Se convertirá a este usuario en el nuevo admin. Está seguro?"}
+          show={showModalMakeAdmin}
+          infoCloseBtn={"Cancelar"}
+          infoAcceptBtn={"Aceptar"}
+          handleCloseInfoModal={handleCloseModalMakeAdmin}
         />
       </ul>
     </div>

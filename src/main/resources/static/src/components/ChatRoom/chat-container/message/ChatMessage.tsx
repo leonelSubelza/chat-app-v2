@@ -14,9 +14,8 @@ const Message = ({ message, userData, isPublicChat }: Props) => {
         <>
             {(message.status === 'MESSAGE') ?
                 <li className={`message ${message.senderId === userData.userId && "self"}`}>
-                    {message.senderId !== userData.userId && !isPublicChat &&
-                        <div className='message-data-username'>{message.senderName}</div>}
-
+                    {(message.senderId !== userData.userId) && isPublicChat &&
+                        <div className={`message-data-username`}>{message.senderName}</div>}
                     <div className='message-container'>
                         {message.senderId !== userData.userId &&
                             <div className="chat-avatar">
