@@ -138,6 +138,16 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         stompClient.current.send("/app/chat.join", {}, JSON.stringify(chatMessage));
     }
 
+    const handleUserBanned = (message:Message) => {
+        if(message.senderId === userData.userId) {
+            disconnectChat()
+            navigate('/');
+            return;
+        }
+        
+
+    }
+
     const onMessageReceived = (payload: any) => {
         var message: Message = JSON.parse(payload.body);
         switch (message.status) {
@@ -164,10 +174,13 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                     payloadData:message
                 })
                 break;
+            case MessagesStatus.BANNED:
+                handleUserBanned(message);
+                break;
             case MessagesStatus.ERROR:
-                alert('Error conectando al chat. Nose que pudo haber sido, se enviaron mal los datos xD');
+                alert('Se ha producido un error. '+message.message);
                 //Por las dudas si se genero mal el id que se haga uno nuevo 
-                setUserData({ ...userData, 'userId': generateUserId() });
+                //setUserData({ ...userData, 'userId': generateUserId() });
                 disconnectChat()
                 navigate('/');
                 break;
@@ -248,15 +261,6 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         if (userSaved) {
             Array.from(chats.keys())!.find(c => c.id === userSaved.id)!.hasUnreadedMessages = true;
             saveMessage(userSaved,message);
-        } else {
-            //esto no debería pasar porque el usuario se guarda cuando se une al chat
-            console.log("no se tenia un obj privado guardado");
-            // var chatUser = createUserChat(payloadData);
-            // let list = [];
-            // list.push(payloadData);
-            // chatUser.hasUnreadedMessages = true;
-            // chats.set(chatUser, list);
-            // setChats(new Map(chats));
         }
     }
 

@@ -19,6 +19,8 @@ public class AdminChatService {
         User user = WebSocketSessionHandler.getUser(message.getSenderId());
         if(!user.getChatRole().equals(ChatUserRole.ADMIN)){
             log.warn("Trying to execute an admin action without being an admin");
+            message.setMessage("Trying to execute an admin action without being an admin");
+            message.setStatus(Status.ERROR);
             return false;
         }
         if(message.getStatus().equals(Status.BANNED)){
@@ -28,19 +30,20 @@ public class AdminChatService {
                     .stream()
                     .filter(u -> u.getId().equals(user.getId()))
                     .findFirst().orElse(null);
-            Set<User> usersBanned = WebSocketRoomHandler.getRoom(message.getUrlSessionId()).getBannedUsers();
+            Set<User> usersBannedInRoom = WebSocketRoomHandler.getRoom(message.getUrlSessionId()).getBannedUsers();
+            //Si el usuario no estaba baneado se banea, y sino viceversa
             if(userBannedExists != null){
-                usersBanned.add(userToBan);
+                usersBannedInRoom.add(userToBan);
             }else{
-                usersBanned.remove(userToBan);
+                usersBannedInRoom.remove(userToBan);
             }
-            return true;
         }
         if (message.getStatus().equals(Status.MAKE_ADMIN)){
             User userToMakeAdmin = WebSocketSessionHandler.getUser(message.getReceiverId());
             user.setChatRole(ChatUserRole.CLIENT);
             userToMakeAdmin.setChatRole(ChatUserRole.ADMIN);
         }
+        message.setStatus(Status.UPDATE);
         return true;
     }
 }

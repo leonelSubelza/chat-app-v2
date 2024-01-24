@@ -17,21 +17,13 @@ public class ChatController {
 
     //Cualquier usuario que se quiera conectar a este controlador tendrá que establecer la URL con /app/Loquesea
 
-    //Para enviar mensajes a alguien en privado
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
     private ChatService chatService;
 
-    //la anotación @Payload se utiliza para indicar qué parámetro o campo de una clase es
-    // el cuerpo de un mensaje, lo que permite que Spring convierta automáticamente el contenido del
-    // mensaje en un objeto Java del tipo adecuado.
-
-    //Este método recibe msj del cliente, recibe todos los msj enviados por el cliente (si tiene)
-    // y los reenvía a todos los demás clientes conectados/suscritos a /chatroom/public
     @MessageMapping("/message")
-    //cuando el usuario envía un msj a /app/message, se enviará este msj a aquellos que estén suscritos a /chatroom/public
     @SendTo("/chatroom/public")//se especifica el subdestino al que se enviará el msj. El destino general es /chatroom y el subdestino es /public
     public Message receiveMessage(@Payload Message message){
         return message;

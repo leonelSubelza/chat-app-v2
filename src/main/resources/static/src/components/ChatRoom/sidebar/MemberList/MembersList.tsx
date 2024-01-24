@@ -9,13 +9,18 @@ import { ChatRole, UserChat } from "../../../interfaces/chatRoom.types";
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import InfoModal from "../../../register/modals/info-modal/InfoModal";
+import { createPrivateMessage } from "../../ChatRoomFunctions";
+import { Message } from "../../../interfaces/messages";
+import { MessagesStatus } from "../../../interfaces/messages.status";
 
 const MembersList = () => {
-  const { tab, setTab, chats, userData } = useContext(userContext);
+  const { tab, setTab, chats, userData,stompClient } = useContext(userContext);
 
   const [showModalBanUser, setShowModalBanUser] = useState<boolean>(false);
   const [showModalMakeAdmin, setShowModalMakeAdmin] = useState<boolean>(false);
 
+  const [userToHandle, setUserToHandle] = useState<UserChat>();
+  
   //const chatRoomIcon = require('../../../../assets/people-icon.svg') as string;
   const onUserChatClick = (
     e: React.MouseEvent<HTMLLIElement>,
@@ -28,34 +33,42 @@ const MembersList = () => {
   const handleCloseModalBanning = (resp: boolean) => {
     setShowModalBanUser(false);
     if (!resp) {
+      setUserToHandle(null);
       return;
     }
     console.log("se banea al wacho");
+    if (stompClient.current) {
+      let message: Message = createPrivateMessage(MessagesStatus.BANNED,userData,userToHandle.username,userToHandle.id);
+      stompClient.current.send("/app/group-message", {}, JSON.stringify(message));
+    }
   };
 
   const handleCloseModalMakeAdmin = (resp: boolean) => {
     setShowModalMakeAdmin(false);
     if (!resp) {
+      setUserToHandle(null);
       return;
+    }
+    if (stompClient.current) {
+      let message: Message = createPrivateMessage(MessagesStatus.MAKE_ADMIN,userData,userToHandle.username,userToHandle.id);
+      stompClient.current.send("/app/group-message", {}, JSON.stringify(message));
     }
   }
 
   //React.MouseEvent<HTMLButtonElement>
   const handleBanUser = (
     event: React.MouseEvent<HTMLElement, MouseEvent>,
-    id: string
+    userToBan: UserChat
   ) => {
-    console.log("se esechucha el banbtn");
     setShowModalBanUser(true);
-    /*return (
-    )
-    */
+    setUserToHandle(userToBan);
   };
   const handleMakeAdmin = (
     event: React.MouseEvent<HTMLElement, MouseEvent>,
-    id: string
+    userToMakeAdmin: UserChat
   ) => {
     setShowModalMakeAdmin(true);
+    setUserToHandle(userToMakeAdmin);
   };
 
   return (
@@ -122,14 +135,14 @@ const MembersList = () => {
                     <Dropdown.Item
                       className="dropdown-ban-btn"
                       eventKey="1"
-                      onClick={(e) => handleBanUser(e, chatData.id)}
+                      onClick={(e) => handleBanUser(e, chatData)}
                     >
                       Ban
                     </Dropdown.Item>
                     <Dropdown.Item
                       className="dropdown-make-admin-btn"
                       eventKey="2"
-                      onClick={(e) => handleMakeAdmin(e, chatData.id)}
+                      onClick={(e) => handleMakeAdmin(e, chatData)}
                     >
                       Make admin
                     </Dropdown.Item>
