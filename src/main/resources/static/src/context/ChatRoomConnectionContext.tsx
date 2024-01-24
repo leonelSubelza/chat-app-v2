@@ -10,7 +10,7 @@ import { serverURL } from '../config/chatConfiguration.ts';
 import { MessagesStatus } from '../components/interfaces/messages.status.ts';
 import { Message } from '../components/interfaces/messages.ts';
 import { getActualDate } from '../utils/MessageDateConvertor.ts';
-import { UserChat } from '../components/interfaces/chatRoom.types.ts';
+import { ChatUserRole, UserChat } from '../components/interfaces/chatRoom.types.ts';
 
 
 export const chatRoomConnectionContext = React.createContext<ChatRoomConnectionContextType>(undefined);
@@ -176,6 +176,38 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         }
     }
 
+    // const makeAdmin = (newClient:UserChat|UserData,newAdminUserChat:UserChat|UserData) => {
+    //     newAdminUserChat.chatRole = ChatUserRole.ADMIN;
+    //     newClient.chatRole = ChatUserRole.CLIENT;
+    //     setUserData(userData);
+    //     setChats(new Map(chats));        
+    // }
+
+    const handleMakeAdmin = (message:Message) => {
+        //yo era admin, ahora convierto a alguien en admin
+        if(message.senderId === userData.userId){
+            let userToMakeAdmin:UserChat = getUserSavedFromChats(message.receiverId);
+            userData.chatRole = ChatUserRole.CLIENT;
+            userToMakeAdmin.chatRole = ChatUserRole.ADMIN
+
+        }
+        //Un admin me convierte a mi en admin 😎        
+        if(message.receiverId === userData.userId){
+            let userToHandle:UserChat = getUserSavedFromChats(message.senderId);
+            userToHandle.chatRole = ChatUserRole.CLIENT
+            userData.chatRole = ChatUserRole.ADMIN;
+        }
+        //Alguien que es admin convierte a otro en admin
+        if(message.senderId!==userData.userId && message.receiverId!==userData.userId){
+            let userToMakeAdmin = getUserSavedFromChats(message.receiverId);
+            let userToMakeClient = getUserSavedFromChats(message.senderId);
+            userToMakeAdmin.chatRole = ChatUserRole.ADMIN;
+            userToMakeClient.chatRole = ChatUserRole.CLIENT
+        }
+        setUserData(userData);
+        setChats(new Map(chats));
+    }
+
     const onMessageReceived = (payload: any) => {
         var message: Message = JSON.parse(payload.body);
         switch (message.status) {
@@ -204,6 +236,9 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 break;
             case MessagesStatus.BAN || MessagesStatus.UNBAN:
                 handleUserBanned(message);
+                break;
+            case MessagesStatus.MAKE_ADMIN:
+                handleMakeAdmin(message);
                 break;
             case MessagesStatus.ERROR:
                 alert('Se ha producido un error. '+message.message);
