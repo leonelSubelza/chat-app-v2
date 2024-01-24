@@ -3,7 +3,7 @@ import React, { useState,useRef,useContext, ReactNode } from 'react'
 import { imageLinks } from '../services/avatarsLinks.ts';
 import { generateUserId } from '../utils/IdGenerator.ts';
 import { MessagesStatus } from '../components/interfaces/messages.status.ts';
-import { ChatRole, UserChat } from '../components/interfaces/chatRoom.types.ts';
+import { ChatUserRole, UserChat } from '../components/interfaces/chatRoom.types.ts';
 import { Message } from '../components/interfaces/messages.ts';
 
 interface UserDataProviderProps {
@@ -44,11 +44,13 @@ export function UserDataContext({ children }: UserDataProviderProps){
     //el estado indica luego en el chatroom qué hay que hacer, si unirse auna sala o crear una
     status: MessagesStatus.JOIN,
     avatarImg: '',
-    chatRole: ChatRole.CLIENT
+    chatRole: ChatUserRole.CLIENT
   });
 
   const [chats, setChats] = useState<Map<UserChat, Message[]>>(new Map);
   const [tab,setTab] = useState<UserChat>();
+  const [bannedUsers, setBannedUsers] = useState<UserChat[]>(new Array<UserChat>);
+
 
   const resetChats = ():void => {
     let chatsAux: Map<UserChat, Message[]> = chats;
@@ -61,7 +63,7 @@ export function UserDataContext({ children }: UserDataProviderProps){
       joinData: "-",
       avatarImg: imageLinks[0],
       hasUnreadedMessages:false,
-      chatRole: ChatRole.CLIENT
+      chatRole: ChatUserRole.CLIENT
     }
 
     chats.set(chatRoomObject, new Array<Message>);
@@ -109,7 +111,8 @@ export function UserDataContext({ children }: UserDataProviderProps){
         stompClient,
         loadUserDataValues,
         resetChats,
-        chats, setChats
+        chats, setChats,
+        bannedUsers, setBannedUsers
       }}
     >
       {children}

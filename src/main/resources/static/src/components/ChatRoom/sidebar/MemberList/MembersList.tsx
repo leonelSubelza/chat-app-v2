@@ -4,7 +4,7 @@ import { userContext } from "../../../../context/UserDataContext";
 import chatRoomIcon from "../../../../assets/people-icon.svg";
 import adminImg from "../../../../assets/crown-icon.svg";
 import { v4 as uuidv4 } from "uuid";
-import { ChatRole, UserChat } from "../../../interfaces/chatRoom.types";
+import { ChatUserRole, UserChat } from "../../../interfaces/chatRoom.types";
 
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
@@ -38,7 +38,7 @@ const MembersList = () => {
     }
     console.log("se banea al wacho");
     if (stompClient.current) {
-      let message: Message = createPrivateMessage(MessagesStatus.BANNED,userData,userToHandle.username,userToHandle.id);
+      let message: Message = createPrivateMessage(MessagesStatus.BAN,userData,userToHandle.username,userToHandle.id);
       stompClient.current.send("/app/group-message", {}, JSON.stringify(message));
     }
   };
@@ -116,7 +116,7 @@ const MembersList = () => {
                     <span className="link_name">{chatData.username}</span>
                     <img
                       className={`admin_img ${
-                        chatData.chatRole === ChatRole.ADMIN && "active"
+                        chatData.chatRole === ChatUserRole.ADMIN && "active"
                       }`}
                       src={adminImg}
                       alt="icon"
@@ -126,7 +126,7 @@ const MembersList = () => {
                     key={"end"}
                     id={`dropdown-button-drop`}
                     className={`${
-                      userData.chatRole === ChatRole.ADMIN && "active"
+                      userData.chatRole === ChatUserRole.ADMIN && "active"
                     }`}
                     drop={"end"}
                     variant="secondary"

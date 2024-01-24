@@ -31,7 +31,8 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     const userDataContext: UserDataContextType = useUserDataContext();
 
     const { setChannelExists, userData, setUserData, stompClient, loadUserDataValues,
-        chats, setChats, tab } = useContext(userContext) as UserDataContextType;
+        chats, setChats, tab,
+        bannedUsers, setBannedUsers } = useContext(userContext) as UserDataContextType;
 
 
     //Esto lo tuve que hacer porque no sabía como hacer que la funcion onMessageReceived y onPrivateMessage
@@ -103,7 +104,13 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 navigate('/');
                 return;
             }
-            
+            if( message.status === MessagesStatus.ERROR) {
+                alert(message.message);
+                disconnectChat();
+                navigate('/');
+                return;
+            }
+
             //Me desuscribo a este canal para que no rompa las bolas
             let channelsSusbribed = Object.keys(stompClient.current.subscriptions)
             let latestChannelSubscribed = channelsSusbribed[ channelsSusbribed.length-1 ];
@@ -139,13 +146,34 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     }
 
     const handleUserBanned = (message:Message) => {
-        if(message.senderId === userData.userId) {
-            disconnectChat()
+        if(message.receiverId === userData.userId) {
+            disconnectChat();
+            //avisamos a todos que nos desconectamos
+            var chatMessage: Message = createPublicMessage(MessagesStatus.LEAVE, userData)
+            stompClient.current.send("/app/user.disconnected", {}, JSON.stringify(chatMessage));
             navigate('/');
             return;
         }
-        
-
+        if(message.status === MessagesStatus.BAN){
+            let userToBan:UserChat = getUserSavedFromChats(message.receiverId);
+            if (Array.from(chats.keys()).includes(userToBan)) {
+                chats.delete(userToBan);
+                bannedUsers.push(userToBan);
+                setChats(new Map(chats))
+                setBannedUsers(bannedUsers);
+                console.log("se banea a "+userToBan.username);
+            }
+        }
+        if(message.status === MessagesStatus.UNBAN){
+            let userToUnBan:UserChat = bannedUsers.find( (u:UserChat) => u.id === message.receiverId);
+            if (userToUnBan!==null) {
+                let bannedUsersAux = bannedUsers.filter( (u:UserChat) => u.id !== userToUnBan.id);
+                chats.set(userToUnBan,new Array<Message>);
+                setChats(new Map(chats))
+                setBannedUsers(bannedUsersAux);
+                console.log("se desbanea a "+userToUnBan.username);
+            }
+        }
     }
 
     const onMessageReceived = (payload: any) => {
@@ -174,7 +202,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                     payloadData:message
                 })
                 break;
-            case MessagesStatus.BANNED:
+            case MessagesStatus.BAN || MessagesStatus.UNBAN:
                 handleUserBanned(message);
                 break;
             case MessagesStatus.ERROR:

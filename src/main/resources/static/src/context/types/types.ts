@@ -1,4 +1,4 @@
-import { UserChat, ChatRole } from "../../components/interfaces/chatRoom.types";
+import { UserChat, ChatUserRole } from "../../components/interfaces/chatRoom.types";
 import { Message } from "../../components/interfaces/messages";
 import { MessagesStatus } from "../../components/interfaces/messages.status";
 
@@ -11,7 +11,7 @@ export type UserData = {
     //el estado indica luego en el chatroom qué hay que hacer, si unirse auna sala o crear una
     status: MessagesStatus,
     avatarImg: string,
-    chatRole: ChatRole;
+    chatRole: ChatUserRole;
   }
 
 export type UserDataContextType = {
@@ -23,6 +23,7 @@ export type UserDataContextType = {
     loadUserDataValues: ()=>void,
     resetChats: ()=>void,
     chats:Map<UserChat,Message[]>, setChats:(value: Map<UserChat,Message[]>)=> void
+    bannedUsers:UserChat[], setBannedUsers:(value: UserChat[])=> void
 }
 
 export type ChatRoomConnectionContextType = {

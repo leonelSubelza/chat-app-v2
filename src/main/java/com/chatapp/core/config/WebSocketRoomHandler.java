@@ -29,5 +29,4 @@ public class WebSocketRoomHandler {
     public static int getActiveRoomsCount() {
         return activeRooms.size();
     }
-
 }

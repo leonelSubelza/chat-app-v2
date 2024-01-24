@@ -10,7 +10,7 @@ import { UserData } from '../../../context/types/types.js';
 import { MessagesStatus } from '../../interfaces/messages.status.js';
 import { Message } from '../../interfaces/messages.js';
 import adminImg from '../../../assets/crown-icon.svg';
-import { ChatRole } from '../../interfaces/chatRoom.types.js';
+import { ChatUserRole } from '../../interfaces/chatRoom.types.js';
 
 interface Props {
     sidebarOpen: boolean;
@@ -76,7 +76,7 @@ const Sidebar = ({ sidebarOpen,disconnectChat,handleSideBarOpen }: Props) => {
             <MembersList/>
             <div className='sidebar-user-info-container'>
                 <div className="profile-details">
-                    <img className={`admin_img ${userData.chatRole === ChatRole.ADMIN && 'active'}`} 
+                    <img className={`admin_img ${userData.chatRole === ChatUserRole.ADMIN && 'active'}`} 
                     src={adminImg} alt="icon" />
                     <img 
                     className="profile-details__img" 

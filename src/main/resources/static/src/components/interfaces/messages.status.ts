@@ -8,7 +8,8 @@ export enum MessagesStatus {
     NOT_EXISTS = "NOT_EXISTS",
     ERROR = "ERROR",
     WRITING = "WRITING",
-    BANNED = "BANNED",
+    BAN = "BAN",
+    UNBAN = "UNBAN",
     MAKE_ADMIN = "MAKE_ADMIN",
     ALREADY_CONNECTED = "ALREADY_CONNECTED"
 }

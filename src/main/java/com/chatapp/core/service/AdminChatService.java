@@ -23,18 +23,13 @@ public class AdminChatService {
             message.setStatus(Status.ERROR);
             return false;
         }
-        if(message.getStatus().equals(Status.BANNED)){
-            //El baneo funciona como un flag, si esta baneado se banea, sino se desbanea
+        if(message.getStatus().equals(Status.BAN) || message.getStatus().equals(Status.UNBAN)){
             User userToBan = WebSocketSessionHandler.getUser(message.getReceiverId());
-            User userBannedExists = WebSocketRoomHandler.getRoom(message.getUrlSessionId()).getBannedUsers()
-                    .stream()
-                    .filter(u -> u.getId().equals(user.getId()))
-                    .findFirst().orElse(null);
             Set<User> usersBannedInRoom = WebSocketRoomHandler.getRoom(message.getUrlSessionId()).getBannedUsers();
-            //Si el usuario no estaba baneado se banea, y sino viceversa
-            if(userBannedExists != null){
+            if(message.getStatus().equals(Status.BAN)){
                 usersBannedInRoom.add(userToBan);
-            }else{
+            }
+            if(message.getStatus().equals(Status.UNBAN)){
                 usersBannedInRoom.remove(userToBan);
             }
         }
@@ -43,7 +38,6 @@ public class AdminChatService {
             user.setChatRole(ChatUserRole.CLIENT);
             userToMakeAdmin.setChatRole(ChatUserRole.ADMIN);
         }
-        message.setStatus(Status.UPDATE);
         return true;
     }
 }

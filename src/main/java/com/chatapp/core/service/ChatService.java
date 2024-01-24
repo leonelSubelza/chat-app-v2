@@ -22,7 +22,6 @@ public class ChatService {
         //si hubo un error intentando conectar
         if(userJoinCorrect == null){
             message.setStatus(Status.ERROR);
-            message.setMessage("Error occurred while trying to join the user");
         }
     }
 
@@ -30,6 +29,14 @@ public class ChatService {
         Room roomExist = WebSocketRoomHandler.activeRooms.get(message.getUrlSessionId());
         if(roomExist!=null){
             message.setStatus(Status.EXISTS);
+
+            if(roomExist.isUserBannedFromRoom(message.getSenderId())){
+                log.error("The user {} is banned from the Room with the key:{}",
+                        message.getSenderName(),roomExist.getId());
+                message.setMessage("You are banned from this room!");
+                message.setStatus(Status.ERROR);
+                return;
+            }
 
             User userConnecting = WebSocketSessionHandler.getUser(message.getSenderId());
             if(userConnecting == null){
@@ -61,7 +68,8 @@ public class ChatService {
     }
 
     public void recGroupMessage(Message message) {
-        if(message.getStatus().equals(Status.BANNED) || message.getStatus().equals(Status.MAKE_ADMIN)){
+        if(message.getStatus().equals(Status.BAN) || message.getStatus().equals(Status.UNBAN)
+                || message.getStatus().equals(Status.MAKE_ADMIN)){
             boolean handleAdminAction = this.adminChatService.handleAdminAction(message);
             if(!handleAdminAction){
                 log.error("Error occurred while handling an admin action from the user: {}",message.getSenderName());

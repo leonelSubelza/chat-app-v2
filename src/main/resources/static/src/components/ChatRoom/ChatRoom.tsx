@@ -22,7 +22,7 @@ const ChatRoom: React.FC = () => {
 
     const { disconnectChat, checkIfChannelExists, chatUserTyping } = useContext(chatRoomConnectionContext)
 
-    const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
+    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
 
     const [writingCooldown, setWritingCooldown] = useState<boolean>(false);
 
