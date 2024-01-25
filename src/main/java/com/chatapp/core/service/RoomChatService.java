@@ -104,24 +104,36 @@ public class RoomChatService {
         //Tener en cuenta que existe una referencia en el obj headerAccesor manejado por Spring que no se borra
         //sino que se borrará cuando el usuario cierre la ventana del navegador
 
-        Room userRoom = WebSocketRoomHandler.activeRooms.get(user.getRoomId());
-
-        log.info("User {} disconnected! at {}",user.getUsername(), DateGenerator.getActualDate());
-
+        //Deleting the user from the list of users connected
         Message chatMessage = createMessage(user);
         WebSocketSessionHandler.removeSession(user);
         log.info("Number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
 
-        //checkeo si la room a la que pertenecía ya no existe
-        boolean remove = WebSocketRoomHandler.activeRooms.get(user.getRoomId()).getUsers().remove(user);
-        if(!remove){
+        Room userRoom = WebSocketRoomHandler.activeRooms.get(user.getRoomId());
+        if(userRoom == null){
             String errorMsj = "Trying to delete a user from an non-existent room";
             log.warn(errorMsj);
             chatMessage.setStatus(Status.ERROR);
             chatMessage.setMessage(errorMsj);
             return chatMessage;
         }
-        if(userRoom.getUsers().isEmpty()) {
+        log.info("User {} disconnected! at {}",user.getUsername(), DateGenerator.getActualDate());
+
+
+
+        if(!userRoom.getUsers().isEmpty()) {
+            //Deleting the user from room
+            boolean remove = WebSocketRoomHandler.activeRooms.get(user.getRoomId()).getUsers().remove(user);
+            if(!remove){
+                String errorMsj = "Trying to delete who doesn't exists in the room";
+                log.warn(errorMsj);
+                chatMessage.setStatus(Status.ERROR);
+                chatMessage.setMessage(errorMsj);
+                return chatMessage;
+            }
+        }
+        //After the user is deleted from room or not, if the room is empty we deleted
+        if(!userRoom.getUsers().isEmpty()) {
             WebSocketRoomHandler.removeRoom(userRoom);
             log.info("Room with id:{} deleted, number of rooms actives: {}",
                     userRoom.getId(), WebSocketSessionHandler.getActiveSessionsCount());

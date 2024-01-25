@@ -13,11 +13,11 @@ const Message = ({ message, userData, isPublicChat }: Props) => {
     return (
         <>
             {(message.status === 'MESSAGE') ?
-                <li className={`message ${message.senderId === userData.userId && "self"}`}>
-                    {(message.senderId !== userData.userId) && isPublicChat &&
+                <li className={`message ${message.senderId === userData.id && "self"}`}>
+                    {(message.senderId !== userData.id) && isPublicChat &&
                         <div className={`message-data-username`}>{message.senderName}</div>}
                     <div className='message-container'>
-                        {message.senderId !== userData.userId &&
+                        {message.senderId !== userData.id &&
                             <div className="chat-avatar">
                                 <img className="avatar-img-chat" src={message.avatarImg} />
                             </div>}
@@ -27,7 +27,7 @@ const Message = ({ message, userData, isPublicChat }: Props) => {
                                 <p className='message-data__message-info-time'>{getHourFromUTCFormatDate(message.date)}</p>
                             </div>
                         </div>
-                        {message.senderId === userData.userId &&
+                        {message.senderId === userData.id &&
                             <div className="chat-avatar self">
                                 <img className="avatar-img-chat" src={userData.avatarImg} />
                             </div>}

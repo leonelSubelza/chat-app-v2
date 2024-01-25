@@ -1,7 +1,7 @@
 export interface UserChat {
     id: string,
     username: string,
-    joinData: string,
+    joinDate: string,
     avatarImg: string,
     hasUnreadedMessages:boolean,
     chatRole: ChatUserRole

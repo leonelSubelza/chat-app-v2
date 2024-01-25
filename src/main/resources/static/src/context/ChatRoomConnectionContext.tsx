@@ -1,5 +1,5 @@
-import type { ChatRoomConnectionContextType, ChatUserTypingType, MessageUserTyping, UserData, UserDataContextType } from './types/types.ts';
-import React, { ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import type { ChatRoomConnectionContextType, UserData, UserDataContextType } from './types/types.ts';
+import React, { ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { userContext, useUserDataContext } from './UserDataContext.tsx';
 import { generateUserId } from '../utils/IdGenerator.ts';
 import { createMessageJoin, createPrivateMessage, createPublicMessage, createUserChat, resetValues, updateChatData } from '../components/ChatRoom/ChatRoomFunctions.ts';
@@ -24,6 +24,7 @@ interface ChatRoomConnectionProviderProps {
   }
 
 export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProviderProps) {
+    const tabAux = useRef<UserChat>();
     const navigate = useNavigate();
     //flag para que no ejecute el método connect() más de una vez
     const startedConnection = useRef<boolean>(false);
@@ -34,20 +35,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         chats, setChats, tab,
         bannedUsers, setBannedUsers } = useContext(userContext) as UserDataContextType;
 
-
-    //Esto lo tuve que hacer porque no sabía como hacer que la funcion onMessageReceived y onPrivateMessage
-    //obtengan en sus funciones valores de los estados actualizados. Se define la funcion y se quedan los valores
-    //guardados de la primera vez que se carga la función.
-    const [receivedMessageUserTyping,setReceivedMessageUserTyping] = useState<MessageUserTyping>({
-        received:false,
-        receivedInPublicMessage:false,
-        payloadData:null
-    });
-    const [chatUserTyping, setChatUserTyping] = useState<ChatUserTypingType>({
-        isChatUserTyping: false,
-        chatUser: null,
-        isPublicMessage: false
-    });
+    const [chatUserTyping,setChatUserTyping] = useState<Map<UserChat,boolean>>(undefined);
 
     const disconnectChat = ():void => {
         if (stompClient.current !== null && Object.keys(stompClient.current.subscriptions).length > 0) {
@@ -84,7 +72,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
 
     //si la room no existe, se procede a crear una, si si existe te desconecto
     const checkIfChannelExists = (): void => {
-        stompClient.current.subscribe('/user/' + userData.userId + '/exists-channel', (payload: any) => {
+        stompClient.current.subscribe('/user/' + userData.id + '/exists-channel', (payload: any) => {
             var message: Message = JSON.parse(payload.body);
             if(message.status === MessagesStatus.ALREADY_CONNECTED){
                 alert('Ya se encuentra conectado a esta sala!');
@@ -115,29 +103,28 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             let channelsSusbribed = Object.keys(stompClient.current.subscriptions)
             let latestChannelSubscribed = channelsSusbribed[ channelsSusbribed.length-1 ];
             stompClient.current.unsubscribe(latestChannelSubscribed);
-
             
             setChannelExists(true);
             subscribeRoomChannels();
             userJoin();
-            navigate(`/chatroom/${userData.URLSessionid}`);
+            navigate(`/chatroom/${userData.urlSessionid}`);
         });
         
         var chatMessage: Message = {
-            senderId: userData.userId,
+            senderId: userData.id,
             senderName: userData.username,
             date: getActualDate(),
             status: userData.status,
-            urlSessionId: userData.URLSessionid
+            urlSessionId: userData.urlSessionid
         }
         stompClient.current.send("/app/check-channel", {}, JSON.stringify(chatMessage))
     }
 
     const subscribeRoomChannels = () => {
         stompClient.current.subscribe('/chatroom/public', onMessageReceived);
-        stompClient.current.subscribe('/chatroom/' + userData.URLSessionid, onMessageReceived);
+        stompClient.current.subscribe('/chatroom/' + userData.urlSessionid, onMessageReceived);
         stompClient.current.subscribe(
-            '/user/' + userData.userId + "/" + userData.URLSessionid + '/private', onPrivateMessage);
+            '/user/' + userData.id + "/" + userData.urlSessionid + '/private', onPrivateMessage);
     }
 
     const userJoin = () => {
@@ -146,7 +133,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     }
 
     const handleUserBanned = (message:Message) => {
-        if(message.receiverId === userData.userId) {
+        if(message.receiverId === userData.id) {
             disconnectChat();
             //avisamos a todos que nos desconectamos
             var chatMessage: Message = createPublicMessage(MessagesStatus.LEAVE, userData)
@@ -176,36 +163,45 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         }
     }
 
-    // const makeAdmin = (newClient:UserChat|UserData,newAdminUserChat:UserChat|UserData) => {
-    //     newAdminUserChat.chatRole = ChatUserRole.ADMIN;
-    //     newClient.chatRole = ChatUserRole.CLIENT;
-    //     setUserData(userData);
-    //     setChats(new Map(chats));        
-    // }
+    const makeAdmin = (newClient:UserChat|UserData,newAdminUserChat:UserChat|UserData) => {
+        newAdminUserChat.chatRole = ChatUserRole.ADMIN;
+        newClient.chatRole = ChatUserRole.CLIENT;
+        setUserData(userData);
+        setChats(new Map(chats));        
+    }
 
     const handleMakeAdmin = (message:Message) => {
         //yo era admin, ahora convierto a alguien en admin
-        if(message.senderId === userData.userId){
+        if(message.senderId === userData.id){
             let userToMakeAdmin:UserChat = getUserSavedFromChats(message.receiverId);
             userData.chatRole = ChatUserRole.CLIENT;
             userToMakeAdmin.chatRole = ChatUserRole.ADMIN
 
         }
         //Un admin me convierte a mi en admin 😎        
-        if(message.receiverId === userData.userId){
+        if(message.receiverId === userData.id){
             let userToHandle:UserChat = getUserSavedFromChats(message.senderId);
             userToHandle.chatRole = ChatUserRole.CLIENT
             userData.chatRole = ChatUserRole.ADMIN;
         }
         //Alguien que es admin convierte a otro en admin
-        if(message.senderId!==userData.userId && message.receiverId!==userData.userId){
+        if(message.senderId!==userData.id && message.receiverId!==userData.id){
             let userToMakeAdmin = getUserSavedFromChats(message.receiverId);
             let userToMakeClient = getUserSavedFromChats(message.senderId);
             userToMakeAdmin.chatRole = ChatUserRole.ADMIN;
-            userToMakeClient.chatRole = ChatUserRole.CLIENT
+            userToMakeClient.chatRole = ChatUserRole.CLIENT;
         }
         setUserData(userData);
         setChats(new Map(chats));
+    }
+
+    const handleUserWriting = (message:Message,isPublicMessage:boolean) => {
+        if(message.senderId !== userData.id){
+            setChatUserTyping(new Map([[getUserSavedFromChats(message.senderId),isPublicMessage]]));
+            setTimeout(() => {
+                setChatUserTyping(undefined);
+            }, 5000);
+        }
     }
 
     const onMessageReceived = (payload: any) => {
@@ -228,11 +224,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 handleUserLeave(message);
                 break;
             case MessagesStatus.WRITING:
-                setReceivedMessageUserTyping({
-                    received:true,
-                    receivedInPublicMessage:true,
-                    payloadData:message
-                })
+                handleUserWriting(message,true);
                 break;
             case MessagesStatus.BAN || MessagesStatus.UNBAN:
                 handleUserBanned(message);
@@ -263,16 +255,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 handlePrivateMessageReceived(message);
                 break;
             case MessagesStatus.WRITING:
-                setReceivedMessageUserTyping({
-                    received:true,
-                    receivedInPublicMessage:false,
-                    payloadData:message
-                })
-                
-                // if (payloadData.senderId !== userData.userId
-                //     && tab.username !== 'CHATROOM') {
-                //     setUserWriting(payloadData,false);
-                // }
+                handleUserWriting(message,false);
                 break;
             default:
                 break;
@@ -280,7 +263,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     };
 
     const handleJoinUser = (message: Message, resend:boolean) => {
-        if (message.senderId === userData.userId) {
+        if (message.senderId === userData.id) {
             return;
         }
         let userSaved: UserChat = getUserSavedFromChats(message.senderId);
@@ -294,9 +277,9 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
 
                 savePublicMessage(joinMessage);
 
-                let roomId: string = userData.URLSessionid === '' ? message.urlSessionId : userData.URLSessionid;
+                let roomId: string = userData.urlSessionid === '' ? message.urlSessionId : userData.urlSessionid;
                 let userDataAux: UserData = userData;
-                userDataAux.URLSessionid = roomId;
+                userDataAux.urlSessionid = roomId;
                 var chatMessage: Message = createPrivateMessage(
                     MessagesStatus.JOIN, userDataAux, message.senderName, message.senderId);
                 stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
@@ -328,7 +311,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     }
 
     const handleUserLeave = (message: Message) => {
-        if (message.senderId === userData.userId) {
+        if (message.senderId === userData.id) {
             return;
         }
         let joinMessage: Message = createMessageJoin(MessagesStatus.LEAVE, message);
@@ -337,21 +320,6 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         let userSaved: UserChat = getUserSavedFromChats(message.senderId);
         chats.delete(userSaved);
         setChats(new Map(chats));
-    }
-
-    const setUserWriting = (message: Message, isPublicMessage: boolean) =>{
-        let userWriting = getUserSavedFromChats(message.senderId);
-        setChatUserTyping({
-            'isChatUserTyping': true,
-            'chatUser': userWriting,
-            'isPublicMessage': isPublicMessage
-        });
-        setTimeout(() => {
-            setChatUserTyping({
-                'isChatUserTyping': false, 
-                'chatUser': null,
-             });
-        }, 3000)
     }
 
     const getUserSavedFromChats = (id: string): UserChat => {
@@ -369,21 +337,6 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             setChats(new Map(chats))
         }        
     }, [chats])
-
-    useEffect(()=>{
-        if(receivedMessageUserTyping.received){
-            if(receivedMessageUserTyping.receivedInPublicMessage){
-                setUserWriting(receivedMessageUserTyping.payloadData!,true);
-            }else{
-                setUserWriting(receivedMessageUserTyping.payloadData!,false);
-            }
-            setReceivedMessageUserTyping({
-                received:false,
-                receivedInPublicMessage:false,
-                payloadData:null
-            })
-        }
-    },[receivedMessageUserTyping,setReceivedMessageUserTyping])
 
     useEffect(() => {
         loadUserDataValues();

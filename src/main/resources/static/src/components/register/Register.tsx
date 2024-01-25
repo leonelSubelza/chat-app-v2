@@ -65,12 +65,12 @@ const Register: React.FC = () => {
     let idRoom: string = generateRoomId();
     userData.status = MessagesStatus.CREATE;
     userData.chatRole = ChatUserRole.ADMIN;
-    userData.URLSessionid = idRoom;
+    userData.urlSessionid = idRoom;
     setUserData({
       ...userData,
       status: MessagesStatus.CREATE,
       chatRole: ChatUserRole.ADMIN,
-      URLSessionid: idRoom,
+      urlSessionid: idRoom,
     });
     checkIfChannelExists();
   };

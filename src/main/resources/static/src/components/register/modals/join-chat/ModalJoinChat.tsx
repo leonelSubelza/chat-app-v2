@@ -42,8 +42,8 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
 
             const domain = window.location.origin;
             let urlSessionIdAux = inputValue.split(domain+'/chatroom/')[1];
-            userData.URLSessionid = urlSessionIdAux;
-            setUserData({...userData,"URLSessionid": urlSessionIdAux});
+            userData.urlSessionid = urlSessionIdAux;
+            setUserData({...userData,"urlSessionid": urlSessionIdAux});
             //navigate(`/chatroom/${urlSessionIdAux}`);
             window.removeEventListener('keyup', handleKeyPressed);
             setInputValue('');
@@ -52,8 +52,8 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
             //si el link escrito no es una url válida, entonces se verifica que sea solo una contraseña
             if( /^[a-zA-Z\d]+$/.test(inputValue)){
                 console.log("el link escrito es una contraseña valida");
-                userData.URLSessionid = inputValue;
-                setUserData({...userData,"URLSessionid": inputValue});
+                userData.urlSessionid = inputValue;
+                setUserData({...userData,"urlSessionid": inputValue});
                 //navigate(`/chatroom/${inputValue}`);
                 window.removeEventListener('keyup', handleKeyPressed);
                 setInputValue('');

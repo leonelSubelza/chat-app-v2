@@ -36,11 +36,11 @@ export function UserDataContext({ children }: UserDataProviderProps){
   const stompClient = useRef<any>(null);
 
   const [userData, setUserData] = useState<UserData>({
-    userId:'',
+    id:'',
     username: '',
     connected: false,
     message: '',
-    URLSessionid: '',
+    urlSessionid: '',
     //el estado indica luego en el chatroom qué hay que hacer, si unirse auna sala o crear una
     status: MessagesStatus.JOIN,
     avatarImg: '',
@@ -51,7 +51,6 @@ export function UserDataContext({ children }: UserDataProviderProps){
   const [tab,setTab] = useState<UserChat>();
   const [bannedUsers, setBannedUsers] = useState<UserChat[]>(new Array<UserChat>);
 
-
   const resetChats = ():void => {
     let chatsAux: Map<UserChat, Message[]> = chats;
     for (var obj of chatsAux) {
@@ -60,7 +59,7 @@ export function UserDataContext({ children }: UserDataProviderProps){
     let chatRoomObject: UserChat = {      
       id: '0',
       username: "CHATROOM",
-      joinData: "-",
+      joinDate: "-",
       avatarImg: imageLinks[0],
       hasUnreadedMessages:false,
       chatRole: ChatUserRole.CLIENT
@@ -77,7 +76,7 @@ export function UserDataContext({ children }: UserDataProviderProps){
     if (localStorage.getItem('id') === null) {
       userId = generateUserId();
       localStorage.setItem('id', userId);
-      userData.userId = userId;
+      userData.id = userId;
     } else {
       userId = localStorage.getItem('id');
     }
@@ -94,9 +93,9 @@ export function UserDataContext({ children }: UserDataProviderProps){
     } else {
       userData.username = localStorage.getItem('username')+'';
     }
-    userData.userId = userId;
+    userData.id = userId;
     setUserData({ ...userData, 
-      "userId":userId, "avatarImg": userData.avatarImg, "username": userData.username });
+      "id":userId, "avatarImg": userData.avatarImg, "username": userData.username });
     resetChats();
     setIsDataLoading(false);
   }

@@ -17,7 +17,7 @@ export const resetValues = (userDataContext: UserDataContextType) => {
   setUserData({
     ...userData,
     message: "",
-    URLSessionid: "",
+    urlSessionid: "",
     status: MessagesStatus.JOIN,
   });
 };
@@ -78,7 +78,7 @@ export const createUserChat = (message: Message): UserChat => {
   return {
     id: message.senderId,
     username: message.senderName,
-    joinData: message.date,
+    joinDate: message.date,
     avatarImg: message.avatarImg,
     hasUnreadedMessages:false,
     chatRole: message.chatRole
@@ -87,12 +87,12 @@ export const createUserChat = (message: Message): UserChat => {
 
 export const createPublicMessage = (status: MessagesStatus, userData: UserData): Message => {
   return {
-    senderId: userData.userId,
+    senderId: userData.id,
     senderName: userData.username,
     date: getActualDate(),
     message: userData.message,
     status: status,
-    urlSessionId: userData.URLSessionid,
+    urlSessionId: userData.urlSessionid,
     avatarImg: userData.avatarImg,
     chatRole: userData.chatRole
   };
@@ -105,14 +105,14 @@ export const createPrivateMessage = (
   receiverId: string
 ): Message => {
   return {
-    senderId: userData.userId,
+    senderId: userData.id,
     senderName: userData.username,
     receiverName: receiverName,
     receiverId: receiverId,
     date: getActualDate(),
     message: userData.message,
     status: status,
-    urlSessionId: userData.URLSessionid,
+    urlSessionId: userData.urlSessionid,
     avatarImg: userData.avatarImg,
     chatRole: userData.chatRole
   };

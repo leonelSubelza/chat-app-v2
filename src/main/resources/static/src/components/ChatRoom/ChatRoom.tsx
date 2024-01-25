@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import { NavigateFunction, useNavigate } from 'react-router-dom';
 import './ChatRoom.css';
 import { userContext } from '../../context/UserDataContext';
@@ -10,11 +10,13 @@ import { createPrivateMessage, createPublicMessage } from './ChatRoomFunctions';
 import ChatContainer from './chat-container/ChatContainer.jsx';
 import { MessagesStatus } from '../interfaces/messages.status';
 import { Message } from '../interfaces/messages';
+import { UserChat } from '../interfaces/chatRoom.types.js';
 
 
 const ChatRoom: React.FC = () => {
     const navigate: NavigateFunction = useNavigate();
 
+    const [userTypingTxt, setUserTypingTxt] = useState<string>();
     const { isDataLoading, userData, setUserData,
         tab, setTab, stompClient, channelExists, chats, setChats } = useContext(userContext);
 
@@ -48,7 +50,7 @@ const ChatRoom: React.FC = () => {
             return;
         }
         //Caso en el que se conecta copiando la url, no se tiene cargado e idRoom, entonces se carga
-        if (userData.URLSessionid === '') {
+        if (userData.urlSessionid === '') {
             const url: string = window.location + "";
             let urlSessionIdAux: string = getRoomIdFromURL(url);
             if (urlSessionIdAux === undefined) {
@@ -56,8 +58,8 @@ const ChatRoom: React.FC = () => {
                 navigate("/");
                 return;
             }
-            userData.URLSessionid = urlSessionIdAux;
-            setUserData({ ...userData, "URLSessionid": urlSessionIdAux });
+            userData.urlSessionid = urlSessionIdAux;
+            setUserData({ ...userData, "urlSessionid": urlSessionIdAux });
             if (stompClient.current !== null) {
                 checkIfChannelExists();
             }
@@ -85,7 +87,7 @@ const ChatRoom: React.FC = () => {
         if (stompClient.current) {
             var chatMessage: Message = createPrivateMessage(status, userData, tab.username, tab.id);
             //si se envia un msj a alguien que no sea yo mismo
-            if (userData.userId !== tab.id) {
+            if (userData.id !== tab.id) {
                 chats.get(tab).push(chatMessage);
                 setChats(new Map(chats));
             }
@@ -113,18 +115,38 @@ const ChatRoom: React.FC = () => {
         navigate('/');
     }
 
-    const setMessageTyping = (): string => {
-        if (chatUserTyping.chatUser === null || chatUserTyping.chatUser === undefined) {
-            return '';
-        }
-        if (chatUserTyping.isPublicMessage && tab.username === 'CHATROOM') {
-            return `${chatUserTyping.chatUser.username} is typing...`;
-        }
+    // const setMessageTyping = (): string => {
+    //     if (chatUserTyping === undefined) {
+    //         console.log('userwriting es undefined');        
 
-        if (!chatUserTyping.isPublicMessage && tab.username !== 'CHATROOM') {
-            return 'Typing...';
+    //         return '';
+    //     }
+    //     if (chatUserTyping.username !== 'CHATROOM' && tab.username!=='CHATROOM') {
+    //         console.log('se debería setear: '+chatUserTyping.username+' is typing...');   
+    //         return `${chatUserTyping.username} is typing...`;
+    //     }
+    //     if (chatUserTyping.username === 'CHATROOM' && tab.username==='CHATROOM') {
+    //         console.log('se debería setear  typing...');   
+    //         return 'Typing...';
+    //     }
+    // }
+
+    
+    useEffect(() => {
+        if (chatUserTyping === undefined) {
+            setUserTypingTxt('');
+            return;
         }
-    }
+        let userTyping = Array.from(chatUserTyping.keys())[0];
+        if (chatUserTyping.get(userTyping) && tab.username==='CHATROOM') {
+            setUserTypingTxt(userTyping.username +' is typing...')
+            return;
+        }
+        if (!chatUserTyping.get(userTyping) && tab.username!=='CHATROOM') {
+            setUserTypingTxt('Typing...')
+            return;
+        }
+    },[chatUserTyping])
 
     const handleKeyPressedMsg = (e: KeyboardEvent): void => {
         e.preventDefault()
@@ -142,9 +164,11 @@ const ChatRoom: React.FC = () => {
         }
         if (!writingCooldown) {
             sendWritingNotification();
+            console.log("se envía msj escribiendo");
             setWritingCooldown(true);
         } else {
             setTimeout(() => {
+                console.log("se terminó el cooldown");
                 setWritingCooldown(false)
             }, 5000);
         }
@@ -187,8 +211,8 @@ const ChatRoom: React.FC = () => {
                         <div className="home-content">
                             <span className="text">{`${tab.username === 'CHATROOM' ? 'CHAT GENERAL' : tab.username}`}</span>
                             <span
-                                className={`user_writing ${chatUserTyping.chatUser !== null && chatUserTyping.isChatUserTyping && 'active'}`}>
-                                {setMessageTyping()}
+                                className={`user_writing`}>
+                                {userTypingTxt}
                             </span>
                         </div>
                         <ChatContainer />

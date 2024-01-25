@@ -1,13 +1,14 @@
+import { MutableRefObject } from "react";
 import { UserChat, ChatUserRole } from "../../components/interfaces/chatRoom.types";
 import { Message } from "../../components/interfaces/messages";
 import { MessagesStatus } from "../../components/interfaces/messages.status";
 
 export type UserData = {
-    userId: string,
+    id: string,
     username: string,
     connected: boolean,
     message: string,
-    URLSessionid: string,
+    urlSessionid: string,
     //el estado indica luego en el chatroom qué hay que hacer, si unirse auna sala o crear una
     status: MessagesStatus,
     avatarImg: string,
@@ -31,17 +32,5 @@ export type ChatRoomConnectionContextType = {
     checkIfChannelExists: ()=>void,
     startServerConnection: ()=>void,
     startedConnection: React.MutableRefObject<boolean>,
-    chatUserTyping: ChatUserTypingType
-}
-
-
-export type ChatUserTypingType = {
-    isChatUserTyping: boolean,
-    chatUser?: UserChat|null,
-    isPublicMessage?: boolean
-}
-export type MessageUserTyping = {
-    received:boolean,
-    receivedInPublicMessage:boolean,
-    payloadData:Message|null
+    chatUserTyping: Map<UserChat,boolean>
 }
