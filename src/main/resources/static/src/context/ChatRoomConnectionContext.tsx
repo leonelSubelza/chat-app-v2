@@ -1,7 +1,6 @@
 import type { ChatRoomConnectionContextType, UserData, UserDataContextType } from './types/types.ts';
-import React, { ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { userContext, useUserDataContext } from './UserDataContext.tsx';
-import { generateUserId } from '../utils/IdGenerator.ts';
 import { createMessageJoin, createPrivateMessage, createPublicMessage, createUserChat, resetValues, updateChatData } from '../components/ChatRoom/ChatRoomFunctions.ts';
 import { useNavigate } from 'react-router-dom';
 import { over } from 'stompjs';
@@ -37,7 +36,11 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
 
     const [chatUserTyping,setChatUserTyping] = useState<Map<UserChat,boolean>>(undefined);
 
-    const disconnectChat = ():void => {
+    const disconnectChat = (notifyOthers: boolean):void => {
+        if(notifyOthers){
+            let leaveMessage: Message = createPublicMessage(MessagesStatus.LEAVE,userData);
+            stompClient.current.send("/app/user.disconnected",{},JSON.stringify(leaveMessage));
+        }
         if (stompClient.current !== null && Object.keys(stompClient.current.subscriptions).length > 0) {
             //se desuscribe de todos los canales
             Object.keys(stompClient.current.subscriptions).forEach((s) => stompClient.current.unsubscribe(s));
@@ -66,7 +69,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     const onError = (err: unknown) => {
         console.log("Error conectando al wb: " + err);
         alert(err);
-        disconnectChat()
+        disconnectChat(false);
         navigate('/')
     }
 
@@ -76,25 +79,25 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             var message: Message = JSON.parse(payload.body);
             if(message.status === MessagesStatus.ALREADY_CONNECTED){
                 alert('Ya se encuentra conectado a esta sala!');
-                disconnectChat();
+                disconnectChat(false);
                 navigate('/');
                 return;
             }
             if ((message.status === MessagesStatus.EXISTS && userData.status === MessagesStatus.CREATE)) {
                 alert('Se intenta crear una sala con un id que ya existe');
-                disconnectChat();
+                disconnectChat(false);
                 navigate('/');
                 return;
             }
             if ((message.status === MessagesStatus.NOT_EXISTS && userData.status === MessagesStatus.JOIN)) {
                 alert('el canal al que se intenta conectar no existe');
-                disconnectChat();
+                disconnectChat(false);
                 navigate('/');
                 return;
             }
             if( message.status === MessagesStatus.ERROR) {
                 alert(message.message);
-                disconnectChat();
+                disconnectChat(false);
                 navigate('/');
                 return;
             }
@@ -132,16 +135,18 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         stompClient.current.send("/app/chat.join", {}, JSON.stringify(chatMessage));
     }
 
+    //Acá no se pregunta si se es admin o no porque es un proceso ya hecho en el servidor
     const handleUserBanned = (message:Message) => {
-        if(message.receiverId === userData.id) {
-            disconnectChat();
-            //avisamos a todos que nos desconectamos
-            var chatMessage: Message = createPublicMessage(MessagesStatus.LEAVE, userData)
-            stompClient.current.send("/app/user.disconnected", {}, JSON.stringify(chatMessage));
-            navigate('/');
-            return;
-        }
         if(message.status === MessagesStatus.BAN){
+            //si me banean a mi
+            if(message.receiverId === userData.id) {
+                alert(message.senderName+" has banned you from this room!");
+                disconnectChat(true);
+                navigate('/');
+                return;
+            }
+            
+            //Alguien(puedo ser yo) banea a alguien
             let userToBan:UserChat = getUserSavedFromChats(message.receiverId);
             if (Array.from(chats.keys()).includes(userToBan)) {
                 chats.delete(userToBan);
@@ -159,15 +164,9 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 setChats(new Map(chats))
                 setBannedUsers(bannedUsersAux);
                 console.log("se desbanea a "+userToUnBan.username);
+                alert(message.senderName+" has unbanned you from the room!");
             }
         }
-    }
-
-    const makeAdmin = (newClient:UserChat|UserData,newAdminUserChat:UserChat|UserData) => {
-        newAdminUserChat.chatRole = ChatUserRole.ADMIN;
-        newClient.chatRole = ChatUserRole.CLIENT;
-        setUserData(userData);
-        setChats(new Map(chats));        
     }
 
     const handleMakeAdmin = (message:Message) => {
@@ -176,13 +175,14 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             let userToMakeAdmin:UserChat = getUserSavedFromChats(message.receiverId);
             userData.chatRole = ChatUserRole.CLIENT;
             userToMakeAdmin.chatRole = ChatUserRole.ADMIN
-
+            alert(message.receiverName+' is the new admin!');
         }
         //Un admin me convierte a mi en admin 😎        
         if(message.receiverId === userData.id){
             let userToHandle:UserChat = getUserSavedFromChats(message.senderId);
             userToHandle.chatRole = ChatUserRole.CLIENT
             userData.chatRole = ChatUserRole.ADMIN;
+            alert(message.senderName+' has made you the new admin!');
         }
         //Alguien que es admin convierte a otro en admin
         if(message.senderId!==userData.id && message.receiverId!==userData.id){
@@ -190,6 +190,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             let userToMakeClient = getUserSavedFromChats(message.senderId);
             userToMakeAdmin.chatRole = ChatUserRole.ADMIN;
             userToMakeClient.chatRole = ChatUserRole.CLIENT;
+            alert(message.receiverName+' is the new admin!');
         }
         setUserData(userData);
         setChats(new Map(chats));
@@ -236,7 +237,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 alert('Se ha producido un error. '+message.message);
                 //Por las dudas si se genero mal el id que se haga uno nuevo 
                 //setUserData({ ...userData, 'userId': generateUserId() });
-                disconnectChat()
+                disconnectChat(true)
                 navigate('/');
                 break;
             default:

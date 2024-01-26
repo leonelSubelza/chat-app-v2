@@ -1,6 +1,6 @@
 import { UserData, UserDataContextType } from "../../context/types/types";
 import { getActualDate } from "../../utils/MessageDateConvertor";
-import { UserChat } from "../interfaces/chatRoom.types";
+import { ChatUserRole, UserChat } from "../interfaces/chatRoom.types";
 import { Message } from "../interfaces/messages";
 import { MessagesStatus } from "../interfaces/messages.status";
 
@@ -19,6 +19,7 @@ export const resetValues = (userDataContext: UserDataContextType) => {
     message: "",
     urlSessionid: "",
     status: MessagesStatus.JOIN,
+    chatRole: ChatUserRole.CLIENT
   });
 };
 

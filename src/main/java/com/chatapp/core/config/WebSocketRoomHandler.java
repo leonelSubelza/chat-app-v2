@@ -29,4 +29,17 @@ public class WebSocketRoomHandler {
     public static int getActiveRoomsCount() {
         return activeRooms.size();
     }
+
+    public static boolean isUserInSomeRoom(String id){
+/*        for (Room room : activeRooms.values()) {
+            for(User user: room.getUsers()){
+                if(user.getId() == id){
+                    return true;
+                }
+            }
+        }
+        return false;*/
+        return activeRooms.values().stream()
+                .anyMatch(room -> room.getUsers().stream().anyMatch(user -> user.getId().equals(id)));
+    }
 }

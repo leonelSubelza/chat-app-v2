@@ -10,8 +10,6 @@ import { createPrivateMessage, createPublicMessage } from './ChatRoomFunctions';
 import ChatContainer from './chat-container/ChatContainer.jsx';
 import { MessagesStatus } from '../interfaces/messages.status';
 import { Message } from '../interfaces/messages';
-import { UserChat } from '../interfaces/chatRoom.types.js';
-
 
 const ChatRoom: React.FC = () => {
     const navigate: NavigateFunction = useNavigate();
@@ -41,7 +39,7 @@ const ChatRoom: React.FC = () => {
             let nombre: string = prompt("Ingrese un nombre de usuario");
             if (nombre === null) {
                 alert('El nombre no puede ser vacío')
-                disconnectChat();
+                disconnectChat(false);
                 navigate("/");
                 return;
             }
@@ -54,7 +52,7 @@ const ChatRoom: React.FC = () => {
             const url: string = window.location + "";
             let urlSessionIdAux: string = getRoomIdFromURL(url);
             if (urlSessionIdAux === undefined) {
-                disconnectChat();
+                disconnectChat(false);
                 navigate("/");
                 return;
             }
@@ -108,30 +106,10 @@ const ChatRoom: React.FC = () => {
     }
 
     const handleDisconnectChat = ():void => {
-        disconnectChat();
-        //avisamos a todos que nos desconectamos
-        var chatMessage: Message = createPublicMessage(MessagesStatus.LEAVE, userData)
-        stompClient.current.send("/app/user.disconnected", {}, JSON.stringify(chatMessage));
+        disconnectChat(true);
         navigate('/');
     }
-
-    // const setMessageTyping = (): string => {
-    //     if (chatUserTyping === undefined) {
-    //         console.log('userwriting es undefined');        
-
-    //         return '';
-    //     }
-    //     if (chatUserTyping.username !== 'CHATROOM' && tab.username!=='CHATROOM') {
-    //         console.log('se debería setear: '+chatUserTyping.username+' is typing...');   
-    //         return `${chatUserTyping.username} is typing...`;
-    //     }
-    //     if (chatUserTyping.username === 'CHATROOM' && tab.username==='CHATROOM') {
-    //         console.log('se debería setear  typing...');   
-    //         return 'Typing...';
-    //     }
-    // }
-
-    
+ 
     useEffect(() => {
         if (chatUserTyping === undefined) {
             setUserTypingTxt('');

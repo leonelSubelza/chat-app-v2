@@ -82,14 +82,3 @@
 .user_writing.active{
     display: block;
 }
-
-@media screen and (max-width: 768px) and (min-width: 376px) {
-  .chat-box {
-    width: 85%;
-  }
-}
-@media (max-width: 376px) {
-  .chat-box {
-    width: 85%;
-  }
-}

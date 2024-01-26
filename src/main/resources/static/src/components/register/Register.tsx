@@ -79,9 +79,7 @@ const Register: React.FC = () => {
     //si se hace <- desde el navegador se cierra la conexion cuando se carga este componente pq no
     //puedo capturar el evento cuando se hace para atrás en chatroom :(
     if ( userData.connected && Object.keys(stompClient.current.subscriptions).length > 0) {
-      let leaveMessage: Message = createPublicMessage(MessagesStatus.LEAVE,userData);
-      stompClient.current.send("/app/user.disconnected",{},JSON.stringify(leaveMessage));
-      disconnectChat();
+      disconnectChat(false);
       window.location.reload();
     }
   }, []);

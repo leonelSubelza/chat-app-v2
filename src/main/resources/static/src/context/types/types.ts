@@ -28,7 +28,7 @@ export type UserDataContextType = {
 }
 
 export type ChatRoomConnectionContextType = {
-    disconnectChat: ()=>void,
+    disconnectChat: (notifyOthers: boolean)=>void,
     checkIfChannelExists: ()=>void,
     startServerConnection: ()=>void,
     startedConnection: React.MutableRefObject<boolean>,
