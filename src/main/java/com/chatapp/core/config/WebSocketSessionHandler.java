@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketSessionHandler {
 
     //Este map lo manejamos para tener una lista con todos los usuarios conectados y saber cuántos son
-    private static final Set<User> activeSessions = new HashSet<>();
+    public static final Set<User> activeSessions = new HashSet<>();
 
     public static void addSession(User user) {
         activeSessions.add(user);

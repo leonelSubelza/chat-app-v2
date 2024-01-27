@@ -31,15 +31,15 @@ public class WebSocketRoomHandler {
     }
 
     public static boolean isUserInSomeRoom(String id){
-/*        for (Room room : activeRooms.values()) {
+        for (Room room : activeRooms.values()) {
             for(User user: room.getUsers()){
-                if(user.getId() == id){
+                if(user.getId().equals(id)){
                     return true;
                 }
             }
         }
-        return false;*/
-        return activeRooms.values().stream()
-                .anyMatch(room -> room.getUsers().stream().anyMatch(user -> user.getId().equals(id)));
+        return false;
+        //return activeRooms.values().stream()
+        //        .anyMatch(room -> room.getUsers().stream().anyMatch(user -> user.getId().equals(id)));
     }
 }

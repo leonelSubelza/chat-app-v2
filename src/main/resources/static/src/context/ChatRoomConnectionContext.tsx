@@ -141,7 +141,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             //si me banean a mi
             if(message.receiverId === userData.id) {
                 alert(message.senderName+" has banned you from this room!");
-                disconnectChat(true);
+                disconnectChat(false);
                 navigate('/');
                 return;
             }

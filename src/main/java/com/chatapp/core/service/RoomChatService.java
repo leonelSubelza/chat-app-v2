@@ -28,6 +28,10 @@ public class RoomChatService {
             log.warn("The User with the id:{} already exists!",message.getSenderId());
             //If the user is loaded in the chat and is in some room it's an error
             if(WebSocketRoomHandler.isUserInSomeRoom(message.getSenderId())){
+                System.out.println("Al the rooms:");
+                System.out.println(WebSocketRoomHandler.activeRooms);
+                System.out.println("Al the users:");
+                System.out.println(WebSocketSessionHandler.activeSessions);
                 message.setMessage("Trying to connect with an user id which already exists in some room!");
                 return null;
             }
@@ -66,7 +70,7 @@ public class RoomChatService {
         }
         headerAccessor.getSessionAttributes().put(headerAccessorId,user);
         WebSocketSessionHandler.addSession(user);
-        log.info("Number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
+        log.info("Number of all the users connected in the ws:{}",WebSocketSessionHandler.getActiveSessionsCount());
     }
     public void saveRoom(Room room){
         WebSocketRoomHandler.addRoom(room);

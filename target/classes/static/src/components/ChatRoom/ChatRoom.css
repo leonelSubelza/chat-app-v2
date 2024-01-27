@@ -9,9 +9,9 @@
   transition: all 0.5s ease;
 }
 
-.chat-box.close {
+/* .chat-box.close {
   width: 75%;
-}
+} */
 
 .chat-text-button {
   display: flex;
@@ -81,4 +81,10 @@
 
 .user_writing.active{
     display: block;
+}
+
+@media screen and (max-width: 768px){
+  .chat-box {
+    width: 85%;
+  }
 }
