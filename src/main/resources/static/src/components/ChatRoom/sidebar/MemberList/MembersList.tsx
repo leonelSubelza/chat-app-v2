@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./MemberList.css";
 import { userContext } from "../../../../context/UserDataContext";
 import chatRoomIcon from "../../../../assets/people-icon.svg";
@@ -28,9 +28,6 @@ const MembersList = () => {
   ) => {
     chatData.hasUnreadedMessages = false;
     setTab(chatData);
-
-    const chatContainer = document.querySelector(".scroll-messages");
-    chatContainer.scrollTo(0, chatContainer.scrollHeight);
   };
 
   const handleCloseModalBanning = (resp: boolean) => {
@@ -73,6 +70,11 @@ const MembersList = () => {
     setShowModalMakeAdmin(true);
     setUserToHandle(userToMakeAdmin);
   };
+
+  useEffect(()=>{
+    const chatContainer = document.querySelector(".scroll-messages");
+    chatContainer.scrollTo(0, chatContainer.scrollHeight);
+  },[tab])
 
   return (
     <div className="sidebar-nav-links-container">
