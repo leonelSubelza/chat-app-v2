@@ -36,27 +36,25 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
             alert('Debe seleccionar una imagen!');
             return;
         }
-
-        if(isCorrectURL(inputValue)){
+        let inputValueAux = inputValue.toUpperCase();
+        if(isCorrectURL(inputValueAux)){
             console.log("el link escrito es un link valido");
 
             const domain = window.location.origin;
-            let urlSessionIdAux = inputValue.split(domain+'/chatroom/')[1];
+            let urlSessionIdAux = inputValueAux.split(domain+'/chatroom/')[1];
             userData.urlSessionid = urlSessionIdAux;
             setUserData({...userData,"urlSessionid": urlSessionIdAux});
             //navigate(`/chatroom/${urlSessionIdAux}`);
             window.removeEventListener('keyup', handleKeyPressed);
-            setInputValue('');
             checkIfChannelExists();
         }else{
             //si el link escrito no es una url válida, entonces se verifica que sea solo una contraseña
-            if( /^[a-zA-Z\d]+$/.test(inputValue)){
+            if( /^[a-zA-Z\d]+$/.test(inputValueAux)){
                 console.log("el link escrito es una contraseña valida");
-                userData.urlSessionid = inputValue;
-                setUserData({...userData,"urlSessionid": inputValue});
+                userData.urlSessionid = inputValueAux;
+                setUserData({...userData,"urlSessionid": inputValueAux});
                 //navigate(`/chatroom/${inputValue}`);
                 window.removeEventListener('keyup', handleKeyPressed);
-                setInputValue('');
                 checkIfChannelExists();
             }else{
                 alert("el link escrito NO es una contraseña valida")
