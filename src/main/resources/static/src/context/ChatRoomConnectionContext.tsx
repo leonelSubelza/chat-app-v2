@@ -205,14 +205,21 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         }
     }
 
+    // const scrollToBottom = () => {
+        // const chatContainer = document.querySelector(".scroll-messages");
+        // chatContainer.scrollTo(0, chatContainer.scrollHeight+127);
+    // }
+
     const onMessageReceived = (payload: any) => {
         var message: Message = JSON.parse(payload.body);
         switch (message.status) {
             case MessagesStatus.JOIN:
                 handleJoinUser(message, true);
+                // scrollToBottom();
                 break;
             case MessagesStatus.MESSAGE:
                 savePublicMessage(message);
+                // scrollToBottom();
                 break;
             case MessagesStatus.UPDATE:
                 let userToUpdate: UserChat = getUserSavedFromChats(message.senderId);
@@ -221,8 +228,8 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 }
                 break;
             case MessagesStatus.LEAVE:
-                console.log("se recibe msj de que alguien se desconectó ⬅︎");
                 handleUserLeave(message);
+                // scrollToBottom();
                 break;
             case MessagesStatus.WRITING:
                 handleUserWriting(message,true);
@@ -251,9 +258,11 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             case MessagesStatus.JOIN:
                 //Los usuarios que no conzco me dicen quienes son uwu
                 handleJoinUser(message, false);
+                // scrollToBottom();
                 break;
             case MessagesStatus.MESSAGE:
                 handlePrivateMessageReceived(message);
+                // scrollToBottom();
                 break;
             case MessagesStatus.WRITING:
                 handleUserWriting(message,false);
@@ -336,7 +345,11 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         if (tab.id === unreadChat.id) {
             Array.from(chats.keys())!.find(c => c.id === unreadChat.id)!.hasUnreadedMessages = false;
             setChats(new Map(chats))
+            //COSO PARA PONER EL SCROLL AL FINAL CUANDO LLEGA UN MSJ
+            const chatContainer = document.querySelector(".scroll-messages");
+            chatContainer.scrollTo(0, chatContainer.scrollHeight);
         }        
+        
     }, [chats])
 
     useEffect(() => {

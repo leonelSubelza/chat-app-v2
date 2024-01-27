@@ -65,6 +65,11 @@ const ChatRoom: React.FC = () => {
         }
     }
 
+    // const scrollToBottom = () => {
+    //     const chatContainer = document.querySelector(".scroll-messages");
+    //     chatContainer.scrollTo(0, chatContainer.scrollHeight+127);
+    // }
+
     const sendValue = (status: MessagesStatus = MessagesStatus.MESSAGE): void => {
         if (userData.message.trim() === '') {
             return;
@@ -88,10 +93,13 @@ const ChatRoom: React.FC = () => {
             if (userData.id !== tab.id) {
                 chats.get(tab).push(chatMessage);
                 setChats(new Map(chats));
+                // scrollToBottom();
             }
             stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
             if (status === MessagesStatus.MESSAGE) {
                 setUserData({ ...userData, "message": "" });
+                const chatContainer = document.querySelector(".scroll-messages");
+                chatContainer.scrollTop = chatContainer.scrollHeight;
             }
         }
     }
@@ -109,22 +117,6 @@ const ChatRoom: React.FC = () => {
         disconnectChat(true);
         navigate('/');
     }
- 
-    useEffect(() => {
-        if (chatUserTyping === undefined) {
-            setUserTypingTxt('');
-            return;
-        }
-        let userTyping = Array.from(chatUserTyping.keys())[0];
-        if (chatUserTyping.get(userTyping) && tab.username==='CHATROOM') {
-            setUserTypingTxt(userTyping.username +' is typing...')
-            return;
-        }
-        if (!chatUserTyping.get(userTyping) && tab.username!=='CHATROOM') {
-            setUserTypingTxt('Typing...')
-            return;
-        }
-    },[chatUserTyping])
 
     const handleKeyPressedMsg = (e: KeyboardEvent): void => {
         e.preventDefault()
@@ -151,6 +143,22 @@ const ChatRoom: React.FC = () => {
             }, 5000);
         }
     }
+
+    useEffect(() => {
+        if (chatUserTyping === undefined) {
+            setUserTypingTxt('');
+            return;
+        }
+        let userTyping = Array.from(chatUserTyping.keys())[0];
+        if (chatUserTyping.get(userTyping) && tab.username==='CHATROOM') {
+            setUserTypingTxt(userTyping.username +' is typing...')
+            return;
+        }
+        if (!chatUserTyping.get(userTyping) && tab.username!=='CHATROOM') {
+            setUserTypingTxt('Typing...')
+            return;
+        }
+    },[chatUserTyping]);
 
     useEffect(() => {
         connect();

@@ -28,6 +28,9 @@ const MembersList = () => {
   ) => {
     chatData.hasUnreadedMessages = false;
     setTab(chatData);
+
+    const chatContainer = document.querySelector(".scroll-messages");
+    chatContainer.scrollTo(0, chatContainer.scrollHeight);
   };
 
   const handleCloseModalBanning = (resp: boolean) => {
