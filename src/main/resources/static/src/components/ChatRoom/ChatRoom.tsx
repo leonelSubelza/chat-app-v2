@@ -134,7 +134,6 @@ const ChatRoom: React.FC = () => {
         }
         if (!writingCooldown) {
             sendWritingNotification();
-            console.log("se envía msj escribiendo");
             setWritingCooldown(true);
         } else {
             setTimeout(() => {

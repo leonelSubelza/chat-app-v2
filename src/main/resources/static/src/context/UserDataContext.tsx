@@ -41,7 +41,6 @@ export function UserDataContext({ children }: UserDataProviderProps){
     connected: false,
     message: '',
     urlSessionid: '',
-    //el estado indica luego en el chatroom qué hay que hacer, si unirse auna sala o crear una
     status: MessagesStatus.JOIN,
     avatarImg: '',
     chatRole: ChatUserRole.CLIENT

@@ -6,7 +6,7 @@ p{
 
 .sidebar{
     display: flex;
-    position: fixed;
+    /* position: fixed; */
     flex-direction: column;
     height: 100%;
     width: 25%;

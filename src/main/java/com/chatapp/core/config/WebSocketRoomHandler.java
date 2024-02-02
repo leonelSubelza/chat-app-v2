@@ -2,11 +2,12 @@ package com.chatapp.core.config;
 
 import com.chatapp.core.controller.model.Room;
 import com.chatapp.core.controller.model.User;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
+@Slf4j
 public class WebSocketRoomHandler {
     public static Map<String, Room> activeRooms = new HashMap<>();
 
@@ -41,5 +42,10 @@ public class WebSocketRoomHandler {
         return false;
         //return activeRooms.values().stream()
         //        .anyMatch(room -> room.getUsers().stream().anyMatch(user -> user.getId().equals(id)));
+    }
+
+    public static void showRoomAndUserInfo() {
+        log.info("All the rooms: "+WebSocketRoomHandler.activeRooms);
+        log.info("All the users: "+WebSocketSessionHandler.activeSessions);
     }
 }

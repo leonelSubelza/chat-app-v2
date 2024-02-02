@@ -36,18 +36,18 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
             alert('Debe seleccionar una imagen!');
             return;
         }
-        let inputValueAux = inputValue.toUpperCase();
-        if(isCorrectURL(inputValueAux)){
+        if(isCorrectURL(inputValue)){
             console.log("el link escrito es un link valido");
 
             const domain = window.location.origin;
-            let urlSessionIdAux = inputValueAux.split(domain+'/chatroom/')[1];
+            let urlSessionIdAux = inputValue.split(domain+'/chatroom/')[1];
             userData.urlSessionid = urlSessionIdAux;
             setUserData({...userData,"urlSessionid": urlSessionIdAux});
             //navigate(`/chatroom/${urlSessionIdAux}`);
             window.removeEventListener('keyup', handleKeyPressed);
             checkIfChannelExists();
         }else{
+            let inputValueAux = inputValue.toUpperCase();
             //si el link escrito no es una url válida, entonces se verifica que sea solo una contraseña
             if( /^[a-zA-Z\d]+$/.test(inputValueAux)){
                 console.log("el link escrito es una contraseña valida");
