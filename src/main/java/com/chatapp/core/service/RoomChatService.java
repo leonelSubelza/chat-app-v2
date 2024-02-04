@@ -24,15 +24,17 @@ public class RoomChatService {
         User newUser = EntityCreator.createUser(message);
         Room room = WebSocketRoomHandler.activeRooms.get(message.getUrlSessionId());
         //Si el id generado en el front ya existia
-        if(WebSocketSessionHandler.existsUser(newUser.getId()) != null){
-            log.warn("The User with the id:{} already exists!",message.getSenderId());
-            //If the user is loaded in the chat and is in some room it's an error
-            if(WebSocketRoomHandler.isUserInSomeRoom(message.getSenderId())){
-                WebSocketRoomHandler.showRoomAndUserInfo();
-                message.setMessage("Trying to connect with an user id which already exists in some room!");
-                return null;
-            }
+        if(WebSocketSessionHandler.existsUser(newUser.getId())){
+            log.warn("The User with the id:{} and name:{} already exists in the WSSessionHandler!",message.getSenderId(),message.getSenderName());
         }
+        //If the user is loaded in the chat and is in some room it's an error
+        if(WebSocketSessionHandler.existsUser(newUser.getId()) && WebSocketRoomHandler.isUserInSomeRoom(message.getSenderId())){
+            WebSocketRoomHandler.showRoomAndUserInfo();
+            log.error("The User with the id:{} and name:{} already exists in some room!",message.getSenderId(),message.getSenderName());
+            message.setMessage("Trying to connect with an user id which already exists in some room!");
+            return null;
+        }
+
         if(message.getStatus().equals(Status.CREATE)){
             if(room==null){
                 room = EntityCreator.createNewRoom(newUser);
@@ -53,7 +55,7 @@ public class RoomChatService {
                 Room roomToJoin = WebSocketRoomHandler.activeRooms.get(message.getUrlSessionId());
                 roomToJoin.getUsers().add(newUser);
                 log.info("User {} added to room {}!",newUser.getUsername(),room.getId());
-                log.info("All the rooms:{}",WebSocketRoomHandler.activeRooms);
+                //WebSocketRoomHandler.showRoomAndUserInfo();
             }
         }
         saveUser(newUser,headerAccessor);
@@ -67,12 +69,12 @@ public class RoomChatService {
         }
         headerAccessor.getSessionAttributes().put(headerAccessorId,user);
         WebSocketSessionHandler.addSession(user);
-        log.info("Number of all the users connected in the ws:{}",WebSocketSessionHandler.getActiveSessionsCount());
+        log.info("Count of all the users connected in the ws:{}",WebSocketSessionHandler.getActiveSessionsCount());
     }
     public void saveRoom(Room room){
         WebSocketRoomHandler.addRoom(room);
         log.info("New Room created!:{}",room.getId());
-        log.info("Number of rooms created:{}",WebSocketRoomHandler.getActiveRoomsCount());
+        log.info("Count of rooms created:{}",WebSocketRoomHandler.getActiveRoomsCount());
     }
 
     public Message handleDisconnectUserFromRoom(User user){
@@ -80,10 +82,10 @@ public class RoomChatService {
         //sino que se borrará cuando el usuario cierre la ventana del navegador
         Message chatMessage = EntityCreator.createMessage(user);
 
-        //Deleting the user from the list of users connected
+        //Deleting the user from the list of all users connected
         WebSocketSessionHandler.removeSession(user);
         log.info("User {} disconnected! at {}",user.getUsername(), DateGenerator.getActualDate());
-        log.info("Number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
+        log.info("Count of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
 
         Room userRoom = WebSocketRoomHandler.activeRooms.get(user.getRoomId());
         if(userRoom == null){
@@ -96,7 +98,7 @@ public class RoomChatService {
 
         if(!userRoom.getUsers().isEmpty()) {
             //Deleting the user from room
-            boolean remove = WebSocketRoomHandler.activeRooms.get(user.getRoomId()).getUsers().remove(user);
+            boolean remove = WebSocketRoomHandler.getRoom(user.getRoomId()).getUsers().remove(user);
             if(!remove){
                 String errorMsj = "Trying to delete a user who doesn't exists in the room";
                 log.warn(errorMsj);

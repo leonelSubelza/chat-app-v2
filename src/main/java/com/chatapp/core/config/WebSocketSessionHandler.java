@@ -21,8 +21,8 @@ public class WebSocketSessionHandler {
         activeSessions.remove(user);
     }
 
-    public static void removeSession(String username){
-        activeSessions.removeIf(user -> user.getUsername().equals(username));
+    public static boolean removeSessionById(String id){
+        return activeSessions.removeIf(user -> user.getId().equals(id));
     }
 
     public static int getActiveSessionsCount() {
@@ -34,9 +34,11 @@ public class WebSocketSessionHandler {
         return user.orElse(null);
     }
 
-    public static User existsUser(String id){
-        return WebSocketSessionHandler.activeSessions.stream().filter(user -> user.getId().equals(id))
+    public static boolean existsUser(String id){
+        /*return WebSocketSessionHandler.activeSessions.stream().filter(user -> user.getId().equals(id))
                 .findFirst()
-                .orElse(null);
+                .orElse(null);*/
+        return activeSessions.stream().anyMatch(user -> user.getId().equals(id));
     }
+
 }

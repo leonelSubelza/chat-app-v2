@@ -28,7 +28,7 @@ public class AdminChatService {
                 usersBannedInRoom.add(userToBan);
                 userRoom.getUsers().remove(userToBan);
                 //We don't check if the room is empty because we assume it must be at least two user in one room for ban
-                WebSocketSessionHandler.removeSession(userToBan);
+                WebSocketSessionHandler.removeSessionById(message.getReceiverId());
                 log.info("User {} has been banned from the room {}!",message.getReceiverName(),message.getUrlSessionId());
                 WebSocketRoomHandler.showRoomAndUserInfo();
             }

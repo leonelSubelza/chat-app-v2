@@ -22,4 +22,7 @@ public class Room {
         return !bannedUsers.isEmpty() && bannedUsers.stream().anyMatch(user -> user.getId().equals(userId));
     }
 
+    public boolean removeUserFromRoom(String id){
+        return users.removeIf(user -> user.getId().equals(id));
+    }
 }

@@ -11,7 +11,6 @@ import { Message } from '../components/interfaces/messages.ts';
 import { getActualDate } from '../utils/MessageDateConvertor.ts';
 import { ChatUserRole, UserChat } from '../components/interfaces/chatRoom.types.ts';
 
-
 export const chatRoomConnectionContext = React.createContext<ChatRoomConnectionContextType>(undefined);
 
 export function useChatRoomConnectionContext(): ChatRoomConnectionContextType{
@@ -23,7 +22,6 @@ interface ChatRoomConnectionProviderProps {
   }
 
 export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProviderProps) {
-    const tabAux = useRef<UserChat>();
     const navigate = useNavigate();
     //flag para que no ejecute el método connect() más de una vez
     const startedConnection = useRef<boolean>(false);
@@ -205,11 +203,6 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         }
     }
 
-    // const scrollToBottom = () => {
-        // const chatContainer = document.querySelector(".scroll-messages");
-        // chatContainer.scrollTo(0, chatContainer.scrollHeight+127);
-    // }
-
     const onMessageReceived = (payload: any) => {
         var message: Message = JSON.parse(payload.body);
         switch (message.status) {
@@ -242,10 +235,8 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 break;
             case MessagesStatus.ERROR:
                 alert('Se ha producido un error. '+message.message);
-                //Por las dudas si se genero mal el id que se haga uno nuevo 
-                //setUserData({ ...userData, 'userId': generateUserId() });
-                disconnectChat(true)
-                navigate('/');
+                // disconnectChat(true)
+                // navigate('/');
                 break;
             default:
                 break;

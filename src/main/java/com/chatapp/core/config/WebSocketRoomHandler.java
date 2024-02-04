@@ -45,7 +45,9 @@ public class WebSocketRoomHandler {
     }
 
     public static void showRoomAndUserInfo() {
+        System.out.println();
         log.info("All the rooms: "+WebSocketRoomHandler.activeRooms);
         log.info("All the users: "+WebSocketSessionHandler.activeSessions);
+        System.out.println();
     }
 }

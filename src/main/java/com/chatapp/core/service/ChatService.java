@@ -31,7 +31,7 @@ public class ChatService {
             message.setStatus(Status.EXISTS);
 
             if(roomExist.isUserBannedFromRoom(message.getSenderId())){
-                log.error("The user {} is banned from the Room with the key:{}",
+                log.warn("The user {} is trying to connect to the Room with the key:{} in which is banned",
                         message.getSenderName(),roomExist.getId());
                 message.setMessage("You are banned from this room!");
                 message.setStatus(Status.ERROR);
@@ -39,6 +39,7 @@ public class ChatService {
             }
 
             User userConnecting = WebSocketSessionHandler.getUser(message.getSenderId());
+            //The user mustn't have be connected if he wants to connect in some room
             if(userConnecting == null){
                 return;
             }
