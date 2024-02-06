@@ -4,7 +4,9 @@ export interface UserChat {
     joinDate: string,
     avatarImg: string,
     hasUnreadedMessages:boolean,
-    chatRole: ChatUserRole
+    chatRole: ChatUserRole,
+    isWriting: boolean,
+    writingName: string
 }
 
 export enum ChatUserRole {

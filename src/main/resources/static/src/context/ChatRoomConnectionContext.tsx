@@ -196,10 +196,21 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
 
     const handleUserWriting = (message:Message,isPublicMessage:boolean) => {
         if(message.senderId !== userData.id){
-            setChatUserTyping(new Map([[getUserSavedFromChats(message.senderId),isPublicMessage]]));
-            setTimeout(() => {
-                setChatUserTyping(undefined);
-            }, 5000);
+            //Si recibo un msj de escribiendo de una persona
+            let senderUser: UserChat;
+            if(isPublicMessage){
+                senderUser = getUserSavedFromChats('0');
+                senderUser.writingName = message.senderName;
+                if(senderUser.isWriting){
+                    senderUser.writingName = 'A lot of people';
+                }
+            }else{
+                senderUser = getUserSavedFromChats(message.senderId);
+            }
+            //si me vuelve a llegar un msj del mismo entonces se cambia
+            senderUser.isWriting = message.status===MessagesStatus.WRITING;
+            chats.set(senderUser,chats.get(senderUser));
+            setChats(new Map(chats));
         }
     }
 

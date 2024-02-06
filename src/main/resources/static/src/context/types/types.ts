@@ -1,4 +1,3 @@
-import { MutableRefObject } from "react";
 import { UserChat, ChatUserRole } from "../../components/interfaces/chatRoom.types";
 import { Message } from "../../components/interfaces/messages";
 import { MessagesStatus } from "../../components/interfaces/messages.status";
