@@ -11,7 +11,7 @@ const MessageInput = ({ onSend,handleWritingNotification }: Props) => {
     const { userData, setUserData} = useContext(userContext);
 
     const typingTimer = useRef<NodeJS.Timeout>();
-    const [isWritingMsjSended, setIsWritingMsjSended] = useState<boolean>(false);
+    const isWritingMsjSended = useRef<boolean>(false);
 
     const handleMessage = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = event.target;
@@ -25,10 +25,13 @@ const MessageInput = ({ onSend,handleWritingNotification }: Props) => {
         }
         clearTimeout(typingTimer.current);
         if (/^[a-zA-Z\d]$/.test(key.toString())) {
-          if (!isWritingMsjSended) {
+            if(!isWritingMsjSended.current){
+        //   if (!isWritingMsjSended) {
+        
             console.log("Se envia msj escribiendo");
             //Enviar msj de que se terminó de escribir
-            setIsWritingMsjSended(true);
+            // setIsWritingMsjSended(true);
+            isWritingMsjSended.current = true;
             return handleWritingNotification(true);
           }
         }
@@ -38,12 +41,11 @@ const MessageInput = ({ onSend,handleWritingNotification }: Props) => {
         clearTimeout(typingTimer.current);
         typingTimer.current = setTimeout(() => {
             console.log("Se envia msj terminó de escribir");
-            setIsWritingMsjSended(false);
+            // setIsWritingMsjSended(false);
+            isWritingMsjSended.current = false;
             return handleWritingNotification(false)
         }, 1000);
-
     }
-
 
     return (
         <div className="send-message">

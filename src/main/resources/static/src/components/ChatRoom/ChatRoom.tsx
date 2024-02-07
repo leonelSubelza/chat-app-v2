@@ -14,7 +14,6 @@ import { Message } from "../interfaces/messages";
 const ChatRoom: React.FC = () => {
   const navigate: NavigateFunction = useNavigate();
 
-//   const [userTypingTxt, setUserTypingTxt] = useState<string>();
   const {
     isDataLoading,
     userData,
@@ -34,8 +33,6 @@ const ChatRoom: React.FC = () => {
   );
 
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-
-  const [writingCooldown, setWritingCooldown] = useState<boolean>(false);
 
   const connect = (): void => {
     if (stompClient.current === null) {
@@ -142,9 +139,6 @@ const ChatRoom: React.FC = () => {
     navigate("/");
   };
 
-//   const typingTimer = useRef<NodeJS.Timeout>();
-//   const [isWritingMsjSended, setIsWritingMsjSended] = useState<boolean>(false);
-
   const handleKeyPressedMsg = (e: KeyboardEvent): void => {
     e.preventDefault();
     let key: KeyboardEvent | string = e;
@@ -159,65 +153,23 @@ const ChatRoom: React.FC = () => {
       }
       return;
     }
-    // clearTimeout(typingTimer.current);
-    // typingTimer.current = setTimeout(() => {
-    //   if (!isWritingMsjSended) {
-        // console.log("Se envia msj escribiendo");
-        //sendWritingNotification()
-        // setIsWritingMsjSended(true);
-    //   }
-    // }, 1000);
   };
-//   const handleKeyDown = (e: KeyboardEvent) => {
-//     let key: KeyboardEvent | string = e;
-//     if (typeof e !== "string") {
-//       key = e.key;
-//     }
-//     console.log("Se ejecuta keydown event");
-//     clearTimeout(typingTimer.current);
-//     if (/^[a-zA-Z\d]$/.test(key.toString())) {
-//       if (isWritingMsjSended) {
-//         //Enviar msj de que se terminó de escribir
-//         //sendWritingNotification();
-//         console.log("Se envia msj terminó de escribir");
-//         setIsWritingMsjSended(false);
-//       }
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (chatUserTyping === undefined) {
-//       setUserTypingTxt("");
-//       return;
-//     }
-//     let userTyping = Array.from(chatUserTyping.keys())[0];
-//     if (chatUserTyping.get(userTyping) && tab.username === "CHATROOM") {
-//       setUserTypingTxt(userTyping.username + " is typing...");
-//       return;
-//     }
-//     if (!chatUserTyping.get(userTyping) && tab.username !== "CHATROOM") {
-//       setUserTypingTxt("Typing...");
-//       return;
-//     }
-//   }, [chatUserTyping]);
 
   const [writingMessage, setWritingMessage] = useState<string>();
   useEffect(() => {
     if(tab === undefined) return;
     let userChatWriting = Array.from(chats.keys()).find(u => u.id === tab.id);
-    console.log("se ejecuta useEffect de chats en chatroom");
-    
     if(userChatWriting===undefined) return;
     if (userChatWriting.isWriting) {
         if(userChatWriting.username === 'CHATROOM'){
             setWritingMessage(userChatWriting.writingName+" is writing...")
         }else{
-            setWritingMessage("Typing")
+            setWritingMessage("Typing...")
         }
     }else{
         setWritingMessage("")
     }
-  }, [chats]);
+  }, [chats,tab]);
 
 
   useEffect(() => {
@@ -239,11 +191,9 @@ const ChatRoom: React.FC = () => {
     }
     if (userData.connected) {
       window.addEventListener("keyup", handleKeyPressedMsg);
-    //   window.addEventListener("keydown", handleKeyDown);
     }
     return () => {
       window.removeEventListener("keyup", handleKeyPressedMsg);
-    //   window.removeEventListener("keydown", handleKeyDown);
     };
   });
   return (

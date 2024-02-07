@@ -29,7 +29,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     const userDataContext: UserDataContextType = useUserDataContext();
 
     const { setChannelExists, userData, setUserData, stompClient, loadUserDataValues,
-        chats, setChats, tab,
+        chats, setChats, tab, setTab,
         bannedUsers, setBannedUsers } = useContext(userContext) as UserDataContextType;
 
     const [chatUserTyping,setChatUserTyping] = useState<Map<UserChat,boolean>>(undefined);
@@ -201,14 +201,19 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             if(isPublicMessage){
                 senderUser = getUserSavedFromChats('0');
                 senderUser.writingName = message.senderName;
-                if(senderUser.isWriting){
+                if(senderUser.isWriting && message.status === MessagesStatus.WRITING
+                    && message.senderId !== senderUser.id){
                     senderUser.writingName = 'A lot of people';
                 }
             }else{
                 senderUser = getUserSavedFromChats(message.senderId);
             }
-            //si me vuelve a llegar un msj del mismo entonces se cambia
-            senderUser.isWriting = message.status===MessagesStatus.WRITING;
+            senderUser.isWriting = message.status===MessagesStatus.WRITING ? true : false;
+            console.log("me llega una notf de que "+message.senderName+" isWritng: "+message.status===MessagesStatus.WRITING);
+            if(tab.id === message.senderId){
+                tab.isWriting = message.status===MessagesStatus.WRITING;
+                setTab(tab)
+            }
             chats.set(senderUser,chats.get(senderUser));
             setChats(new Map(chats));
         }
@@ -235,10 +240,14 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 handleUserLeave(message);
                 // scrollToBottom();
                 break;
-            case MessagesStatus.WRITING:
+            case MessagesStatus.STOP_WRITING:
+            case MessagesStatus.WRITING :
                 handleUserWriting(message,true);
                 break;
-            case MessagesStatus.BAN || MessagesStatus.UNBAN:
+            case MessagesStatus.BAN:
+                handleUserBanned(message);
+                break;
+            case MessagesStatus.UNBAN:
                 handleUserBanned(message);
                 break;
             case MessagesStatus.MAKE_ADMIN:
@@ -266,9 +275,10 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 handlePrivateMessageReceived(message);
                 // scrollToBottom();
                 break;
-            case MessagesStatus.WRITING:
-                handleUserWriting(message,false);
-                break;
+                case MessagesStatus.STOP_WRITING:
+                case MessagesStatus.WRITING :
+                    handleUserWriting(message,false);
+                    break;
             default:
                 break;
         }
