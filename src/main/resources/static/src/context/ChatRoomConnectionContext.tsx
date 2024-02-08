@@ -178,7 +178,10 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         //Un admin me convierte a mi en admin 😎        
         if(message.receiverId === userData.id){
             let userToHandle:UserChat = getUserSavedFromChats(message.senderId);
-            userToHandle.chatRole = ChatUserRole.CLIENT
+            //Si es undefined significa que es el caso en el que el admin abandona la room
+            if(userToHandle!==undefined){
+                userToHandle.chatRole = ChatUserRole.CLIENT
+            }
             userData.chatRole = ChatUserRole.ADMIN;
             alert(message.senderName+' has made you the new admin!');
         }
@@ -186,8 +189,13 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         if(message.senderId!==userData.id && message.receiverId!==userData.id){
             let userToMakeAdmin = getUserSavedFromChats(message.receiverId);
             let userToMakeClient = getUserSavedFromChats(message.senderId);
+            if(userToMakeClient!==undefined){
+                userToMakeClient.chatRole = ChatUserRole.CLIENT;
+            }
+            if(userToMakeAdmin===undefined){
+                alert('Se intenta convertir en admin a alguien que no esta en la sala')
+            }
             userToMakeAdmin.chatRole = ChatUserRole.ADMIN;
-            userToMakeClient.chatRole = ChatUserRole.CLIENT;
             alert(message.receiverName+' is the new admin!');
         }
         setUserData(userData);

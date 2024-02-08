@@ -11,12 +11,17 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+
 @Service
 @Slf4j
 public class RoomChatService {
 
     @Autowired
     private SimpMessageSendingOperations messageTemplate;
+
+    @Autowired
+    private AdminChatService adminChatService;
 
     public User handleUserJoin(Message message, SimpMessageHeaderAccessor headerAccessor){
         String id = headerAccessor.getSessionId();
@@ -78,6 +83,7 @@ public class RoomChatService {
     }
 
     public Message handleDisconnectUserFromRoom(User user){
+        System.out.println("rol del usuario que se va: "+user.getChatRole());
         //Tener en cuenta que existe una referencia en el obj headerAccesor manejado por Spring que no se borra
         //sino que se borrará cuando el usuario cierre la ventana del navegador
         Message chatMessage = EntityCreator.createMessage(user);
@@ -112,6 +118,11 @@ public class RoomChatService {
             WebSocketRoomHandler.removeRoom(userRoom);
             log.info("Room with id:{} deleted, number of rooms actives: {}",
                     userRoom.getId(), WebSocketRoomHandler.getActiveRoomsCount());
+        }else{
+            if(user.getChatRole().equals(ChatUserRole.ADMIN)){
+                //If the admin is about to exit, then it must be decided another admin in the room
+                this.adminChatService.decideANewAdminInRoom(user,userRoom);
+            }
         }
         return chatMessage;
     }
