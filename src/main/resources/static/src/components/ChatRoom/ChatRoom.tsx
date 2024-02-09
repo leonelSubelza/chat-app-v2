@@ -28,7 +28,7 @@ const ChatRoom: React.FC = () => {
 
   const { startedConnection } = useContext(chatRoomConnectionContext);
 
-  const { disconnectChat, checkIfChannelExists, chatUserTyping } = useContext(
+  const { disconnectChat, checkIfChannelExists } = useContext(
     chatRoomConnectionContext
   );
 
@@ -78,7 +78,7 @@ const ChatRoom: React.FC = () => {
 
     //Send a public message  
   const sendValue = (status: MessagesStatus = MessagesStatus.MESSAGE): void => {
-    if (userData.message.trim() === "") {
+    if (userData.message.trim() === "" && status===MessagesStatus.MESSAGE) {
       return;
     }
     if (stompClient.current) {
@@ -97,7 +97,7 @@ const ChatRoom: React.FC = () => {
   const sendPrivateValue = (
     status: MessagesStatus = MessagesStatus.MESSAGE
   ) => {
-    if (userData.message.trim() === "") {
+    if (userData.message.trim() === "" && status===MessagesStatus.MESSAGE) {
       return;
     }
     if (stompClient.current) {

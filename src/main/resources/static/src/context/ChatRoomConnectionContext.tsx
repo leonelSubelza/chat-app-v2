@@ -32,8 +32,6 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         chats, setChats, tab, setTab,
         bannedUsers, setBannedUsers } = useContext(userContext) as UserDataContextType;
 
-    const [chatUserTyping,setChatUserTyping] = useState<Map<UserChat,boolean>>(undefined);
-
     const disconnectChat = (notifyOthers: boolean):void => {
         if(notifyOthers){
             let leaveMessage: Message = createPublicMessage(MessagesStatus.LEAVE,userData);
@@ -219,7 +217,6 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 senderUser = getUserSavedFromChats(message.senderId);
             }
             senderUser.isWriting = message.status===MessagesStatus.WRITING ? true : false;
-            console.log("me llega una notf de que "+message.senderName+" isWritng: "+message.status===MessagesStatus.WRITING);
             if(tab.id === message.senderId){
                 tab.isWriting = message.status===MessagesStatus.WRITING;
                 setTab(tab)
@@ -386,7 +383,6 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 checkIfChannelExists,
                 startServerConnection,
                 startedConnection,
-                chatUserTyping
             }}
         >
             {children}

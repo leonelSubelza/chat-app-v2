@@ -135,7 +135,7 @@ const MembersList = () => {
                     }`}
                     drop={"end"}
                     variant="secondary"
-                    title=<i className="bi bi-three-dots-vertical"></i>
+                    title={<i className="bi bi-three-dots-vertical"></i>}
                   >
                     <Dropdown.Item
                       className="dropdown-ban-btn"

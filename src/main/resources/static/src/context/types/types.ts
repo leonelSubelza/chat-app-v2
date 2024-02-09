@@ -31,5 +31,4 @@ export type ChatRoomConnectionContextType = {
     checkIfChannelExists: ()=>void,
     startServerConnection: ()=>void,
     startedConnection: React.MutableRefObject<boolean>,
-    chatUserTyping: Map<UserChat,boolean>
 }
