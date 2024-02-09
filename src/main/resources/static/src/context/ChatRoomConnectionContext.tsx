@@ -100,7 +100,9 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 return;
             }
 
-            //Me desuscribo a este canal para que no rompa las bolas
+            //Me desuscribo a este canal por el tema de evitar doble conexion
+            //Si ya estaba conectado a esta sala, el servidor me avisará por este canal y  el msj
+            //solo me llegará a la version duplicada y no al que ya esta conectado
             let channelsSusbribed = Object.keys(stompClient.current.subscriptions)
             let latestChannelSubscribed = channelsSusbribed[ channelsSusbribed.length-1 ];
             stompClient.current.unsubscribe(latestChannelSubscribed);

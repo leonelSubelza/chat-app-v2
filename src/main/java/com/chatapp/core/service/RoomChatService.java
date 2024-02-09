@@ -83,13 +83,12 @@ public class RoomChatService {
     }
 
     public Message handleDisconnectUserFromRoom(User user){
-        System.out.println("rol del usuario que se va: "+user.getChatRole());
         //Tener en cuenta que existe una referencia en el obj headerAccesor manejado por Spring que no se borra
         //sino que se borrará cuando el usuario cierre la ventana del navegador
         Message chatMessage = EntityCreator.createMessage(user);
 
         //Deleting the user from the list of all users connected
-        WebSocketSessionHandler.removeSession(user);
+        WebSocketSessionHandler.removeSessionById(user.getId());
         log.info("User {} disconnected! at {}",user.getUsername(), DateGenerator.getActualDate());
         log.info("Count of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
 
@@ -104,7 +103,8 @@ public class RoomChatService {
 
         if(!userRoom.getUsers().isEmpty()) {
             //Deleting the user from room
-            boolean remove = WebSocketRoomHandler.getRoom(user.getRoomId()).getUsers().remove(user);
+            boolean remove = WebSocketRoomHandler.getRoom(user.getRoomId()).removeUserFromRoom(user.getId());
+            WebSocketRoomHandler.showRoomAndUserInfo();
             if(!remove){
                 String errorMsj = "Trying to delete a user who doesn't exists in the room";
                 log.warn(errorMsj);

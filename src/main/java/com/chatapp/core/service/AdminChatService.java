@@ -64,7 +64,12 @@ public class AdminChatService {
         usersBannedInRoom.add(userToBan);
         userRoom.getUsers().remove(userToBan);
         //We don't check if the room is empty because we assume it must be at least two user in one room for ban
-        WebSocketSessionHandler.removeSessionById(userToBan.getId());
+        boolean removeSession = WebSocketSessionHandler.removeSessionById(userToBan.getId());
+        if(!removeSession){
+            System.out.println();
+            log.error("The user {} couldn't be banned from the room with id {}",userToBan.getUsername(),userRoom.getId());
+            System.out.println();
+        }
         log.info("User {} has been banned from the room {}!",userToBan.getUsername(),userToBan.getRoomId());
         WebSocketRoomHandler.showRoomAndUserInfo();
     }
@@ -100,7 +105,6 @@ public class AdminChatService {
         message.setReceiverName(newAdmin.getUsername());
         message.setStatus(Status.MAKE_ADMIN);
         message.setMessage("The user "+userToMakeClient.getUsername()+" leaved the Room, so the new Admin it'll be "+newAdmin.getUsername());
-        log.warn("The user {} leaved the Room, so the new Admin it'll be {}",userToMakeClient.getUsername(),newAdmin.getUsername());
         simpMessagingTemplate.convertAndSend("/chatroom/"+message.getUrlSessionId(),message);
     }
 

@@ -5,8 +5,8 @@ export interface UserChat {
     avatarImg: string,
     hasUnreadedMessages:boolean,
     chatRole: ChatUserRole,
-    isWriting: boolean,
-    writingName: string
+    isWriting?: boolean,
+    writingName?: string
 }
 
 export enum ChatUserRole {
