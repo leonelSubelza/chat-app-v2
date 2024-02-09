@@ -9,9 +9,9 @@
   transition: all 0.5s ease;
 }
 
-.chat-box.close {
+/* .chat-box.close {
   width: 75%;
-}
+} */
 
 .chat-text-button {
   display: flex;
@@ -34,6 +34,7 @@
   flex-direction: column;
   align-items: start;
   padding-left: 20px;
+  position: relative;
 }
 
 .home-content .bx-menu,
@@ -50,7 +51,7 @@
   /*font-weight: 600;*/
   font-family: "Righteous", sans-serif;
   width: 100%;
-  margin:0;
+  margin:auto 0;
   user-select: none;
   overflow-x: auto;
   overflow-y: hidden;
@@ -70,20 +71,19 @@
 
 .user_writing {
   margin: auto auto 0 0;
-  padding:0;
+  padding-left: 20px;
   display: none;
+  position:absolute;
+  bottom: 0;
+  left: 0;
+  display: block;
 }
 
 .user_writing.active{
     display: block;
 }
 
-@media screen and (max-width: 768px) and (min-width: 376px) {
-  .chat-box {
-    width: 85%;
-  }
-}
-@media (max-width: 376px) {
+@media screen and (max-width: 768px){
   .chat-box {
     width: 85%;
   }

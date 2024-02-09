@@ -10,6 +10,9 @@ public enum Status {
     NOT_EXISTS,
     ERROR,
     WRITING,
-    BANNED,
-    MAKE_ADMIN
+    STOP_WRITING,
+    BAN,
+    UNBAN,
+    MAKE_ADMIN,
+    ALREADY_CONNECTED
 }

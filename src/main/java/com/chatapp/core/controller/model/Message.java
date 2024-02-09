@@ -19,4 +19,5 @@ public class Message {
     private Status status;
     private String urlSessionId;
     private String avatarImg;
+    private ChatUserRole chatRole;
 }

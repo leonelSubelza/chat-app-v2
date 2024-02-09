@@ -1,0 +1,16 @@
+export enum MessagesStatus {
+    JOIN = "JOIN",
+    MESSAGE = "MESSAGE",
+    UPDATE = "UPDATE",
+    LEAVE = "LEAVE",
+    CREATE = "CREATE",
+    EXISTS = "EXISTS",
+    NOT_EXISTS = "NOT_EXISTS",
+    ERROR = "ERROR",
+    WRITING = "WRITING",
+    STOP_WRITING = "STOP_WRITING",
+    BAN = "BAN",
+    UNBAN = "UNBAN",
+    MAKE_ADMIN = "MAKE_ADMIN",
+    ALREADY_CONNECTED = "ALREADY_CONNECTED"
+}
