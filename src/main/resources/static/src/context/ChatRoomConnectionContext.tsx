@@ -158,11 +158,8 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             let userToUnBan:UserChat = bannedUsers.find( (u:UserChat) => u.id === message.receiverId);
             if (userToUnBan!==null) {
                 let bannedUsersAux = bannedUsers.filter( (u:UserChat) => u.id !== userToUnBan.id);
-                chats.set(userToUnBan,new Array<Message>);
-                setChats(new Map(chats))
                 setBannedUsers(bannedUsersAux);
                 console.log("se desbanea a "+userToUnBan.username);
-                alert(message.senderName+" has unbanned you from the room!");
             }
         }
     }

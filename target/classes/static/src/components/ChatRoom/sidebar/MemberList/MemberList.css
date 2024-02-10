@@ -89,6 +89,10 @@
     margin:auto;
     background-size: cover;
     width: 20%;
+    
+    font-size: 35px;
+    text-align: center;
+
 }
 
 .link_name{

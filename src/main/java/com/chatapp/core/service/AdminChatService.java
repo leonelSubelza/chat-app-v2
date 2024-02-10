@@ -27,7 +27,6 @@ public class AdminChatService {
             return false;
         }
         if(message.getStatus().equals(Status.BAN) || message.getStatus().equals(Status.UNBAN)){
-            User userToBan = WebSocketSessionHandler.getUser(message.getReceiverId());
             Room userRoom = WebSocketRoomHandler.getRoom(message.getUrlSessionId());
             Set<User> usersBannedInRoom = WebSocketRoomHandler.getRoom(message.getUrlSessionId()).getBannedUsers();
             //If the user is banned, then it must be removed from the usersConnected list
@@ -40,6 +39,7 @@ public class AdminChatService {
                 log.info("User {} has been banned from the room {}!",message.getReceiverName(),message.getUrlSessionId());
                 WebSocketRoomHandler.showRoomAndUserInfo();
                 */
+                User userToBan = WebSocketSessionHandler.getUser(message.getReceiverId());
                 banUser(userToBan,userRoom,usersBannedInRoom);
             }
             if(message.getStatus().equals(Status.UNBAN)){
@@ -48,7 +48,7 @@ public class AdminChatService {
                 log.info("User {} has been unbanned from the room {}!",message.getReceiverName(),message.getUrlSessionId());
                 WebSocketRoomHandler.showRoomAndUserInfo();
                 */
-                unbanUser(userToBan, usersBannedInRoom);
+                unbanUser(message.getReceiverId(), userRoom,message);
             }
         }
         if (message.getStatus().equals(Status.MAKE_ADMIN)){
@@ -74,8 +74,17 @@ public class AdminChatService {
         WebSocketRoomHandler.showRoomAndUserInfo();
     }
 
-    public void unbanUser(User userToUnban, Set<User> usersBannedInRoom){
-        usersBannedInRoom.remove(userToUnban);
+    public void unbanUser(String userToUnBanId, Room userRoom, Message message){
+        User userToUnban = userRoom.getBannedUsers().stream()
+                .filter(u -> u.getId().equals(userToUnBanId))
+                .findFirst()
+                .orElse(null);
+        if(userToUnban==null){
+            log.error("The user {} who was about to be unbanned doesn't exists in the list of banned users in " +
+                    "the room {}",message.getReceiverName(),message.getUrlSessionId());
+            return;
+        }
+        userRoom.getBannedUsers().remove(userToUnban);
         //userRoom.getUsers().add(userToBan);
         log.info("User {} has been unbanned from the room {}!",userToUnban.getUsername(),userToUnban.getRoomId());
         WebSocketRoomHandler.showRoomAndUserInfo();
