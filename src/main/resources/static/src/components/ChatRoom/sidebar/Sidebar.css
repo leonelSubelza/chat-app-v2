@@ -25,34 +25,58 @@ p{
     height: 10%;
     width: 100%;
     background-color: #6A6B7A;
+    z-index: 1000;
 }
 
+
+.menu-details-item{
+    margin:auto;
+    cursor: pointer;
+    font-size: 22px;
+    padding: 5px 10px;
+    border-radius: 50px;
+    border:1px solid transparent;
+    position:relative;
+}
+.menu-details-item:hover{
+    color:#ffffff48
+}
+
+.menu-details-item-info{
+    position:absolute;
+    left: 50%;
+    top: -100%;
+    transform: translateX(-50%);
+    background-color: #000;
+    color:#fff;
+    white-space: nowrap;
+    padding: 5px 10px;
+    border-radius: 7px;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .5s ease;
+    font-size: 14px;
+}
+
+/* TRIANGULITO DE INFO */
+.menu-details-item-info::before{
+    content: "";
+    position: absolute;
+    left: 40%;
+    bottom: 50%;
+    transform: translateY(-50%);
+    border:15px solid;
+    border-color: #0000 #0000 #000 #0000;
+}
+
+.menu-details-item:hover .menu-details-item-info{
+    top:130%;
+    visibility: visible;
+    opacity: 1;
+}
 
 .menu-hamburger{
-    margin:auto;
-    cursor: pointer;
     font-size: 30px;
-}
-.menu-hamburger:hover{
-    filter: brightness(70%);
-}
-
-.logo_name{
-    margin:auto
-}
-
-.btn-leave{
-    margin:auto;
-    font-size: 15px;
-    color: #fff;
-    background-color: #c03939;
-    border-radius:10px;
-    border: 0;
-    cursor: pointer;
-    padding: 8px;
-}
-.sidebar .menu-details .btn-leave:hover{
-    filter: brightness(70%);
 }
 
 .sidebar .menu-details .logo_name {
@@ -63,6 +87,17 @@ p{
     transition-delay: 0.1s;
 }
 
+.url-input-icon{
+    cursor: copy !important;
+}
+
+.menu-details-item .btn-exit{
+    color:red;
+}
+
+.menu-details-item .btn-exit:hover{
+    color:red;
+}
 
 /*
   DETALLE DEL PERFIL PARTE DE ABAJO DEL SIDEBAR
@@ -162,9 +197,7 @@ p{
     width: 100%;
 }
 
-.sidebar.close .menu-details .logo_name,
-.sidebar.close .menu-details .btn-leave,
-.sidebar.close .menu-details .url-input-icon{
+.sidebar.close .menu-details-item:not(:first-child) {
     pointer-events: none;
     display: none;
     transition: all 0.5s ease;
@@ -174,9 +207,6 @@ p{
     width: 50px;
 }
 
-.url-input-icon{
-    cursor: copy !important;
-}
 
 .sidebar.close .menu-details img{
     margin: auto;

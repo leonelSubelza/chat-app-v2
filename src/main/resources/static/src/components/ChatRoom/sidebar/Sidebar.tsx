@@ -79,17 +79,25 @@ const Sidebar = ({ sidebarOpen, disconnectChat, handleSideBarOpen }: Props) => {
     <>
       <div className={`sidebar ${sidebarOpen ? "" : "close"}`}>
         <div className="menu-details">
-          <i className="bi bi-list menu-hamburger" onClick={toggleSidebar}></i>
-          <span className="logo_name">Chat-App</span>
-          <i
-            className="bi bi-clipboard url-input-icon"
-            style={{ color: "white" }}
-            onClick={copyInput}
-          ></i>
-
-          <button className="btn-leave" onClick={handleDisconnectChat}>
-            <i className="bi bi-box-arrow-left"></i>
-          </button>
+          <div className="menu-details-item">
+            <i className="bi bi-list menu-hamburger" onClick={toggleSidebar}></i>
+          </div>
+          <div className="menu-details-item">
+            <i className="bi bi-ban ban-btn"></i>
+            <div className="menu-details-item-info">Banned users</div>
+          </div>
+          <div className="menu-details-item">
+            <i
+              className="bi bi-clipboard url-input-icon"
+              style={{ color: "white" }}
+              onClick={copyInput}
+            ></i>
+            <div className="menu-details-item-info">Copy URL</div>
+          </div>
+          <div className="menu-details-item">
+            <i className="bi bi-box-arrow-left" onClick={handleDisconnectChat}></i>
+            <div className="menu-details-item-info">Disconnect the chat</div>
+          </div>      
         </div>
 
         <MembersList />
