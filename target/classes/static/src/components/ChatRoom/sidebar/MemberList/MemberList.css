@@ -4,6 +4,11 @@
     width: 100%;
     flex-direction: column;
     padding-top: 10px;
+    display: none;
+}
+
+.sidebar-nav-links-container.active{
+    display: block;
 }
 
 .sidebar-nav-links {

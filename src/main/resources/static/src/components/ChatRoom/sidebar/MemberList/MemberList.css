@@ -4,6 +4,11 @@
     width: 100%;
     flex-direction: column;
     padding-top: 10px;
+    display: none;
+}
+
+.sidebar-nav-links-container.active{
+    display: block;
 }
 
 .sidebar-nav-links {
@@ -84,6 +89,10 @@
     margin:auto;
     background-size: cover;
     width: 20%;
+    
+    font-size: 35px;
+    text-align: center;
+
 }
 
 .link_name{

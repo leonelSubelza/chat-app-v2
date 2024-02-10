@@ -13,7 +13,11 @@ import { createPrivateMessage } from "../../ChatRoomFunctions";
 import { Message } from "../../../interfaces/messages";
 import { MessagesStatus } from "../../../interfaces/messages.status";
 
-const MembersList = () => {
+interface Props {
+  showMembers: boolean;
+}
+
+const MembersList = ({showMembers}: Props) => {
   const { tab, setTab, chats, userData,stompClient } = useContext(userContext);
 
   const [showModalBanUser, setShowModalBanUser] = useState<boolean>(false);
@@ -40,6 +44,8 @@ const MembersList = () => {
     if (stompClient.current) {
       let message: Message = createPrivateMessage(MessagesStatus.BAN,userData,userToHandle.username,userToHandle.id);
       stompClient.current.send("/app/group-message", {}, JSON.stringify(message));
+
+      
     }
   };
 
@@ -77,7 +83,7 @@ const MembersList = () => {
   },[tab])
 
   return (
-    <div className="sidebar-nav-links-container">
+    <div className={`sidebar-nav-links-container ${showMembers && 'active'}`}>
       <ul className="sidebar-nav-links">
         <li
           onClick={(e) => onUserChatClick(e, Array.from(chats.keys())[0])}

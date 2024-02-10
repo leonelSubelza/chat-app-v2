@@ -11,6 +11,7 @@ import { MessagesStatus } from "../../interfaces/messages.status.js";
 import { Message } from "../../interfaces/messages.js";
 import adminImg from "../../../assets/crown-icon.svg";
 import { ChatUserRole } from "../../interfaces/chatRoom.types.js";
+import BannedUsersList from "./bannedUsers/BannedUsersList.js";
 
 interface Props {
   sidebarOpen: boolean;
@@ -21,6 +22,7 @@ interface Props {
 const Sidebar = ({ sidebarOpen, disconnectChat, handleSideBarOpen }: Props) => {
   const { userData, setUserData, stompClient } = useContext(userContext);
   const { startedConnection } = useContext(chatRoomConnectionContext);
+  const [isShowMemberActive, setIsShowMemberActive] = useState<boolean>(true);
 
   //MOdal icon chooser
   const [showModalIconChooser, setShowModalIconChooser] =
@@ -80,33 +82,33 @@ const Sidebar = ({ sidebarOpen, disconnectChat, handleSideBarOpen }: Props) => {
       <div className={`sidebar ${sidebarOpen ? "" : "close"}`}>
         <div className="menu-details">
 
-          <div className="menu-details-item">
+          <div className="menu-details-item" onClick={()=> setIsShowMemberActive(true)}>
             <i className="bi bi-list menu-hamburger" onClick={toggleSidebar}></i>
           </div>
-          <div className="menu-details-item active">
+          <div className={`menu-details-item ${isShowMemberActive && 'active'}`} onClick={()=> setIsShowMemberActive(true)}>
             <i className="bi bi-chat-left"></i>
             <div className="menu-details-item-info">Chats</div>
           </div>
           
-          <div className="menu-details-item">
-            <i className="bi bi-ban ban-btn btn-banned-users"></i>
+          <div className={`menu-details-item ${!isShowMemberActive && 'active'}`}  onClick={()=> setIsShowMemberActive(false)}>
+            <i className="bi bi-person-fill-slash"></i>
             <div className="menu-details-item-info">Banned users</div>
           </div>
-          <div className="menu-details-item">
+          <div className="menu-details-item" onClick={copyInput}>
             <i
               className="bi bi-clipboard url-input-icon"
               style={{ color: "white" }}
-              onClick={copyInput}
             ></i>
             <div className="menu-details-item-info">Copy URL</div>
           </div>
-          <div className="menu-details-item">
-            <i className="bi bi-box-arrow-left btn-exit" onClick={handleDisconnectChat}></i>
+          <div className="menu-details-item" onClick={handleDisconnectChat}>
+            <i className="bi bi-box-arrow-left btn-exit"></i>
             <div className="menu-details-item-info">Disconnect the chat</div>
           </div>      
         </div>
 
-        <MembersList />
+        <MembersList showMembers={isShowMemberActive}/>
+        <BannedUsersList showBannedUserList={!isShowMemberActive} />
         <div className="sidebar-user-info-container">
           <div className="profile-details">
             <img

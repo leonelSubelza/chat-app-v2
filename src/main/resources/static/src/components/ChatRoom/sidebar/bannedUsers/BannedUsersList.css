@@ -1,0 +1,25 @@
+.banned-users-title-container{
+    margin:0 0 10px 0 !important;
+    cursor: default;
+}
+
+.banned-users-title{
+    display: flex;
+    width: 100%;
+    align-items: start;
+}
+
+.banned-users-title i{
+    width: 10%;
+    font-size: 16px;
+    text-align: center;
+    color: #ffffffc5;
+}
+
+.banned-users-title span {
+    color: #ffffffc5;
+    font-size: 16px;
+    font-family: "Righteous", sans-serif;
+    width: 90%;
+    margin:auto 0;
+}

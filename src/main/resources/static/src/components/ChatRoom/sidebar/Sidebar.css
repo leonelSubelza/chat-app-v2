@@ -103,7 +103,11 @@ p{
     cursor: copy !important;
 }
 
-.menu-details-item:hover .btn-exit, .menu-details-item:hover .btn-banned-users{
+.menu-details-item .btn-exit{
+    color:red;
+}
+
+.menu-details-item:hover .btn-banned-users{
     color:red;
 }
 
