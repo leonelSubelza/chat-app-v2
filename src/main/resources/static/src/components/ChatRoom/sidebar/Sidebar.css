@@ -39,7 +39,16 @@ p{
     position:relative;
 }
 .menu-details-item:hover{
-    color:#ffffff48
+    color:#ffffff48;
+}
+
+.menu-details-item.active{
+    background-color: #383258;
+    color:#fff;
+}
+
+.menu-details-item.active:hover{
+    box-shadow: rgba(255, 255, 255, 0.619) 0px 0px 15px;
 }
 
 .menu-details-item-info{
@@ -54,6 +63,7 @@ p{
     border-radius: 7px;
     visibility: hidden;
     opacity: 0;
+    display: none;
     transition: opacity .5s ease;
     font-size: 14px;
 }
@@ -62,7 +72,7 @@ p{
 .menu-details-item-info::before{
     content: "";
     position: absolute;
-    left: 40%;
+    left: 35%;
     bottom: 50%;
     transform: translateY(-50%);
     border:15px solid;
@@ -73,6 +83,8 @@ p{
     top:130%;
     visibility: visible;
     opacity: 1;
+    display: block;
+    user-select: none;
 }
 
 .menu-hamburger{
@@ -91,11 +103,7 @@ p{
     cursor: copy !important;
 }
 
-.menu-details-item .btn-exit{
-    color:red;
-}
-
-.menu-details-item .btn-exit:hover{
+.menu-details-item:hover .btn-exit, .menu-details-item:hover .btn-banned-users{
     color:red;
 }
 

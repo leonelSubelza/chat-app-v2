@@ -79,11 +79,17 @@ const Sidebar = ({ sidebarOpen, disconnectChat, handleSideBarOpen }: Props) => {
     <>
       <div className={`sidebar ${sidebarOpen ? "" : "close"}`}>
         <div className="menu-details">
+
           <div className="menu-details-item">
             <i className="bi bi-list menu-hamburger" onClick={toggleSidebar}></i>
           </div>
+          <div className="menu-details-item active">
+            <i className="bi bi-chat-left"></i>
+            <div className="menu-details-item-info">Chats</div>
+          </div>
+          
           <div className="menu-details-item">
-            <i className="bi bi-ban ban-btn"></i>
+            <i className="bi bi-ban ban-btn btn-banned-users"></i>
             <div className="menu-details-item-info">Banned users</div>
           </div>
           <div className="menu-details-item">
@@ -95,7 +101,7 @@ const Sidebar = ({ sidebarOpen, disconnectChat, handleSideBarOpen }: Props) => {
             <div className="menu-details-item-info">Copy URL</div>
           </div>
           <div className="menu-details-item">
-            <i className="bi bi-box-arrow-left" onClick={handleDisconnectChat}></i>
+            <i className="bi bi-box-arrow-left btn-exit" onClick={handleDisconnectChat}></i>
             <div className="menu-details-item-info">Disconnect the chat</div>
           </div>      
         </div>
