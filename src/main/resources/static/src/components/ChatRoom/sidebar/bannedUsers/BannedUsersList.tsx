@@ -57,7 +57,7 @@ const BannedUsersList = ({ showBannedUserList }: Props) => {
       <ul className="sidebar-nav-links banned-users-list">
         <li className={`member banned-users-title-container`}>
           <div className="banned-users-title">
-            <i className="bi bi-caret-down-fill"></i>
+            {/* <i className="bi bi-caret-down-fill"></i> */}
             <span className="link_name">Banned Users</span>
           </div>
         </li>

@@ -44,8 +44,6 @@ const MembersList = ({showMembers}: Props) => {
     if (stompClient.current) {
       let message: Message = createPrivateMessage(MessagesStatus.BAN,userData,userToHandle.username,userToHandle.id);
       stompClient.current.send("/app/group-message", {}, JSON.stringify(message));
-
-      
     }
   };
 

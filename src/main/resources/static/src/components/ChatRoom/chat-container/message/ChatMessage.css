@@ -24,6 +24,7 @@
     width: auto;
     max-width: 90%;
     position: relative;
+    margin-left: 10px;
   }
   
   .message-data-username{
@@ -60,7 +61,26 @@
     flex-direction: column;
   }
   
+/* TRiangulito del msj */
+/*
+.message-data__message-info::before{
+  content: "";
+  position: absolute;
+  left: -16%;
+  bottom: 30%;
+  transform: translateY(0%);
+  border:15px solid;
+  border-color: #0000 #EEEDF2 #0000 #0000;
   
+}
+
+.message.self .message-data__message-info::before{
+  left: auto;
+  right: -36%;
+  border-color: #0000 #0000 #0000 #424698;
+}
+*/
+
   .message-data__message-info-text{
     width: auto;
     max-width: 100%;

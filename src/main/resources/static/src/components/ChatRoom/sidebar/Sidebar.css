@@ -26,7 +26,22 @@ p{
     width: 100%;
     background-color: #6A6B7A;
     z-index: 1000;
+    overflow-y: hidden;
+    overflow-x: auto;
 }
+
+.menu-details::-webkit-scrollbar {
+    height: 5px;
+    margin:auto;
+    border-radius: 20px;
+    background-color: transparent
+  }
+  
+.menu-details::-webkit-scrollbar-thumb {
+    background: #212529;
+    border-radius: 20px;
+}
+
 
 
 .menu-details-item{
@@ -270,6 +285,12 @@ p{
     z-index: 90;
 }
 
+@media screen and (max-width: 927px) {
+    .menu-details-item i{
+        font-size: 18px;  
+      }
+}
+
 @media screen and (max-width: 768px) {
     .sidebar-mobile-background{
         display: block;
@@ -290,5 +311,7 @@ p{
     .sidebar{
         width: 80%;
     }
+    .menu-details-item i{
+      }
 
 }

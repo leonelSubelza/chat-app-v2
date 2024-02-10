@@ -205,7 +205,7 @@ const ChatRoom: React.FC = () => {
             disconnectChat={handleDisconnectChat}
             handleSideBarOpen={() => setSidebarOpen(!sidebarOpen)}
           />
-          <div className={`chat-box`}>
+          <div className={`chat-box ${sidebarOpen && 'active'}`}>
             <div className="home-content">
               <span className="text">{`${
                 tab.username === "CHATROOM" ? "CHAT GENERAL" : tab.username
