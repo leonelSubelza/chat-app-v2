@@ -31,30 +31,14 @@ public class AdminChatService {
             Set<User> usersBannedInRoom = WebSocketRoomHandler.getRoom(message.getUrlSessionId()).getBannedUsers();
             //If the user is banned, then it must be removed from the usersConnected list
             if(message.getStatus().equals(Status.BAN)){
-                /*
-                usersBannedInRoom.add(userToBan);
-                userRoom.getUsers().remove(userToBan);
-                //We don't check if the room is empty because we assume it must be at least two user in one room for ban
-                WebSocketSessionHandler.removeSessionById(message.getReceiverId());
-                log.info("User {} has been banned from the room {}!",message.getReceiverName(),message.getUrlSessionId());
-                WebSocketRoomHandler.showRoomAndUserInfo();
-                */
                 User userToBan = WebSocketSessionHandler.getUser(message.getReceiverId());
                 banUser(userToBan,userRoom,usersBannedInRoom);
             }
             if(message.getStatus().equals(Status.UNBAN)){
-                /*
-                usersBannedInRoom.remove(userToBan);
-                log.info("User {} has been unbanned from the room {}!",message.getReceiverName(),message.getUrlSessionId());
-                WebSocketRoomHandler.showRoomAndUserInfo();
-                */
                 unbanUser(message.getReceiverId(), userRoom,message);
             }
         }
         if (message.getStatus().equals(Status.MAKE_ADMIN)){
-            //User userToMakeAdmin = WebSocketSessionHandler.getUser(message.getReceiverId());
-            //user.setChatRole(ChatUserRole.CLIENT);
-            //userToMakeAdmin.setChatRole(ChatUserRole.ADMIN);
             makeAdmin(user,WebSocketSessionHandler.getUser(message.getReceiverId()));
         }
         return true;

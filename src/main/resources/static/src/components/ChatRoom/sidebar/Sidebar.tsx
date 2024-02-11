@@ -103,7 +103,7 @@ const Sidebar = ({ sidebarOpen, disconnectChat, handleSideBarOpen }: Props) => {
           </div>
           <div className="menu-details-item" onClick={handleDisconnectChat}>
             <i className="bi bi-box-arrow-left btn-exit"></i>
-            <div className="menu-details-item-info">Disconnect the chat</div>
+            <div className="menu-details-item-info">Leave the room</div>
           </div>      
         </div>
 

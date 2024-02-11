@@ -101,7 +101,7 @@ const MembersList = ({showMembers}: Props) => {
         </li>
 
         <div className="info-sidebar">
-          <p>CHAT PRIVATE</p>
+          <p>PRIVATE CHATS</p>
           <div className="separator-sidebar"></div>
         </div>
 

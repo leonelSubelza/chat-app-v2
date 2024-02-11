@@ -11,7 +11,6 @@ p{
     height: 100%;
     width: 25%;
     background: #38394D;
-    z-index: 100;
     transition: all 0.5s ease;
     align-items: center;
     font-size: 15px;
@@ -19,6 +18,9 @@ p{
     z-index: 91;
 }
 
+.sidebar.close .menu-hamburger{
+    font-size: 35px;  
+}
 
 .menu-details{
     display: flex;
@@ -26,22 +28,7 @@ p{
     width: 100%;
     background-color: #6A6B7A;
     z-index: 1000;
-    overflow-y: hidden;
-    overflow-x: auto;
 }
-
-.menu-details::-webkit-scrollbar {
-    height: 5px;
-    margin:auto;
-    border-radius: 20px;
-    background-color: transparent
-  }
-  
-.menu-details::-webkit-scrollbar-thumb {
-    background: #212529;
-    border-radius: 20px;
-}
-
 
 
 .menu-details-item{
@@ -52,6 +39,7 @@ p{
     border-radius: 50px;
     border:1px solid transparent;
     position:relative;
+    z-index: 1500;
 }
 .menu-details-item:hover{
     color:#ffffff48;
@@ -66,6 +54,7 @@ p{
     box-shadow: rgba(255, 255, 255, 0.619) 0px 0px 15px;
 }
 
+/*TOOLTIP*/
 .menu-details-item-info{
     position:absolute;
     left: 50%;
@@ -81,6 +70,7 @@ p{
     display: none;
     transition: opacity .5s ease;
     font-size: 14px;
+    z-index: 2000; 
 }
 
 /* TRIANGULITO DE INFO */
@@ -90,12 +80,13 @@ p{
     left: 35%;
     bottom: 50%;
     transform: translateY(-50%);
-    border:15px solid;
+    border:12px solid;
     border-color: #0000 #0000 #000 #0000;
 }
 
+/* cuando se hace hover sobre el item se muestra el tooltip */
 .menu-details-item:hover .menu-details-item-info{
-    top:130%;
+    top:120%;
     visibility: visible;
     opacity: 1;
     display: block;
@@ -309,9 +300,22 @@ p{
 }
 @media (max-width: 376px){
     .sidebar{
-        width: 80%;
+        width: 100%;
     }
-    .menu-details-item i{
+    .menu-details{
+        flex-wrap: wrap;
+        overflow: auto;
+    }
+    .menu-details::-webkit-scrollbar {
+        height: 5px;
+        margin:auto;
+        border-radius: 20px;
+        background-color: transparent
       }
+      
+    .menu-details::-webkit-scrollbar-thumb {
+        background: #212529;
+        border-radius: 20px;
+    }
 
 }
