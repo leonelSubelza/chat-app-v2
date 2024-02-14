@@ -1,6 +1,6 @@
 import type { UserData, UserDataContextType } from './types/types.ts';
 import React, { useState,useRef,useContext, ReactNode } from 'react'
-import { imageLinks } from '../services/avatarsLinks.ts';
+import { imageLinks, loadAvatars } from '../services/avatarsLinks.ts';
 import { generateUserId } from '../utils/IdGenerator.ts';
 import { MessagesStatus } from '../components/interfaces/messages.status.ts';
 import { ChatUserRole, UserChat } from '../components/interfaces/chatRoom.types.ts';
@@ -70,6 +70,7 @@ export function UserDataContext({ children }: UserDataProviderProps){
   }
 
   const loadUserDataValues = (): void => {
+    loadAvatars();
     //setId
     let userId:string;
     if (localStorage.getItem('id') === null) {

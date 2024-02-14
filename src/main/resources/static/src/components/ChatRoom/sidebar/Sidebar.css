@@ -3,7 +3,6 @@ p{
     margin-bottom: 0 !important;
 }
 
-
 .sidebar{
     display: flex;
     /* position: fixed; */
@@ -29,7 +28,6 @@ p{
     background-color: #6A6B7A;
     z-index: 1000;
 }
-
 
 .menu-details-item{
     margin:auto;
