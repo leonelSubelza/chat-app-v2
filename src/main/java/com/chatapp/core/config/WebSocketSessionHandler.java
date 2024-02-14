@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketSessionHandler {
 
     //Este map lo manejamos para tener una lista con todos los usuarios conectados y saber cuántos son
-    private static final Set<User> activeSessions = new HashSet<>();
+    public static final Set<User> activeSessions = new HashSet<>();
 
     public static void addSession(User user) {
         activeSessions.add(user);
@@ -21,16 +21,24 @@ public class WebSocketSessionHandler {
         activeSessions.remove(user);
     }
 
-    public static void removeSession(String username){
-        activeSessions.removeIf(user -> user.getUsername().equals(username));
+    public static boolean removeSessionById(String id){
+        return activeSessions.removeIf(user -> user.getId().equals(id));
     }
 
     public static int getActiveSessionsCount() {
         return activeSessions.size();
     }
 
-    public static User getUser(String username){
-        Optional<User> user = activeSessions.stream().filter(u -> u.getUsername().equals(username)).findFirst();
+    public static User getUser(String id){
+        Optional<User> user = activeSessions.stream().filter(u -> u.getId().equals(id)).findFirst();
         return user.orElse(null);
     }
+
+    public static boolean existsUser(String id){
+        /*return WebSocketSessionHandler.activeSessions.stream().filter(user -> user.getId().equals(id))
+                .findFirst()
+                .orElse(null);*/
+        return activeSessions.stream().anyMatch(user -> user.getId().equals(id));
+    }
+
 }

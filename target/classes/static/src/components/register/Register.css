@@ -1,0 +1,160 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css");
+@import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
+
+.register-container{
+    /*background-color: #E0E0E0;*/
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+
+.register{
+    height: 90%;
+    /*width: 30%;*/
+    width:335px;
+    margin:auto;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border:1px solid rgb(219, 219, 219);
+    border-radius: 5px;
+}
+
+.register-title{
+    width: 100%;
+    text-align: center;
+    font-size: 50px;
+    margin:20px 5px;
+    color:#38394D;
+    font-family: 'Righteous', sans-serif;
+}
+
+.register-icon-container{
+    width: 120px;
+    height: 120px;
+    margin: auto;
+    position: relative;
+    display:flex;
+}
+
+.icon-img-contenedor{
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    border: transparent;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.icon-edit-btn{
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    position:absolute;
+    top: 0;
+    right: 0;
+    background-color: #424698;
+    border: 2px solid white;
+}
+
+
+.icon-edit-btn:hover{
+    border:2px solid #424698;
+
+}
+
+.icon-edit-btn:hover, .icon-edit-btn:hover i{
+    background-color: white;
+    color:#424698;
+    
+}
+
+.icon-edit-btn i{
+    color:white;
+    font-weight: bold;
+    font-size: 17px;
+}
+
+.register-input__container{
+    margin: auto 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name{
+    margin: 0 auto 2% auto;
+    width: 80%;
+	background: transparent;
+    color:#38394D;
+    text-align: center;
+    border-top: transparent;
+    border-left: transparent;
+    border-right: transparent;
+	border-bottom: 2px solid #38394D;
+	height: 45px;
+	line-height: 45px;
+	padding: 0 40px 0 10px;
+	transition: .3s ease all;
+}
+
+.user-name:focus{
+    outline: none;
+}
+
+.button{
+    margin: 5px auto;
+    width: 80%;
+    height: 40px;
+    background-color: #fff;
+    border: 2px solid #38394D;
+    color:#38394D;
+    border-radius: 20px;
+    padding: 8px 16px;
+    position:relative;
+    font-weight: bold;
+    transition: .3s ease all;
+}
+
+.button:hover, .button:focus{
+    width: 82%;
+}
+
+
+.button:hover,.button:focus, .button:hover i,.button:focus i{
+    background-color: #38394D;
+    color:#fff;
+}
+.button:hover i,.button:focus i{
+    background-color: transparent;
+}
+
+.button i{
+    position:absolute;
+    left: 2%;
+    top:1%;
+    bottom: 50%;
+    color: black;
+    font-weight: bold;
+    font-size: 30px;
+    background-color: transparent;
+    
+}
+.button i::before{
+    vertical-align: 0;
+}
+
+
+.btn-create-room i{
+    font-size: 25px;
+    left: 3%;
+    top:15%;
+}
+
+@media screen and (max-width: 768px) and (min-width: 376px) {
+
+}
+@media (max-width: 376px){
+    .register{
+        width: 100%;
+    }
+}

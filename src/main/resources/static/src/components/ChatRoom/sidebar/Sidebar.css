@@ -1,0 +1,324 @@
+p{
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.sidebar{
+    display: flex;
+    /* position: fixed; */
+    flex-direction: column;
+    height: 100%;
+    width: 25%;
+    background: #38394D;
+    transition: all 0.5s ease;
+    align-items: center;
+    font-size: 15px;
+    color: #fff;
+    z-index: 91;
+}
+
+.sidebar.close .menu-hamburger{
+    font-size: 35px;  
+}
+
+.menu-details{
+    display: flex;
+    height: 10%;
+    width: 100%;
+    background-color: #6A6B7A;
+    z-index: 1000;
+}
+
+.menu-details-item{
+    margin:auto;
+    cursor: pointer;
+    font-size: 22px;
+    padding: 5px 10px;
+    border-radius: 50px;
+    border:1px solid transparent;
+    position:relative;
+    z-index: 1500;
+}
+.menu-details-item:hover{
+    color:#ffffff48;
+}
+
+.menu-details-item.active{
+    background-color: #383258;
+    color:#fff;
+}
+
+.menu-details-item.active:hover{
+    box-shadow: rgba(255, 255, 255, 0.619) 0px 0px 15px;
+}
+
+/*TOOLTIP*/
+.menu-details-item-info{
+    position:absolute;
+    left: 50%;
+    top: -100%;
+    transform: translateX(-50%);
+    background-color: #000;
+    color:#fff;
+    white-space: nowrap;
+    padding: 5px 10px;
+    border-radius: 7px;
+    visibility: hidden;
+    opacity: 0;
+    display: none;
+    transition: opacity .5s ease;
+    font-size: 14px;
+    z-index: 2000; 
+}
+
+/* TRIANGULITO DE INFO */
+.menu-details-item-info::before{
+    content: "";
+    position: absolute;
+    left: 35%;
+    bottom: 50%;
+    transform: translateY(-50%);
+    border:12px solid;
+    border-color: #0000 #0000 #000 #0000;
+}
+
+/* cuando se hace hover sobre el item se muestra el tooltip */
+.menu-details-item:hover .menu-details-item-info{
+    top:120%;
+    visibility: visible;
+    opacity: 1;
+    display: block;
+    user-select: none;
+}
+
+
+.menu-hamburger{
+    font-size: 30px;
+}
+
+.sidebar .menu-details .logo_name {
+    font-size: 22px;
+    color: #fff;
+    font-weight: 600;
+    transition: 0.3s ease;
+    transition-delay: 0.1s;
+}
+
+.url-input-icon{
+    cursor: copy !important;
+}
+
+.menu-details-item .btn-exit{
+    color:red;
+}
+
+.menu-details-item:hover .btn-banned-users{
+    color:red;
+}
+
+/*
+  DETALLE DEL PERFIL PARTE DE ABAJO DEL SIDEBAR
+*/
+
+.sidebar-user-info-container{
+    height: 15%;
+    margin: auto 0 0 0;
+    width: 100%;
+}
+
+.sidebar .profile-details {
+    /*position: fixed;*/
+    /*bottom: 0;*/
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column; /* Cambiado a dirección de columna */
+    align-items: center;
+    justify-content: center; /* Cambiado a justificación centrada */
+    background: #383258;
+    /*padding: 12px 0;*/
+    transition: all 0.5s ease;
+}
+
+/*
+.sidebar .profile-details .profile_img{
+    width: 5rem;
+    margin-bottom: 1rem;
+}
+*/
+.admin_img{
+    height: 15px;
+    width: 10%;
+    display: none;
+}
+.admin_img.active{
+    display: block;
+}
+
+.sidebar .profile-details .profile_name{
+    color: #fff;
+    font-size: 18px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+
+.profile-details__img{
+    margin:0 auto;
+    height: 50px;
+    width: 50px;
+    max-width: 100%;
+    width: auto;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+
+    background-size: cover;
+}
+
+.profile_name{
+    width: auto;
+    max-width: 80%;
+    height: auto;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-x: auto;
+    overflow-y: hidden;
+    cursor: pointer;
+}
+.profile_name::-webkit-scrollbar {
+    height:5px;
+    border-radius: 20px;
+    background-color: #bfbee0;
+}
+
+.profile_name::-webkit-scrollbar-thumb{
+    background: #38394D;
+    border-radius: 20px;
+}
+
+
+/*
+            SIDEBAR CLOSE
+ */
+
+ .sidebar.close{
+    width: 10%;
+}
+
+.sidebar.close .profile-details img{
+    width: 3rem;
+}
+
+.sidebar.close .profile-details {
+    width: 100%;
+}
+
+.sidebar.close .menu-details-item:not(:first-child) {
+    pointer-events: none;
+    display: none;
+    transition: all 0.5s ease;
+}
+
+.sidebar.close .profile_img{
+    width: 50px;
+}
+
+
+.sidebar.close .menu-details img{
+    margin: auto;
+}
+
+.sidebar.close .profile-details .profile_name {
+    display: none;
+}
+
+.copy-animation-active {
+    opacity: 1;
+    transition: opacity .2s;
+}
+.copy-animation {
+    background-color: rgba(61, 61, 61, 0.937);
+    color: white;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 15%;
+    margin: 0 auto;
+    width: 150px;
+    max-width: 50%;
+    height: 40px;
+    border-radius: 10px;
+    opacity: 0;
+    transition: opacity .2s;
+    user-select: none;
+}
+
+.toast{
+    position:fixed;
+    bottom: 10%;
+    left: 50%;
+    width: auto !important;
+    background-color: #383258 !important;
+}
+
+.toast-body{
+    text-align: center;
+    color: #fff;
+}
+
+.sidebar-mobile-background{
+    display: none;
+    height: 100dvh;
+    width: 100%;
+    position: absolute;
+    z-index: 90;
+}
+
+@media screen and (max-width: 927px) {
+    .sidebar.close .menu-hamburger{
+        font-size: 30px;  
+    }
+    .menu-details{
+        flex-wrap: wrap;
+    }
+    .sidebar{
+        position: fixed;
+        width: 50%;
+    }
+    .sidebar.close{
+        width: 15%;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .sidebar-mobile-background{
+        display: block;
+    }
+    .sidebar-mobile-background.close{
+        display: none;
+    }
+
+}
+@media (max-width: 560px){
+    .sidebar{
+        width: 100%;
+    }
+    /* .menu-details{ 
+        overflow: auto;
+     } 
+    /*
+    .menu-details::-webkit-scrollbar {
+        height: 5px;
+        margin:auto;
+        border-radius: 20px;
+        background-color: transparent
+      }
+      
+    .menu-details::-webkit-scrollbar-thumb {
+        background: #212529;
+        border-radius: 20px;
+    }
+    */
+
+}

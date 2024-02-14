@@ -1,8 +1,7 @@
 package com.chatapp.core.controller;
 
-import com.chatapp.core.config.WebSocketSessionHandler;
 import com.chatapp.core.controller.model.Message;
-import com.chatapp.core.controller.model.User;
+import com.chatapp.core.service.ChatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -18,18 +17,13 @@ public class ChatController {
 
     //Cualquier usuario que se quiera conectar a este controlador tendrá que establecer la URL con /app/Loquesea
 
-    //Para enviar mensajes a alguien en privado
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
-    //la anotación @Payload se utiliza para indicar qué parámetro o campo de una clase es
-    // el cuerpo de un mensaje, lo que permite que Spring convierta automáticamente el contenido del
-    // mensaje en un objeto Java del tipo adecuado.
+    @Autowired
+    private ChatService chatService;
 
-    //Este método recibe msj del cliente, recibe todos los msj enviados por el cliente (si tiene)
-    // y los reenvía a todos los demás clientes conectados/suscritos a /chatroom/public
     @MessageMapping("/message")
-    //cuando el usuario envía un msj a /app/message, se enviará este msj a aquellos que estén suscritos a /chatroom/public
     @SendTo("/chatroom/public")//se especifica el subdestino al que se enviará el msj. El destino general es /chatroom y el subdestino es /public
     public Message receiveMessage(@Payload Message message){
         return message;
@@ -39,34 +33,47 @@ public class ChatController {
     // Cuando un usuario mande un msj a /app/private-message, este msj se enviará a quien esté suscrito a
     // /user/nombreReceptor/private. Cada usuario que se suscriba pro primera vez deberá poner su nombre en
     // esa url para recibir este msj priv
-    public Message recMessage(@Payload Message message){
-        //El método convertAndSendToUser detecta automáticamente el
-        // "prefijo de destino del usuario" que se seteó en el método
-        //configureMessageBroker()en el método registry.setUserDestinationPrefix("/user");
-
-        //El método convertAndSendToUser() toma tres argumentos:
-        // el nombre del usuario, el destino y el mensaje. En este caso,
-        // se utiliza message.getReceiverName() como nombre de usuario para enviar el mensaje,
-        // "/private" como destino y el propio objeto message como mensaje.
-        simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(),"/private",message);
-        //El cliente para conectarse deberá establecer una URL de tipo /user/David/private
-        return message;
+    public void recRoomPrivateMessage(@Payload Message message){
+        simpMessagingTemplate.convertAndSend(
+                "/user/"+message.getReceiverId()+"/"+message.getUrlSessionId()+"/private",message);
     }
 
+    /*AMBAS FUNCIONES SON IGUALES*/
 
-    @MessageMapping("/chat.user")
-    @SendTo("/chatroom/public")
-    public Message addUser(@Payload Message message, SimpMessageHeaderAccessor headerAccessor){
-        //añade un User en web socket session de esta session
-        String id = headerAccessor.getSessionId();
-        User userConnected = User.builder()
-                .id(id)
-                .username(message.getSenderName())
-                .build();
-        headerAccessor.getSessionAttributes().put("User",userConnected);
-        WebSocketSessionHandler.addSession(userConnected);
-        log.info("User connected!:{}",message.getSenderName());
-        log.info("number of connected users:{}",WebSocketSessionHandler.getActiveSessionsCount());
+    //En esta función se tiene un control más programático del envío del mensaje
+    @MessageMapping("/group-message")
+    public void recGroupMessage(@Payload Message message) {
+        this.chatService.recGroupMessage(message);
+        simpMessagingTemplate.convertAndSend("/chatroom/"+message.getUrlSessionId(),message);
+    }
+
+    //Esta funcion usa SpEL (Lenguaje de Expresión de Spring) en la url
+    /*
+    @MessageMapping("/group-message")
+    @SendTo("/chatroom/{urlSessionId}")
+    public Message recGroupMessageV2(@Payload Message message){
         return message;
     }
+*/
+    @MessageMapping("/chat.join")
+    //@SendTo("/chatroom/{urlSessionId}")
+    public void userJoin(@Payload Message message, SimpMessageHeaderAccessor headerAccessor){
+        this.chatService.userJoin(message,headerAccessor);
+        simpMessagingTemplate.convertAndSend("/chatroom/"+message.getUrlSessionId(),message);
+    }
+
+    @MessageMapping("/check-channel")
+    public void checkIfChannelExists(@Payload Message message){
+        this.chatService.checkIfChannelExists(message);
+        simpMessagingTemplate.convertAndSendToUser(message.getSenderId(),"/exists-channel",message);
+    }
+
+    //Un usuario se desconectó pero no cerró la ventana del navegador
+    @MessageMapping("/user.disconnected")
+    public void disconnectUserFromRoom(@Payload Message message,SimpMessageHeaderAccessor headerAccessor){
+        Message chatMessage = this.chatService.disconnectUserFromRoom(message,headerAccessor);
+        //informamos a todos los demas que alguien se desconectó
+        this.simpMessagingTemplate.convertAndSend("/chatroom/"+message.getUrlSessionId(),chatMessage);
+    }
+
 }
