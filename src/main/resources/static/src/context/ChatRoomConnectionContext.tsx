@@ -52,7 +52,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             startedConnection.current = true;
             let Sock = new SockJS(serverURL);
             stompClient.current = over(Sock);
-            //stompClient.current.debug = null
+            stompClient.current.debug = null
             stompClient.current.connect({}, onConnected, onError);
         }
     }

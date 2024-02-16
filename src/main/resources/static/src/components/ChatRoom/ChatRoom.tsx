@@ -222,7 +222,7 @@ const ChatRoom: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div>Cargando...</div>
+        <div>Loading...</div>
       )}
     </>
   );
