@@ -65,9 +65,6 @@ public class ChatController {
     @MessageMapping("/check-channel")
     public void checkIfChannelExists(@Payload Message message){
         this.chatService.checkIfChannelExists(message);
-        System.out.println("Usuario: "+message.getSenderName()+" pregunta si existe el canal: "+message.getUrlSessionId());
-        System.out.println("El canal: "+message.getStatus());
-        System.out.println("El msj se retorna a: /user/"+message.getSenderId()+"/exists-channel");
         simpMessagingTemplate.convertAndSendToUser(message.getSenderId(),"/exists-channel",message);
     }
 
