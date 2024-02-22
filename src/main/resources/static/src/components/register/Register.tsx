@@ -150,7 +150,7 @@ const Register: React.FC = () => {
           />
         </>
       ) : (
-        <div>Cagando</div>
+        <div>Loading...</div>
       )}
     </>
   );
