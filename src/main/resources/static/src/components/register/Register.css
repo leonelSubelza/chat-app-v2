@@ -102,53 +102,56 @@
 }
 
 .button{
+    display: flex;
     margin: 5px auto;
     width: 80%;
-    height: 40px;
+    height: auto;
     background-color: #fff;
     border: 2px solid #38394D;
     color:#38394D;
     border-radius: 20px;
-    padding: 8px 16px;
+    padding: 0 16px;
     position:relative;
     font-weight: bold;
     transition: .3s ease all;
+    align-items: center;
 }
 
 .button:hover, .button:focus{
     width: 82%;
 }
 
-
 .button:hover,.button:focus, .button:hover i,.button:focus i{
     background-color: #38394D;
     color:#fff;
 }
-.button:hover i,.button:focus i{
-    background-color: transparent;
+
+.button p {
+    width: auto;
+    margin: auto;
+    text-align: center;
+    justify-content: center;
+    word-wrap: break-word;
 }
 
 .button i{
-    position:absolute;
-    left: 2%;
-    top:1%;
-    bottom: 50%;
+    width: auto;
+    margin: auto 0;
     color: black;
     font-weight: bold;
     font-size: 30px;
     background-color: transparent;
-    
-}
-.button i::before{
-    vertical-align: 0;
 }
 
+.button:hover i,.button:focus i{
+    background-color: transparent;
+}
 
-.btn-create-room i{
+/* .btn-create-room i{
     font-size: 25px;
     left: 3%;
     top:15%;
-}
+} */
 
 @media screen and (max-width: 768px) and (min-width: 376px) {
 

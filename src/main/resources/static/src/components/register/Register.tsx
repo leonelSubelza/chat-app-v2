@@ -45,6 +45,11 @@ const Register: React.FC = () => {
 
   const handleCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if(lostConnection.current){
+      alert('Unable to create a room as connection to server has been lost!');
+      return;
+    }
+
     if (
       (userData.username === "" && localStorage.getItem("username") === null) ||
       localStorage.getItem("username") === ""
@@ -124,17 +129,17 @@ const Register: React.FC = () => {
                 />
                 <button
                   type="button"
-                  className="button btn-join-chat"
+                  className="button"
                   onClick={handleShowModalJoinChat}
                 >
-                  <i className="bi bi-box-arrow-in-right"></i>JOIN A CHAT
+                  <i className="bi bi-box-arrow-in-right"></i><p>JOIN A CHAT</p>
                 </button>
                 <button
                   type="button"
-                  className="button btn-create-room"
+                  className="button"
                   onClick={handleCreateRoom}
                 >
-                  <i className="bi bi-pencil-square"></i>CREATE A ROOM
+                  <i className="bi bi-pencil-square"></i><p>CREATE A ROOM</p>
                 </button>
               </div>
             </div>
