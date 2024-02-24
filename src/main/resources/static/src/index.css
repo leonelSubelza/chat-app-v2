@@ -44,6 +44,34 @@ code {
   max-width: 100%;
 }
 
+.error-connection-msg{
+  display: none;
+  position: fixed;
+  top: -1000px;
+  width: 100%;
+  background-color: rgb(177, 2, 2);
+  height: auto;
+  padding: 8px 0;
+  text-align: center;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: all .5s;
+}
+
+.error-connection-msg.active{
+  display: block;
+  top: 0px;
+}
+
+.error-connection-msg p{
+  font-size: 20px;
+  color:#fff;
+  margin:auto;
+}
+
 @media screen and (max-width: 768px) {
   body{
     max-height: 100dvh;
@@ -52,7 +80,6 @@ code {
   .chatRoom-global{
     max-height: 100%;
   }
-
 }
 
 

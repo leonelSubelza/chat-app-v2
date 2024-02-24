@@ -68,7 +68,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     const onError = (err: unknown) => {
         console.log("Error conectando al wb: " + err);
         lostConnection.current = true;
-        alert(err);
+        //alert(err);
         disconnectChat(false);
         navigate('/')
     }
@@ -387,6 +387,9 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 lostConnection
             }}
         >
+            <div className={`error-connection-msg ${lostConnection.current && 'active'}`}>
+                <p>Connection Lost!⚠️. Try uploading the page 🔄.</p>
+            </div>
             {children}
         </chatRoomConnectionContext.Provider>
     )
