@@ -24,6 +24,7 @@ export type UserDataContextType = {
     resetChats: ()=>void,
     chats:Map<UserChat,Message[]>, setChats:(value: Map<UserChat,Message[]>)=> void
     bannedUsers:UserChat[], setBannedUsers:(value: UserChat[])=> void
+    imageLinks: string[]
 }
 
 export type ChatRoomConnectionContextType = {
@@ -31,4 +32,5 @@ export type ChatRoomConnectionContextType = {
     checkIfChannelExists: ()=>void,
     startServerConnection: ()=>void,
     startedConnection: React.MutableRefObject<boolean>,
+    lostConnection: React.MutableRefObject<boolean>,
 }

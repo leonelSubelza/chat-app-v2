@@ -1,21 +1,18 @@
 import type { ChatRoomConnectionContextType, UserDataContextType,} from "../../context/types/types.ts";
-import type { Message } from "../interfaces/messages.ts";
 import React, { useContext, useState } from "react";
 import { userContext} from "../../context/UserDataContext.tsx";
 import { chatRoomConnectionContext } from "../../context/ChatRoomConnectionContext.tsx";
 import ModalIconChooser from "./modals/item-chooser/ModalIconChooser.tsx";
 import ModalJoinChat from "./modals/join-chat/ModalJoinChat.tsx";
 import { useEffect } from "react";
-import { imageLinks } from "../../services/avatarsLinks.ts";
 import "./Register.css";
 import { MessagesStatus } from "../interfaces/messages.status.ts";
-import { createPublicMessage } from "../ChatRoom/ChatRoomFunctions.ts";
 import { generateRoomId } from "../../utils/IdGenerator.ts";
 import { ChatUserRole } from "../interfaces/chatRoom.types.ts";
 
 const Register: React.FC = () => {
-  const { userData, setUserData, isDataLoading, stompClient } = useContext(userContext) as UserDataContextType;
-  const { checkIfChannelExists, disconnectChat, startedConnection } =
+  const { userData, setUserData, isDataLoading, stompClient,imageLinks } = useContext(userContext) as UserDataContextType;
+  const { checkIfChannelExists, disconnectChat, startedConnection,lostConnection } =
     useContext(chatRoomConnectionContext) as ChatRoomConnectionContextType;
 
   //MOdal icon chooser
@@ -92,7 +89,9 @@ const Register: React.FC = () => {
 
   return (
     <>
-      {startedConnection.current && !isDataLoading && userData.connected ? (
+      {( (startedConnection.current && !isDataLoading && userData.connected) 
+      || lostConnection.current) 
+      ? (
         <>
           <div className="register-container">
             <div className="register">

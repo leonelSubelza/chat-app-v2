@@ -2,9 +2,10 @@ import Modal from 'react-bootstrap/Modal';
 import { v4 as uuidv4 } from 'uuid';
 import '../../Register.css';
 import './ModalIconChooser.css';
-import { imageLinks } from '../../../../services/avatarsLinks.ts';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import ItemAvatar from './ItemAvatar.tsx';
+import { userContext } from '../../../../context/UserDataContext.tsx';
+import { UserDataContextType } from '../../../../context/types/types.ts';
 
 interface Props {
   showModalIconChooser: boolean; 
@@ -12,8 +13,8 @@ interface Props {
 }
 
 const ModalIconChooser = ({ showModalIconChooser, handleCloseModalIconChooser }:Props) => {
-
-  const [iconPrevChoosed, setIconPrevChoosed] = useState<string>(localStorage.getItem('avatarImg'));
+  const { imageLinks } = useContext(userContext) as UserDataContextType;
+  const [iconPrevChoosed] = useState<string>(localStorage.getItem('avatarImg'));
   const [iconChoosed, setIconChoosed] = useState<string>(localStorage.getItem('avatarImg').toString());
   const [itemActiveIndex, setItemActiveIndex] = useState<number>(null);
 
