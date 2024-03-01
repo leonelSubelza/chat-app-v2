@@ -9,6 +9,7 @@ import "./Register.css";
 import { MessagesStatus } from "../interfaces/messages.status.ts";
 import { generateRoomId } from "../../utils/IdGenerator.ts";
 import { ChatUserRole } from "../interfaces/chatRoom.types.ts";
+import { Navigate } from "react-router-dom";
 
 const Register: React.FC = () => {
   const { userData, setUserData, isDataLoading, stompClient,imageLinks } = useContext(userContext) as UserDataContextType;
@@ -94,6 +95,7 @@ const Register: React.FC = () => {
 
   return (
     <>
+      <Navigate to={`/chat-app-v2/`} />
       {( (startedConnection.current && !isDataLoading && userData.connected) 
       || lostConnection.current) 
       ? (

@@ -112,7 +112,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             setChannelExists(true);
             subscribeRoomChannels();
             userJoin();
-            navigate(`/chatroom/${userData.urlSessionid}`);
+            navigate(`/chat-app-v2/chatroom/${userData.urlSessionid}`);
         });
         
         var chatMessage: Message = {
