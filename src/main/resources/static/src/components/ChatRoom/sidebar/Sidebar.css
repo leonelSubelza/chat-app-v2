@@ -311,10 +311,10 @@ p{
     .menu-details-item i{
         font-size: 18px;
     }
-    /* .menu-details{ 
+     .menu-details{ 
         overflow: auto;
      } 
-    /*
+    
     .menu-details::-webkit-scrollbar {
         height: 5px;
         margin:auto;
@@ -326,6 +326,6 @@ p{
         background: #212529;
         border-radius: 20px;
     }
-    */
+    
 
 }

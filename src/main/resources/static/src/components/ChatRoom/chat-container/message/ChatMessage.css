@@ -12,6 +12,7 @@
   .message-container{
     display: flex;
     width: 100%;
+    border: 1px solid black;
   }
   .message.self .message-container{
     justify-content: flex-end;
@@ -21,10 +22,11 @@
     display: flex;
     flex-direction: column;
     height: auto;
-    width: auto;
-    max-width: 90%;
+    width: 85%;
+    max-width: 85%;
     position: relative;
     margin-left: 10px;
+    border: 1px solid black;
   }
   
   .message-data-username{
@@ -111,8 +113,10 @@
     padding: 3px 5px;
     border-radius: 5px;
     color: #fff;
-    width: 78px;
-    height: 78px;
+    /* min-width: 10%; */
+    width: auto;
+    max-width: 15%;
+    border: 1px solid black;
   }
   
   .chat-avatar.self {
@@ -121,8 +125,8 @@
   
   .avatar-img-chat{
       background-size: cover;
-      width: 100%;
-      height: 100%;
+      width: 78px;
+      height: 78px;
   }
   
   .message-connect-container{
@@ -138,3 +142,24 @@
     font-size: 12px;
     user-select: none;
   }
+
+@media screen and (max-width: 927px) {
+  .chat-avatar{
+    width: 20%;
+    border: 1px solid green;
+  }
+  .avatar-img-chat{
+    /* width: 50px; */
+    /* height: 50px; */
+    width: 100%;
+    height: 100%;
+
+  }
+
+  .message-data-container {
+    /* width: auto; */
+    width: 80%;
+/* ARREGLAR LA FOTO DEL MENSAJE QUE QUEDE DE UN TAMÑANO FIJO */
+  }
+}
+
