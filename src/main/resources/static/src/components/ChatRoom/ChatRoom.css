@@ -89,4 +89,7 @@
   .chat-box {
     width: 85%;
   }
+  .home-content .text{
+    font-size: 18px;
+  }
 }

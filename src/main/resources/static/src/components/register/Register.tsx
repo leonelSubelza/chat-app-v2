@@ -1,21 +1,19 @@
 import type { ChatRoomConnectionContextType, UserDataContextType,} from "../../context/types/types.ts";
-import type { Message } from "../interfaces/messages.ts";
 import React, { useContext, useState } from "react";
 import { userContext} from "../../context/UserDataContext.tsx";
 import { chatRoomConnectionContext } from "../../context/ChatRoomConnectionContext.tsx";
 import ModalIconChooser from "./modals/item-chooser/ModalIconChooser.tsx";
 import ModalJoinChat from "./modals/join-chat/ModalJoinChat.tsx";
 import { useEffect } from "react";
-import { imageLinks } from "../../services/avatarsLinks.ts";
 import "./Register.css";
 import { MessagesStatus } from "../interfaces/messages.status.ts";
-import { createPublicMessage } from "../ChatRoom/ChatRoomFunctions.ts";
 import { generateRoomId } from "../../utils/IdGenerator.ts";
 import { ChatUserRole } from "../interfaces/chatRoom.types.ts";
+import { Navigate } from "react-router-dom";
 
 const Register: React.FC = () => {
-  const { userData, setUserData, isDataLoading, stompClient } = useContext(userContext) as UserDataContextType;
-  const { checkIfChannelExists, disconnectChat, startedConnection } =
+  const { userData, setUserData, isDataLoading, stompClient,imageLinks } = useContext(userContext) as UserDataContextType;
+  const { checkIfChannelExists, disconnectChat, startedConnection,lostConnection } =
     useContext(chatRoomConnectionContext) as ChatRoomConnectionContextType;
 
   //MOdal icon chooser
@@ -48,6 +46,11 @@ const Register: React.FC = () => {
 
   const handleCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if(lostConnection.current){
+      alert('Unable to create a room as connection to server has been lost!');
+      return;
+    }
+
     if (
       (userData.username === "" && localStorage.getItem("username") === null) ||
       localStorage.getItem("username") === ""
@@ -92,7 +95,10 @@ const Register: React.FC = () => {
 
   return (
     <>
-      {startedConnection.current && !isDataLoading && userData.connected ? (
+      <Navigate to={`/chat-app-v2/`} />
+      {( (startedConnection.current && !isDataLoading && userData.connected) 
+      || lostConnection.current) 
+      ? (
         <>
           <div className="register-container">
             <div className="register">
@@ -125,17 +131,17 @@ const Register: React.FC = () => {
                 />
                 <button
                   type="button"
-                  className="button btn-join-chat"
+                  className="button"
                   onClick={handleShowModalJoinChat}
                 >
-                  <i className="bi bi-box-arrow-in-right"></i>JOIN A CHAT
+                  <i className="bi bi-box-arrow-in-right"></i><p>JOIN A CHAT</p>
                 </button>
                 <button
                   type="button"
-                  className="button btn-create-room"
+                  className="button"
                   onClick={handleCreateRoom}
                 >
-                  <i className="bi bi-pencil-square"></i>CREATE A ROOM
+                  <i className="bi bi-pencil-square"></i><p>CREATE A ROOM</p>
                 </button>
               </div>
             </div>

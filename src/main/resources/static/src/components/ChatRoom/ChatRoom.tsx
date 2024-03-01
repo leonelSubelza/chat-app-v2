@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { NavigateFunction, useNavigate } from "react-router-dom";
+import { Navigate, NavigateFunction, useNavigate } from "react-router-dom";
 import "./ChatRoom.css";
 import { userContext } from "../../context/UserDataContext";
 import { chatRoomConnectionContext } from "../../context/ChatRoomConnectionContext";
@@ -198,6 +198,7 @@ const ChatRoom: React.FC = () => {
   });
   return (
     <>
+      {/* <Navigate to={`/chat-app-v2/chatroom/${userData.urlSessionid}`} /> */}
       {channelExists && startedConnection.current && !isDataLoading ? (
         <div className="chatRoom-global">
           <Sidebar

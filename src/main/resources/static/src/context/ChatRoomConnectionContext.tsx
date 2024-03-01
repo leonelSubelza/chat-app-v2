@@ -26,6 +26,9 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     //flag para que no ejecute el método connect() más de una vez
     const startedConnection = useRef<boolean>(false);
 
+    //flag para saber si hay que hacer f5
+    const lostConnection = useRef<boolean>(false);
+
     const userDataContext: UserDataContextType = useUserDataContext();
 
     const { setChannelExists, userData, setUserData, stompClient, loadUserDataValues,
@@ -64,7 +67,8 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
 
     const onError = (err: unknown) => {
         console.log("Error conectando al wb: " + err);
-        alert(err);
+        lostConnection.current = true;
+        //alert(err);
         disconnectChat(false);
         navigate('/')
     }
@@ -108,7 +112,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             setChannelExists(true);
             subscribeRoomChannels();
             userJoin();
-            navigate(`/chatroom/${userData.urlSessionid}`);
+            navigate(`/chat-app-v2/chatroom/${userData.urlSessionid}`);
         });
         
         var chatMessage: Message = {
@@ -380,8 +384,12 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 checkIfChannelExists,
                 startServerConnection,
                 startedConnection,
+                lostConnection
             }}
         >
+            <div className={`error-connection-msg ${lostConnection.current && 'active'}`}>
+                <p>Connection Lost!⚠️. Try uploading the page 🔄.</p>
+            </div>
             {children}
         </chatRoomConnectionContext.Provider>
     )

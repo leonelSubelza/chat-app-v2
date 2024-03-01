@@ -1,6 +1,6 @@
 import type { UserData, UserDataContextType } from './types/types.ts';
 import React, { useState,useRef,useContext, ReactNode } from 'react'
-import { imageLinks, loadAvatars } from '../services/avatarsLinks.ts';
+import { loadAvatars } from '../services/avatarsLinks.ts';
 import { generateUserId } from '../utils/IdGenerator.ts';
 import { MessagesStatus } from '../components/interfaces/messages.status.ts';
 import { ChatUserRole, UserChat } from '../components/interfaces/chatRoom.types.ts';
@@ -34,6 +34,8 @@ export function UserDataContext({ children }: UserDataProviderProps){
 
   //OBJ que contiene la conexion con el ws
   const stompClient = useRef<any>(null);
+
+  const [imageLinks, setImageLinks] = useState<string[]>([]);
 
   const [userData, setUserData] = useState<UserData>({
     id:'',
@@ -70,7 +72,7 @@ export function UserDataContext({ children }: UserDataProviderProps){
   }
 
   const loadUserDataValues = (): void => {
-    loadAvatars();
+    let imageLinksAux:string[] = loadAvatars();
     //setId
     let userId:string;
     if (localStorage.getItem('id') === null) {
@@ -80,16 +82,19 @@ export function UserDataContext({ children }: UserDataProviderProps){
     } else {
       userId = localStorage.getItem('id');
     }
+    
     //setAvatarImage
-    if (localStorage.getItem('avatarImg') === null) {
-      localStorage.setItem('avatarImg', imageLinks[0]);
-      userData.avatarImg = imageLinks[0];
+    if(localStorage.getItem('avatarImg') === 'undefined') {
+      localStorage.setItem('avatarImg', imageLinksAux[0]);
+      userData.avatarImg = imageLinksAux[0];
     } else {
       userData.avatarImg = localStorage.getItem('avatarImg')+'';
     }
-       
-    if (localStorage.getItem('username') === null) {
-      userData.username = '';
+    
+    //Por alguna razón este hijo de puta si no existe da null y no undefined como avatarimg    
+    if(localStorage.getItem('username') === null) {
+      localStorage.setItem('username', 'Anónimo'+userId);
+      userData.username = 'Anónimo'+userId;
     } else {
       userData.username = localStorage.getItem('username')+'';
     }
@@ -98,6 +103,7 @@ export function UserDataContext({ children }: UserDataProviderProps){
       "id":userId, "avatarImg": userData.avatarImg, "username": userData.username });
     resetChats();
     setIsDataLoading(false);
+    setImageLinks(imageLinksAux);
   }
 
   return (
@@ -111,7 +117,8 @@ export function UserDataContext({ children }: UserDataProviderProps){
         loadUserDataValues,
         resetChats,
         chats, setChats,
-        bannedUsers, setBannedUsers
+        bannedUsers, setBannedUsers,
+        imageLinks
       }}
     >
       {children}

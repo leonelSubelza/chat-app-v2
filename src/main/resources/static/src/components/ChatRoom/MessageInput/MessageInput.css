@@ -13,15 +13,13 @@
 }
 
 .input-message {
-    width: 89%;
-    /*flex-grow: 1;*/ /* Haz que el input-message ocupe el espacio restante */
+    width: 85%;
     padding: 10px;
     margin: auto;
-    font-size: 1.2em;
+    font-size: 18px;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     border-radius: 10px;
     border:2px solid rgba(175, 175, 175, 0.482)!important;
-    /*backdrop-filter: blur(1px);*/
 }
 
 .input-message:focus{
@@ -72,18 +70,18 @@
     margin:auto;
 }
 
-@media screen and (max-width: 768px) and (min-width: 376px) {
+@media screen and (max-width: 768px) {
     .send-message{
         margin-bottom:5px;
     }
     
     .input-message{
-        width: 88%;
         margin: auto;
     }
     .send-button{
-        width: 10%;
-        font-size: 10px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
         margin: auto;
     }
 
@@ -98,15 +96,12 @@
 
 @media (max-width: 376px){
     .input-message{
-        width: 85%;
-        margin: auto 2px;
-        
+        width: 80%;
+        margin: auto;
     }
     .send-button{
-        width: 15%;
+        /* width: 15%; */
         font-size: 10px;
-        border-radius: 5px;
-        margin: auto 0;
     }
     .send-button-type1{
         display: none;

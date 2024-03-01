@@ -42,4 +42,15 @@
 .button-join-chat{
     width: 50%;
     margin: auto !important;
+    background-color: #38394D;
+    color:#fff;
+    border-radius: 20px;
+    padding: 0 16px;
+    position:relative;
+    transition: .3s ease all;
+    padding: 5px 0;
+}
+
+.button-join-chat:hover{
+    filter: brightness(90%);
 }

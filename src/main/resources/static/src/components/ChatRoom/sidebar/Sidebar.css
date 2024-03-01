@@ -308,13 +308,18 @@ p{
     .sidebar{
         width: 100%;
     }
+    .sidebar.close .menu-hamburger{
+        font-size: 28px;  
+    }
     .menu-details-item i{
         font-size: 18px;
     }
-    /* .menu-details{ 
+     .menu-details{ 
         overflow: auto;
      } 
-    /*
+     .menu-details-item:first-child{
+        padding: 0;
+     }
     .menu-details::-webkit-scrollbar {
         height: 5px;
         margin:auto;
@@ -326,6 +331,9 @@ p{
         background: #212529;
         border-radius: 20px;
     }
-    */
+    /* Se quita el tooltip cuando la pantalla es muy pequeña */
+    .menu-details-item:hover .menu-details-item-info{
+        display: none;
+    }
 
 }

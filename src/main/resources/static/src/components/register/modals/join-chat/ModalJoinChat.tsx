@@ -121,9 +121,9 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
                 </div>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="success" className='button-join-chat' onClick={handleCloseModal}>
+                <button className='button-join-chat' onClick={handleCloseModal}>
                     JOIN!!!
-                </Button>
+                </button>
             </Modal.Footer>
         </Modal>
     );
