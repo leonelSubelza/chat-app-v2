@@ -9,7 +9,7 @@ function App() {
         <ChatRoomConnectionContext>
           <Routes>
             <Route path="/" element={<Register />}/>
-            <Route path={`chat-app-v2/chatroom/*`} element={<ChatRoom />} />
+            <Route path={`/chat-app-v2/chatroom/*`} element={<ChatRoom />} />
             <Route path='*' element={<Register />} />
           </Routes>
           </ChatRoomConnectionContext>

@@ -198,7 +198,7 @@ const ChatRoom: React.FC = () => {
   });
   return (
     <>
-      <Navigate to={`/chat-app-v2/chatroom/${userData.urlSessionid}`} />
+      {/* <Navigate to={`/chat-app-v2/chatroom/${userData.urlSessionid}`} /> */}
       {channelExists && startedConnection.current && !isDataLoading ? (
         <div className="chatRoom-global">
           <Sidebar
