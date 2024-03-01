@@ -143,16 +143,48 @@
 @media screen and (max-width: 927px) {
   .chat-avatar {
     width: auto;
-    max-width: 80%;
+    max-width: 70%;
+  }
+  .message-container{
   }
   .message-data-container {
     width: auto;
   }
   .avatar-img-chat {
-    width: 3rem;
+    width: 50px;
     margin: 0 auto;
   }
   .message-data__message-info-text {
     padding: 5px 9px 2px 9px;
+    /* padding: 0; */
+  }
+}
+@media screen and (max-width: 360px) {
+  .message {
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  .message-container{
+    width: 100%;
+  }
+  .message-data-container{
+    width: auto;
+  }
+  .message-data__message-info{
+    width: auto;
+
+  }
+  .avatar-img-chat {
+    width: 50px;
+    height:50px;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+  .chat-avatar, .chat-avatar.self {
+    width: 20%;
+    min-width: 20%;
+    max-width: 20%;
+    padding: 0 5px;
   }
 }
