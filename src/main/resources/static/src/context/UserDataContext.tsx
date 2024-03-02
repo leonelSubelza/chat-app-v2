@@ -84,7 +84,8 @@ export function UserDataContext({ children }: UserDataProviderProps){
     }
     
     //setAvatarImage
-    if(localStorage.getItem('avatarImg') === 'undefined') {
+    if(localStorage.getItem('avatarImg') === 'undefined' 
+    || localStorage.getItem('avatarImg')===null) {
       localStorage.setItem('avatarImg', imageLinksAux[0]);
       userData.avatarImg = imageLinksAux[0];
     } else {

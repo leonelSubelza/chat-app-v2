@@ -5,7 +5,7 @@ import { createMessageJoin, createPrivateMessage, createPublicMessage, createUse
 import { useNavigate } from 'react-router-dom';
 import { over } from 'stompjs';
 import SockJS from 'sockjs-client';
-import { serverURL } from '../config/chatConfiguration.ts';
+import { serverURL, webSiteChatURL, webSiteBaseURL } from '../config/chatConfiguration.ts';
 import { MessagesStatus } from '../components/interfaces/messages.status.ts';
 import { Message } from '../components/interfaces/messages.ts';
 import { getActualDate } from '../utils/MessageDateConvertor.ts';
@@ -112,8 +112,12 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             setChannelExists(true);
             subscribeRoomChannels();
             userJoin();
-            navigate(`/chat-app-v2/chatroom/${userData.urlSessionid}`);
+            // navigate(`/chat-app-v2/chatroom/${userData.urlSessionid}`);
+            //se pasa a la room
+            navigate(`${webSiteChatURL}${userData.urlSessionid}`);
         });
+        
+        console.log("se debería enviar el roomId: "+userData.urlSessionid);
         
         var chatMessage: Message = {
             senderId: userData.id,

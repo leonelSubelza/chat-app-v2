@@ -1,8 +1,10 @@
+import { webSiteChatURL } from '../config/chatConfiguration';
+
 export const isCorrectURL = (url: string): boolean => {
   const domain: string = window.location.origin;
   //const baseUrl = "http://localhost:3000";
   //const regexString = `^${domain.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}\/chatroom\/[a-zA-Z\\d]+$`;
-  const regexString: string = `^${domain}\/chat-app-v2/chatroom\/[a-zA-Z\\d]+$`;
+  const regexString: string = `^${domain}${webSiteChatURL}[a-zA-Z\\d]+$`;
   console.log("dominio: "+domain);
   console.log("url: "+url);
   //http://localhost:5173/chat-app-v2/chatroom/LIYY
@@ -19,7 +21,7 @@ export const getRoomIdFromURL = (url: string): string => {
     return '';
   }
   const domain: string = window.location.origin;
-  let urlSessionIdAux: string = url.split(domain + "/chat-app-v2/chatroom/")[1];
+  let urlSessionIdAux: string = url.split(domain + webSiteChatURL)[1];
   if (urlSessionIdAux === "") {
     alert("no se puso ningun id de room ni en el userdata ni en la url");
     return '';

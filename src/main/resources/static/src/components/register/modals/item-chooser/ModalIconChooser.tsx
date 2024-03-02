@@ -14,8 +14,11 @@ interface Props {
 
 const ModalIconChooser = ({ showModalIconChooser, handleCloseModalIconChooser }:Props) => {
   const { imageLinks } = useContext(userContext) as UserDataContextType;
+
+  //El valor avatarImg se supone que ya se cargó en el context UserDataContext osea que no es null
   const [iconPrevChoosed] = useState<string>(localStorage.getItem('avatarImg'));
   const [iconChoosed, setIconChoosed] = useState<string>(localStorage.getItem('avatarImg').toString());
+
   const [itemActiveIndex, setItemActiveIndex] = useState<number>(null);
 
   const handleItemChoosed = (urlIcon:string, index: number) => {

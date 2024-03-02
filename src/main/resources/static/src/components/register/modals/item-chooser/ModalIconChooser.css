@@ -76,7 +76,6 @@
 }
 
 .button-chooser{
-
     width: 30% !important;
     margin: 0 auto !important;
     height: 40px;
@@ -85,6 +84,7 @@
     color: white;
     border-radius: 20px;
     padding: 8px 16px;
+    justify-content: center;
 }
 
 .button-chooser:hover, .button-chooser:focus, .button-chooser:active{

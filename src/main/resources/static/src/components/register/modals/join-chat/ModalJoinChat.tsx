@@ -1,10 +1,10 @@
 import React, { useState,useContext, useEffect } from 'react'
-import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import './ModalJoinChat.css'
 import { isCorrectURL } from '../../../../utils/InputValidator.ts';
 import {userContext} from '../../../../context/UserDataContext.tsx';
 import { chatRoomConnectionContext } from '../../../../context/ChatRoomConnectionContext.tsx';
+import { webSiteChatURL } from '../../../../config/chatConfiguration.ts'
 
 interface Props {
     showModalJoinChat: boolean;
@@ -40,7 +40,7 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
             console.log("el link escrito es un link valido");
 
             const domain = window.location.origin;
-            let urlSessionIdAux = inputValue.split(domain+'/chatroom/')[1];
+            let urlSessionIdAux = inputValue.split(domain+webSiteChatURL)[1];
             userData.urlSessionid = urlSessionIdAux;
             setUserData({...userData,"urlSessionid": urlSessionIdAux});
             //navigate(`/chatroom/${urlSessionIdAux}`);
