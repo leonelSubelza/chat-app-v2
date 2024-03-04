@@ -17,6 +17,15 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
     const { userData,setUserData } = useContext(userContext);
     const {checkIfChannelExists} = useContext(chatRoomConnectionContext)
 
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        if(value.length>255){
+          console.log("la cant de caracteres es mayor a 255");
+          return;
+        }
+        setInputValue(value)
+    }
+
     const handleCloseModal = () => {
         // if(e===undefined){
         //     closeModal(e);
@@ -115,7 +124,7 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
                         className='url-input'
                         placeholder='Enter the URL or the key of the channel!'
                         value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)} 
+                        onChange={handleInputChange} 
                         autoFocus/>
                     <i className="bi bi-copy url-input-icon" onClick={copyInput}></i>
                 </div>

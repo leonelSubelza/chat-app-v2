@@ -40,6 +40,10 @@ const Register: React.FC = () => {
 
   const handleUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
+    if(value.length>255){
+      console.log("la cant de caracteres es mayor a 255");
+      return;
+    }
     setUserData({ ...userData, username: value });
     localStorage.setItem("username", value);
   };

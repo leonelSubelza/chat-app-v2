@@ -15,6 +15,10 @@ const MessageInput = ({ onSend, handleWritingNotification }: Props) => {
 
   const handleMessage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
+    if(value.length>255){
+      console.log("la cant de caracteres es mayor a 255");
+      return;
+    }
     setUserData({ ...userData, message: value });
   };
 
