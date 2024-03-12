@@ -10,6 +10,7 @@ import { MessagesStatus } from "../interfaces/messages.status.ts";
 import { generateRoomId } from "../../utils/IdGenerator.ts";
 import { ChatUserRole } from "../interfaces/chatRoom.types.ts";
 import { Navigate } from "react-router-dom";
+import { maxUsernameLength } from "./../../config/chatConfiguration.ts"
 
 const Register: React.FC = () => {
   const { userData, setUserData, isDataLoading, stompClient,imageLinks } = useContext(userContext) as UserDataContextType;
@@ -40,7 +41,7 @@ const Register: React.FC = () => {
 
   const handleUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
-    if(value.length>255){
+    if(value.length>maxUsernameLength){
       console.log("la cant de caracteres es mayor a 255");
       return;
     }

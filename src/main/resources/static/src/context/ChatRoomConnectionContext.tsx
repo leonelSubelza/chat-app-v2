@@ -291,6 +291,11 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 case MessagesStatus.WRITING :
                     handleUserWriting(message,false);
                     break;
+                case MessagesStatus.ERROR:
+                    alert('Se ha producido un error. '+message.message);
+                    // disconnectChat(true)
+                    // navigate('/');
+                    break;
             default:
                 break;
         }

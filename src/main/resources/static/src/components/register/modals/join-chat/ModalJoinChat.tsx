@@ -4,7 +4,7 @@ import './ModalJoinChat.css'
 import { isCorrectURL } from '../../../../utils/InputValidator.ts';
 import {userContext} from '../../../../context/UserDataContext.tsx';
 import { chatRoomConnectionContext } from '../../../../context/ChatRoomConnectionContext.tsx';
-import { webSiteChatURL } from '../../../../config/chatConfiguration.ts'
+import { webSiteChatURL, maxMessageLength } from '../../../../config/chatConfiguration.ts'
 
 interface Props {
     showModalJoinChat: boolean;
@@ -19,7 +19,7 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target;
-        if(value.length>255){
+        if(value.length>maxMessageLength){
           console.log("la cant de caracteres es mayor a 255");
           return;
         }
