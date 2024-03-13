@@ -397,7 +397,9 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             }}
         >
             <div className={`error-connection-msg ${lostConnection.current && 'active'}`}>
-                <p>Connection Lost!⚠️. Try uploading the page 🔄.</p>
+                Connection Lost!⚠️. Try uploading the page 
+                    <button onClick={()=> window.location.reload()}>🔄</button>
+                    .
             </div>
             {children}
         </chatRoomConnectionContext.Provider>

@@ -73,10 +73,20 @@ button {
   top: 0px;
 }
 
-.error-connection-msg p{
+.error-connection-msg{
   font-size: 20px;
   color:#fff;
   margin:auto;
+}
+
+.error-connection-msg button{
+  border: none;
+  background-color: transparent;
+}
+
+.error-connection-msg button:hover{
+  filter: brightness(110%);
+  
 }
 
 @media screen and (max-width: 768px) {
