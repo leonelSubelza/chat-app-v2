@@ -13,14 +13,19 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 //Represents the filter jwt
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private JwtService jwtService;
+    private final JwtService jwtService;
+    public JwtAuthenticationFilter(JwtService jwtService){
+        this.jwtService = jwtService;
+    }
 
     //We check if the client has a token jwt, if it has it then we validate it, if he doesn't have it then continue
     //with the next filter if exists
@@ -39,11 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             //El token es válido
             String username = jwtService.extractUsername(decodedJWT);
 
-            UserEntity userToAuthenticate = UserDetailsServiceImpl
-                    .USERS.stream()
-                    .filter(u -> u.getUsername().equals(username))
-                    .findFirst()
-                    .orElseThrow(() -> new UsernameNotFoundException("The user " + username + " doesn't exists in the server"));
+            UserEntity userToAuthenticate = jwtService.findByUsername(username);
 
 
             SecurityContext context = SecurityContextHolder.getContext();
