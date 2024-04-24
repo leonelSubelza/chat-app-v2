@@ -13,9 +13,11 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @Controller
 @Slf4j
+@CrossOrigin("*")
 public class ChatController {
 
     //Cualquier usuario que se quiera conectar a este controlador tendrá que establecer la URL con /app/Loquesea
@@ -29,6 +31,7 @@ public class ChatController {
     @MessageMapping("/message")
     @SendTo("/chatroom/public")//se especifica el subdestino al que se enviará el msj. El destino general es /chatroom y el subdestino es /public
     public Message receiveMessage(@Payload @Valid Message message){
+        System.out.println("se recibe msj público de: "+message.getSenderName());
         return message;
     }
 

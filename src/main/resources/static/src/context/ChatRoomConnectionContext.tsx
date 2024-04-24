@@ -62,6 +62,14 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
 
     const onConnected = ():void => {
         userData.connected = true
+
+        if(stompClient.current!==null && stompClient.current.subscriptions){
+            stompClient.current.subscribe('/chatroom/public', (payload: any)=>{
+              var message: Message = JSON.parse(payload.body);
+              console.log(message);
+          });
+          }
+
         setUserData({ ...userData });
     }
 

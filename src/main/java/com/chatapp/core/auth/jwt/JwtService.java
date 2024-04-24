@@ -40,7 +40,11 @@ public class JwtService {
 
     public String createToken(Authentication authentication) {
         Algorithm algorithm = Algorithm.HMAC256(this.PRIVATE_KEY);
-        String username = authentication.getPrincipal().toString();
+//        String username = authentication.getPrincipal().toString();
+//        System.out.println("se crea el token con este sub: "+username);
+
+        UserDetails userLoaded = (UserDetails) authentication.getPrincipal();
+        String username = userLoaded.getUsername();
 
         //CREATE, DELETE, ...
         String authorities = authentication.getAuthorities()

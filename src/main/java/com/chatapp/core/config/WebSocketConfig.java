@@ -1,5 +1,8 @@
 package com.chatapp.core.config;
 
+import com.chatapp.core.auth.jwt.JwtChannelInterceptor;
+import com.chatapp.core.auth.jwt.JwtService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -14,7 +17,8 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 // los clientes a través de WebSockets
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-
+    @Autowired
+    private JwtService jwtService;
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         //esta config es para recibir un msj del cliente. Esto es para la url del controlador
@@ -49,4 +53,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .withSockJS();
     }
 
+    //Filter for Messages with jwt
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(new JwtChannelInterceptor(jwtService));
+    }
 }

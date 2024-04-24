@@ -1,7 +1,9 @@
 package com.chatapp.core.security;
 
 import com.chatapp.core.auth.jwt.JwtAuthenticationFilter;
+import com.chatapp.core.auth.jwt.JwtChannelInterceptor;
 import com.chatapp.core.auth.jwt.JwtService;
+import com.chatapp.core.auth.jwt.UserDetailsServiceImpl;
 import com.chatapp.core.auth.user.RoleEnum;
 import com.chatapp.core.auth.user.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,11 +45,11 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(authConfig -> authConfig
                         .requestMatchers(HttpMethod.POST,"/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/ws/**").permitAll()
                         .anyRequest().denyAll()
                 )
 
                 .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
-
                 .build();
     }
 
@@ -63,8 +65,8 @@ public class SecurityConfig {
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
-//        provider.setUserDetailsService(userDetailsService());
         provider.setUserDetailsService(userDetailsService());
+//        provider.setUserDetailsService(new UserDetailsServiceImpl());
         return provider;
     }
 

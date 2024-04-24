@@ -13,16 +13,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-//public class JwtChannelInterceptor implements ChannelInterceptor {
-    public class JwtChannelInterceptor {
+public class JwtChannelInterceptor implements ChannelInterceptor {
+//    public class JwtChannelInterceptor {
 
-/*    private final JwtService jwtService;
+    private final JwtService jwtService;
     public JwtChannelInterceptor(JwtService jwtService){
         this.jwtService = jwtService;
     }
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
+        System.out.println("se ejecuta el filtro de msj");
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             String jwtToken = accessor.getFirstNativeHeader("Authorization");
@@ -35,7 +36,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
                 UserEntity userToAuthenticate = jwtService.findByUsername(username);
 
-
                 SecurityContext context = SecurityContextHolder.getContext();
                 //las credentials/contraseña o.O no es necesario por seguridad
                 Authentication authentication = new
@@ -43,9 +43,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
                 context.setAuthentication(authentication);
                 SecurityContextHolder.setContext(context);
+                System.out.println("se contaba con un jwt válido y se cargó la authenticacion en el contexto de spring");
             }
         }
         return message;
-    }*/
+    }
 
 }

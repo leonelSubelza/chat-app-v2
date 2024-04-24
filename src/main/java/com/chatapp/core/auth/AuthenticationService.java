@@ -19,6 +19,8 @@ public class AuthenticationService {
     @Autowired
     private JwtService jwtService;
 
+    //The Bean UserDetailsService execute a method that validate whether the user exists or not, validating their
+    // password and username, so when this function it's executed, it is assumed the user exists
     public AuthResponse login(AuthLoginRequest request) {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 request.username(),request.password()
@@ -33,7 +35,7 @@ public class AuthenticationService {
 
         String accessToken = this.jwtService.createToken(authentication);
 
-        return new AuthResponse(request.username(), "User logged succesfully!",accessToken,true);
+        return new AuthResponse(request.username(), "User logged successfully!",accessToken,true);
     }
 
 

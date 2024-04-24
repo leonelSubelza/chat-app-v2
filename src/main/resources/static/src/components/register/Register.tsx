@@ -11,6 +11,8 @@ import { generateRoomId } from "../../utils/IdGenerator.ts";
 import { ChatUserRole } from "../interfaces/chatRoom.types.ts";
 import { Navigate } from "react-router-dom";
 import { maxUsernameLength } from "./../../config/chatConfiguration.ts"
+import { createPublicMessage } from "../ChatRoom/ChatRoomFunctions.ts";
+import { Message } from "../interfaces/messages.ts";
 
 const Register: React.FC = () => {
   const { userData, setUserData, isDataLoading, stompClient,imageLinks } = useContext(userContext) as UserDataContextType;
@@ -159,6 +161,16 @@ const Register: React.FC = () => {
             showModalJoinChat={showModalJoinChat}
             handleCloseModalJoinChat={()=>setShowModalJoinChat(false)}
           />
+          <button onClick={()=> {
+                if (stompClient.current) {
+                  var chatMessage: Message = createPublicMessage(MessagesStatus.MESSAGE, userData);
+                  stompClient.current.send(
+                    "/app/message",
+                    {},
+                    JSON.stringify(chatMessage)
+                  );
+                }
+          }}>Probar envío</button>
         </>
       ) : (
         <div>Loading...</div>
