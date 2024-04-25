@@ -1,4 +1,4 @@
-package com.chatapp.core.controller.model;
+package com.chatapp.core.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 @Data

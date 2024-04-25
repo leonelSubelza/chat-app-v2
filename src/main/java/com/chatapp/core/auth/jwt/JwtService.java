@@ -32,6 +32,8 @@ public class JwtService {
     private long TOKEN_EXPIRATION;
 
 
+//    @Autowired
+//    private UserDetailsService userDetailsService;
     private final UserDetailsService userDetailsService;
     public JwtService(@Lazy UserDetailsService userDetailsService){
         this.userDetailsService=userDetailsService;

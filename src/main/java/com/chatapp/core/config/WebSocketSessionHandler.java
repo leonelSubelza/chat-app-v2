@@ -1,12 +1,11 @@
 package com.chatapp.core.config;
 
 
-import com.chatapp.core.controller.model.User;
+import com.chatapp.core.model.User;
 
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class WebSocketSessionHandler {
 

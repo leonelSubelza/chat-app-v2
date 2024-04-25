@@ -102,6 +102,7 @@ const Register: React.FC = () => {
 
   return (
     <>
+      {/* cuando se carga este componente la url se setea en '/chat-app-v2/' */}
       <Navigate to={`/chat-app-v2/`} />
       {( (startedConnection.current && !isDataLoading && userData.connected) 
       || lostConnection.current) 
@@ -161,7 +162,7 @@ const Register: React.FC = () => {
             showModalJoinChat={showModalJoinChat}
             handleCloseModalJoinChat={()=>setShowModalJoinChat(false)}
           />
-          <button onClick={()=> {
+{/*          <button onClick={()=> {
                 if (stompClient.current) {
                   var chatMessage: Message = createPublicMessage(MessagesStatus.MESSAGE, userData);
                   stompClient.current.send(
@@ -170,7 +171,7 @@ const Register: React.FC = () => {
                     JSON.stringify(chatMessage)
                   );
                 }
-          }}>Probar envío</button>
+          }}>Probar envío</button>*/}
         </>
       ) : (
         <div>Loading...</div>

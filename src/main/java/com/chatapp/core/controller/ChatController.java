@@ -1,18 +1,16 @@
 package com.chatapp.core.controller;
 
-import com.chatapp.core.controller.model.Message;
+import com.chatapp.core.model.Message;
 import com.chatapp.core.service.ChatService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 @Controller
@@ -31,7 +29,6 @@ public class ChatController {
     @MessageMapping("/message")
     @SendTo("/chatroom/public")//se especifica el subdestino al que se enviará el msj. El destino general es /chatroom y el subdestino es /public
     public Message receiveMessage(@Payload @Valid Message message){
-        System.out.println("se recibe msj público de: "+message.getSenderName());
         return message;
     }
 

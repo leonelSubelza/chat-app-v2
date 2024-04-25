@@ -9,6 +9,7 @@ import com.chatapp.core.auth.user.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -34,6 +35,10 @@ public class SecurityConfig {
 
     @Autowired
     private JwtService jwtService;
+//    private final JwtService jwtService;
+//    public SecurityConfig(JwtService jwtService){
+//        this.jwtService=jwtService;
+//    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -43,13 +48,14 @@ public class SecurityConfig {
                 //in jwt we don't save any session
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
+                .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
+
                 .authorizeHttpRequests(authConfig -> authConfig
                         .requestMatchers(HttpMethod.POST,"/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/ws/**").permitAll()
                         .anyRequest().denyAll()
                 )
 
-                .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

@@ -1,9 +1,9 @@
 package com.chatapp.core.utils;
 
-import com.chatapp.core.controller.model.Message;
-import com.chatapp.core.controller.model.Room;
-import com.chatapp.core.controller.model.Status;
-import com.chatapp.core.controller.model.User;
+import com.chatapp.core.model.Message;
+import com.chatapp.core.model.Room;
+import com.chatapp.core.model.Status;
+import com.chatapp.core.model.User;
 
 import java.util.HashSet;
 

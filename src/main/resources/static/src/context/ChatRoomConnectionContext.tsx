@@ -10,6 +10,7 @@ import { MessagesStatus } from '../components/interfaces/messages.status.ts';
 import { Message } from '../components/interfaces/messages.ts';
 import { getActualDate } from '../utils/MessageDateConvertor.ts';
 import { ChatUserRole, UserChat } from '../components/interfaces/chatRoom.types.ts';
+import { startAuthentication } from '../auth/authenticationCreator.ts';
 
 export const chatRoomConnectionContext = React.createContext<ChatRoomConnectionContextType>(undefined);
 
@@ -389,9 +390,34 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         
     }, [chats])
 
+
+    // async function startApp() {
+    //     try {
+    //       // Llama a loadUserDataValues() y espera a que se complete
+    //       loadUserDataValues();
+          
+    //       // Llama a startAuthentication() y espera a que se complete
+    //       await startAuthentication();
+          
+    //       // Llama a startServerConnection() y espera a que se complete
+    //       startServerConnection();
+          
+    //       // Todas las funciones se han completado con éxito
+    //       console.log('¡La aplicación se ha iniciado correctamente!');
+    //     } catch (error) {
+    //       // Maneja cualquier error que pueda ocurrir en alguna de las funciones
+    //       console.error('Error al iniciar la aplicación:', error);
+    //     }
+    //   }
+
     useEffect(() => {
-        loadUserDataValues();
-        startServerConnection();
+          loadUserDataValues();
+          let authResponse = startAuthentication();
+          if( authResponse === null) {
+            lostConnection.current = true;
+            return;
+          }
+          startServerConnection();
     }, []);
 
     return (

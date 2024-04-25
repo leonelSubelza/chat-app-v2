@@ -1,4 +1,4 @@
-package com.chatapp.core.controller.model;
+package com.chatapp.core.model;
 
 public enum ChatUserRole {
     ADMIN,
