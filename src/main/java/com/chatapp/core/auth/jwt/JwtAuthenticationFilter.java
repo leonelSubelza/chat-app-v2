@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -38,26 +39,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (token != null && token.startsWith("Bearer ")) {
-            //El token es "Bearer asfdkljñ...", nos quedamos con "asdfasdf..."
-            token = token.split("Bearer ")[1];
-
-            DecodedJWT decodedJWT = jwtService.validateToken(token);
-            //El token es válido
-            String username = jwtService.extractUsername(decodedJWT);
-
-            UserEntity userToAuthenticate = jwtService.findByUsername(username);
-
-
-            SecurityContext context = SecurityContextHolder.getContext();
-            //las credentials/contraseña o.O no es necesario por seguridad
-            Authentication authentication = new
-                    UsernamePasswordAuthenticationToken(username, null, userToAuthenticate.getAuthorities());
-
-            context.setAuthentication(authentication);
-            SecurityContextHolder.setContext(context);
-
+        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            this.jwtService.startAuthentication(authorizationHeader);
             filterChain.doFilter(request, response);
             return;
         }

@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public class JwtChannelInterceptor implements ChannelInterceptor {
 //    public class JwtChannelInterceptor {
@@ -21,29 +22,16 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
         this.jwtService = jwtService;
     }
 
+    //This function intercepts all the message to check if they have a valid token, if they do then they are passed
+    //to the ChatController
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        System.out.println("se ejecuta el filtro de msj");
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            String jwtToken = accessor.getFirstNativeHeader("Authorization");
-
-            if (jwtToken != null && jwtToken.startsWith("Bearer ")) {
-                jwtToken = jwtToken.split("Bearer ")[1];
-                DecodedJWT decodedJWT = jwtService.validateToken(jwtToken);
-                //El token es válido
-                String username = jwtService.extractUsername(decodedJWT);
-
-                UserEntity userToAuthenticate = jwtService.findByUsername(username);
-
-                SecurityContext context = SecurityContextHolder.getContext();
-                //las credentials/contraseña o.O no es necesario por seguridad
-                Authentication authentication = new
-                        UsernamePasswordAuthenticationToken(username, null, userToAuthenticate.getAuthorities());
-
-                context.setAuthentication(authentication);
-                SecurityContextHolder.setContext(context);
-                System.out.println("se contaba con un jwt válido y se cargó la authenticacion en el contexto de spring");
+            String authorizationHeader = accessor.getFirstNativeHeader("Authorization");
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                Authentication authentication = this.jwtService.startAuthentication(authorizationHeader);
+                accessor.setUser(authentication);
             }
         }
         return message;

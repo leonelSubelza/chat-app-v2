@@ -22,7 +22,8 @@ export type UserDataContextType = {
     stompClient:any,
     loadUserDataValues: ()=>void,
     resetChats: ()=>void,
-    chats:Map<UserChat,Message[]>, setChats:(value: Map<UserChat,Message[]>)=> void
+    chats:Map<UserChat,Message[]>, setChats:(value: Map<UserChat,Message[]>)=> void,
+    tokenJwt: string, setTokenJwt: (value: string)=> void,
     bannedUsers:UserChat[], setBannedUsers:(value: UserChat[])=> void
     imageLinks: string[]
 }

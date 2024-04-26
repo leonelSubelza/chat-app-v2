@@ -1,24 +1,34 @@
 import {baseServerURL} from '../config/chatConfiguration.ts';
+import { AuthLoginRequest, AuthResponse, ErrorDetails } from './auth.types.tsx';
 
-const clientCredentials = {
+const clientCredentials: AuthLoginRequest = {
     username:"user",
     password:"1234"
 }
 
-export const startAuthentication = async () => {
-    fetch(baseServerURL+"/auth/login", {
+//Retorna true si la auth fue exitosa
+export const startAuthentication = async (): Promise<boolean> => {
+    try {
+        const response = await fetch(baseServerURL + "/auth/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(clientCredentials)
-        })
-        .then(resp => resp.json())
-        .then(data => {
-            console.log(data);
-            localStorage.setItem("token", data.jwt);
-            localStorage.setItem("username", data.username);
-        }).catch(err => {
-            alert("Invalid username of password")
-        })
+        });
+
+        if (response.ok) {
+            const authResponse: AuthResponse = await response.json();
+            localStorage.setItem("tokenJwt", authResponse.jwt);
+            console.log("se autentico");
+            return true; // Autenticación exitosa
+        } else {
+            const errorDetails: ErrorDetails = await response.json();
+            console.error("Error en la autenticación:", errorDetails.message);
+            return false; // Autenticación fallida
+        }
+    } catch (error) {
+        console.error("Error al realizar la autenticación:", error);
+        return false; // Autenticación fallida
+    }
 }

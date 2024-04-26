@@ -52,6 +52,8 @@ export function UserDataContext({ children }: UserDataProviderProps){
   const [tab,setTab] = useState<UserChat>();
   const [bannedUsers, setBannedUsers] = useState<UserChat[]>(new Array<UserChat>);
 
+  const [tokenJwt, setTokenJwt] = useState<string>(localStorage.getItem('tokenJwt'));
+
   const resetChats = ():void => {
     let chatsAux: Map<UserChat, Message[]> = chats;
     for (var obj of chatsAux) {
@@ -99,6 +101,7 @@ export function UserDataContext({ children }: UserDataProviderProps){
     } else {
       userData.username = localStorage.getItem('username')+'';
     }
+    setTokenJwt(localStorage.getItem('tokenJwt'));
     userData.id = userId;
     setUserData({ ...userData, 
       "id":userId, "avatarImg": userData.avatarImg, "username": userData.username });
@@ -118,6 +121,7 @@ export function UserDataContext({ children }: UserDataProviderProps){
         loadUserDataValues,
         resetChats,
         chats, setChats,
+        tokenJwt, setTokenJwt,
         bannedUsers, setBannedUsers,
         imageLinks
       }}

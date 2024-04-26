@@ -9,7 +9,10 @@ import com.chatapp.core.auth.user.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -76,6 +79,7 @@ public class JwtService {
 
             return verifier.verify(token);
         }catch (JWTVerificationException e) {
+            System.out.println("tiró excepcion el validat token");
             //si esta excepcion se lanza es porque el token no es valido
             throw new JWTVerificationException("Token invalid, not Authorized");
         }
@@ -85,11 +89,28 @@ public class JwtService {
         return decodedJWT.getSubject();
     }
 
-    public UserEntity findByUsername(String username) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        if (userDetails instanceof UserEntity) {
-            return (UserEntity) userDetails;
-        }
-        throw new UsernameNotFoundException("El usuario no fue encontrado o no es de tipo UserEntity");
+    public UserDetails findByUsername(String username) throws UsernameNotFoundException{
+        return userDetailsService.loadUserByUsername(username);
+    }
+
+    //Authenticate a user if he has a token, also we check if the token is valid.
+    // It returns an Authentication object because the ChannelInterceptor needs it.
+    public Authentication startAuthentication(String authorizationHeader) {
+        String token = authorizationHeader.split("Bearer ")[1];
+
+        DecodedJWT decodedJWT = validateToken(token);
+        //El token es válido
+        String username = extractUsername(decodedJWT);
+
+        UserDetails userToAuthenticate = findByUsername(username);
+
+        SecurityContext context = SecurityContextHolder.getContext();
+        //las credentials/contraseña o.O no es necesario por seguridad
+        Authentication authentication = new
+                UsernamePasswordAuthenticationToken(username, null, userToAuthenticate.getAuthorities());
+
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+        return authentication;
     }
 }

@@ -1,8 +1,10 @@
 package com.chatapp.core.exceptions;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.chatapp.core.model.Message;
 import com.chatapp.core.model.Status;
 import com.chatapp.core.model.User;
+import com.chatapp.core.utils.DateGenerator;
 import com.chatapp.core.utils.EntityCreator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +35,11 @@ public class GlobalExceptionHandler {
     protected void handleMessageHandlingException(MethodArgumentNotValidException ex,
                                                   SimpMessageHeaderAccessor headerAccessor) {
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
-        String headerAccessorId = headerAccessor.getSessionId();
-        User user = (User) headerAccessor.getSessionAttributes().get(headerAccessorId);
+        User user = getUserFromError(headerAccessor);
         if(user==null) return;
-        log.error("The user {} with id {} sent a message too long",user.getUsername(),user.getId());
-        Message message = EntityCreator.createMessage(user);
-        message.setMessage("The message sent is too long");
-        message.setStatus(Status.ERROR);
+        log.error("Message Error: MethodArgumentNotValidException. The user {} with id {} sent a message too long",
+                user.getUsername(),user.getId());
+        Message message = generateErrorMessage(user,"The message sent is too long");
         simpMessagingTemplate.convertAndSend(
                 "/user/"+user.getId()+"/"+user.getRoomId()+"/private",message);
     }
@@ -50,19 +50,23 @@ public class GlobalExceptionHandler {
     protected void handleChatAppException(MethodArgumentNotValidException ex,
                                           SimpMessageHeaderAccessor headerAccessor) {
         HttpStatus badRequest = HttpStatus.INTERNAL_SERVER_ERROR;
-        /*ErrorDetails errorDetails = new ErrorDetails(
-                ex.getMessage(),
-                ex,
-                badRequest,
-                ZonedDateTime.now(ZoneId.of("Z"))
-        );*/
-        String headerAccessorId = headerAccessor.getSessionId();
-        User user = (User) headerAccessor.getSessionAttributes().get(headerAccessorId);
+        User user = getUserFromError(headerAccessor);
         if(user==null) return;
-        log.error("General error from the user {} with id {}",user.getUsername(),user.getId());
-        Message message = EntityCreator.createMessage(user);
-        message.setMessage(badRequest.toString());
-        message.setStatus(Status.ERROR);
+        log.error("General Message error from the user {} with id {}",user.getUsername(),user.getId());
+        Message message = generateErrorMessage(user,badRequest.toString());
+        simpMessagingTemplate.convertAndSend(
+                "/user/"+user.getId()+"/"+user.getRoomId()+"/private",message);
+    }
+
+    @ExceptionHandler(JWTVerificationException.class)
+    public void handleJWTVerificationExceptionMessage(
+            MethodArgumentNotValidException ex,
+            SimpMessageHeaderAccessor headerAccessor) {
+        log.error("Message error: JWTVerificationException function executed");
+        HttpStatus badRequest = HttpStatus.INTERNAL_SERVER_ERROR;
+        User user = getUserFromError(headerAccessor);
+        if(user==null) return;
+        Message message = generateErrorMessage(user,badRequest.toString());
         simpMessagingTemplate.convertAndSend(
                 "/user/"+user.getId()+"/"+user.getRoomId()+"/private",message);
     }
@@ -108,4 +112,23 @@ public class GlobalExceptionHandler {
                 .statusCode(httpStatus.value()+"")
                 .build();
     }
+
+    public Message generateErrorMessage(User user, String message){
+        return Message.builder()
+                .senderId(user.getId())
+                .senderName(user.getUsername())
+                .status(Status.ERROR)
+                .message(message)
+                .date(DateGenerator.getUTCFormatDate())
+                .urlSessionId(user.getRoomId())
+                .build();
+    }
+
+    public User getUserFromError(SimpMessageHeaderAccessor headerAccessor){
+        String headerAccessorId = headerAccessor.getSessionId();
+        return (User) headerAccessor.getSessionAttributes().get(headerAccessorId);
+    }
+
+    //it still an issue with the exception who comes from the messages that this errors don't are caught nor thrown,
+    // we must have two different exception handler
 }

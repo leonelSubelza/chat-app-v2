@@ -11,6 +11,7 @@ import { Message } from '../components/interfaces/messages.ts';
 import { getActualDate } from '../utils/MessageDateConvertor.ts';
 import { ChatUserRole, UserChat } from '../components/interfaces/chatRoom.types.ts';
 import { startAuthentication } from '../auth/authenticationCreator.ts';
+import { AuthResponse, ErrorDetails } from '../auth/auth.types.tsx';
 
 export const chatRoomConnectionContext = React.createContext<ChatRoomConnectionContextType>(undefined);
 
@@ -33,7 +34,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     const userDataContext: UserDataContextType = useUserDataContext();
 
     const { setChannelExists, userData, setUserData, stompClient, loadUserDataValues,
-        chats, setChats, tab, setTab,
+        chats, setChats, tab, setTab, tokenJwt,
         bannedUsers, setBannedUsers } = useContext(userContext) as UserDataContextType;
 
     const disconnectChat = (notifyOthers: boolean):void => {
@@ -53,11 +54,13 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             return;
         }
         if (stompClient.current === null && !startedConnection.current) {
+            console.log("se inicia la conexion con el serv");
+            
             startedConnection.current = true;
             let Sock = new SockJS(serverURL);
             stompClient.current = over(Sock);
             // stompClient.current.debug = null
-            stompClient.current.connect({}, onConnected, onError);
+            stompClient.current.connect({Authorization: `Bearer ${tokenJwt}`}, onConnected, onError);
         }
     }
 
@@ -411,13 +414,16 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     //   }
 
     useEffect(() => {
-          loadUserDataValues();
-          let authResponse = startAuthentication();
-          if( authResponse === null) {
-            lostConnection.current = true;
-            return;
-          }
-          startServerConnection();
+          startAuthentication()
+          .then( (isValidAuth: boolean) => {
+            if(isValidAuth){
+                lostConnection.current = false;
+                loadUserDataValues();
+                startServerConnection();
+            }else{
+                lostConnection.current = true;
+            }
+        });
     }, []);
 
     return (
