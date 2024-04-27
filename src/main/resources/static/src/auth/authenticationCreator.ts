@@ -20,7 +20,7 @@ export const startAuthentication = async (): Promise<boolean> => {
         if (response.ok) {
             const authResponse: AuthResponse = await response.json();
             localStorage.setItem("tokenJwt", authResponse.jwt);
-            console.log("se autentico");
+            console.log("autenticación exitosa");
             return true; // Autenticación exitosa
         } else {
             const errorDetails: ErrorDetails = await response.json();

@@ -54,13 +54,12 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             return;
         }
         if (stompClient.current === null && !startedConnection.current) {
-            console.log("se inicia la conexion con el serv");
-            
             startedConnection.current = true;
+            let token = tokenJwt===null ? localStorage.getItem('tokenJwt') : tokenJwt;
             let Sock = new SockJS(serverURL);
             stompClient.current = over(Sock);
             // stompClient.current.debug = null
-            stompClient.current.connect({Authorization: `Bearer ${tokenJwt}`}, onConnected, onError);
+            stompClient.current.connect({Authorization: `Bearer ${token}`}, onConnected, onError);
         }
     }
 
@@ -377,6 +376,21 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         return Array.from(chats.keys()).find(k => k.id === id)!;
     }
 
+//   const [consoleLogs, setConsoleLogs] = useState<string[]>([]);
+//   useEffect(() => {
+//     const originalConsoleLog = console.log;
+//     console.log = (...args: any[]) => {
+//       // Mantenemos el comportamiento original de console.log
+//       originalConsoleLog(...args);
+//       // Actualizamos el estado para mostrar el mensaje en pantalla
+//       setConsoleLogs(prevLogs => [...prevLogs, args.join(' ')]);
+//     }
+//         return () => {
+//       // Restauramos console.log al valor original cuando el componente se desmonta
+//       console.log = originalConsoleLog;
+//     };
+// },[]);
+
     useEffect(() => {
         //COSO PARA MARCAR MSJ NO LEIDO
         let unreadChat: UserChat = Array.from(chats.keys())!.find(c => c.hasUnreadedMessages)!;
@@ -393,37 +407,25 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         
     }, [chats])
 
-
-    // async function startApp() {
-    //     try {
-    //       // Llama a loadUserDataValues() y espera a que se complete
-    //       loadUserDataValues();
-          
-    //       // Llama a startAuthentication() y espera a que se complete
-    //       await startAuthentication();
-          
-    //       // Llama a startServerConnection() y espera a que se complete
-    //       startServerConnection();
-          
-    //       // Todas las funciones se han completado con éxito
-    //       console.log('¡La aplicación se ha iniciado correctamente!');
-    //     } catch (error) {
-    //       // Maneja cualquier error que pueda ocurrir en alguna de las funciones
-    //       console.error('Error al iniciar la aplicación:', error);
-    //     }
-    //   }
-
     useEffect(() => {
-          startAuthentication()
-          .then( (isValidAuth: boolean) => {
-            if(isValidAuth){
-                lostConnection.current = false;
-                loadUserDataValues();
-                startServerConnection();
-            }else{
-                lostConnection.current = true;
-            }
-        });
+        if (tokenJwt === null) {
+            startAuthentication()
+                .then((isValidAuth: boolean) => {
+                    if (!isValidAuth) {
+                        lostConnection.current = true;
+                    } else {
+                        loadUserDataValues();
+                        startServerConnection();
+                    }
+                })
+                .catch(error => {
+                    console.error("Error al autenticar:", error);
+                    lostConnection.current = true;
+                });
+        } else {
+            loadUserDataValues();
+            startServerConnection();
+        }
     }, []);
 
     return (
@@ -441,6 +443,13 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                     <button onClick={()=> window.location.reload()}>🔄</button>
                     .
             </div>
+
+            {/* <div className='consola'>
+                {consoleLogs.map((log, index) => (
+                    <div key={index}>{log}</div>
+                ))}
+            </div> */}
+
             {children}
         </chatRoomConnectionContext.Provider>
     )

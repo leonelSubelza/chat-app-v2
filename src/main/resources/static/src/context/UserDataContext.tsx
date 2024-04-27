@@ -101,7 +101,7 @@ export function UserDataContext({ children }: UserDataProviderProps){
     } else {
       userData.username = localStorage.getItem('username')+'';
     }
-    setTokenJwt(localStorage.getItem('tokenJwt'));
+    setTokenJwt(localStorage.getItem('tokenJwt'));    
     userData.id = userId;
     setUserData({ ...userData, 
       "id":userId, "avatarImg": userData.avatarImg, "username": userData.username });

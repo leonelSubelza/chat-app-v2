@@ -32,9 +32,7 @@ public class AuthenticationService {
         //Se setea la autenticacion en la sesion de SpringSecurity actual para que pueda ser accedido desde cualquier
         //parte del codigo
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         String accessToken = this.jwtService.createToken(authentication);
-
         return new AuthResponse(request.username(), "User logged successfully!",accessToken,true);
     }
 

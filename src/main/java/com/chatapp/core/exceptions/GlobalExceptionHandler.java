@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
         if(user==null) return;
         log.error("Message Error: MethodArgumentNotValidException. The user {} with id {} sent a message too long",
                 user.getUsername(),user.getId());
-        Message message = generateErrorMessage(user,"The message sent is too long");
+        Message message = EntityCreator.generateErrorMessage(user,"The message sent is too long");
         simpMessagingTemplate.convertAndSend(
                 "/user/"+user.getId()+"/"+user.getRoomId()+"/private",message);
     }
@@ -53,22 +53,32 @@ public class GlobalExceptionHandler {
         User user = getUserFromError(headerAccessor);
         if(user==null) return;
         log.error("General Message error from the user {} with id {}",user.getUsername(),user.getId());
-        Message message = generateErrorMessage(user,badRequest.toString());
+        Message message = EntityCreator.generateErrorMessage(user,badRequest.toString());
         simpMessagingTemplate.convertAndSend(
                 "/user/"+user.getId()+"/"+user.getRoomId()+"/private",message);
     }
 
+//    @ExceptionHandler(JWTVerificationException.class)
+//    public void handleJWTVerificationExceptionMessage(
+//            MethodArgumentNotValidException ex,
+//            SimpMessageHeaderAccessor headerAccessor) {
+//        log.error("Message error: JWTVerificationException function executed");
+//        HttpStatus badRequest = HttpStatus.INTERNAL_SERVER_ERROR;
+//        User user = getUserFromError(headerAccessor);
+//        if(user==null) return;
+//        Message message = EntityCreator.generateErrorMessage(user,badRequest.toString());
+//        simpMessagingTemplate.convertAndSend(
+//                "/user/"+user.getId()+"/"+user.getRoomId()+"/private",message);
+//    }
+
     @ExceptionHandler(JWTVerificationException.class)
-    public void handleJWTVerificationExceptionMessage(
-            MethodArgumentNotValidException ex,
-            SimpMessageHeaderAccessor headerAccessor) {
-        log.error("Message error: JWTVerificationException function executed");
-        HttpStatus badRequest = HttpStatus.INTERNAL_SERVER_ERROR;
-        User user = getUserFromError(headerAccessor);
-        if(user==null) return;
-        Message message = generateErrorMessage(user,badRequest.toString());
-        simpMessagingTemplate.convertAndSend(
-                "/user/"+user.getId()+"/"+user.getRoomId()+"/private",message);
+    public ResponseEntity<ErrorDetails> handleJWTVerificationException(
+            UsernameNotFoundException ex,
+            WebRequest webRequest) {
+        log.error("Authentication error: UsernameNotFoundException function executed");
+        HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
+        ErrorDetails errorDetails = EntityCreator.generateErrorDetails(httpStatus,ex, webRequest);
+        return new ResponseEntity<>(errorDetails, httpStatus);
     }
 
     //Exception for authentication
@@ -78,7 +88,7 @@ public class GlobalExceptionHandler {
             WebRequest webRequest) {
         log.error("Authentication error: UsernameNotFoundException function executed");
         HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
-        ErrorDetails errorDetails = generateErrorDetails(httpStatus,ex, webRequest);
+        ErrorDetails errorDetails = EntityCreator.generateErrorDetails(httpStatus,ex, webRequest);
         return new ResponseEntity<>(errorDetails, httpStatus);
     }
 
@@ -88,7 +98,7 @@ public class GlobalExceptionHandler {
             WebRequest webRequest) {
         log.error("Authentication error: BadCredentialsException function executed");
         HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
-        ErrorDetails errorDetails = generateErrorDetails(httpStatus,ex, webRequest);
+        ErrorDetails errorDetails = EntityCreator.generateErrorDetails(httpStatus,ex, webRequest);
         return new ResponseEntity<>(errorDetails,httpStatus);
     }
 
@@ -97,31 +107,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleGlobalException(Exception ex, WebRequest webRequest){
         log.error("Http error: GlobalException function executed");
         HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-        ErrorDetails errorDetails = generateErrorDetails(httpStatus,ex, webRequest);
+        ErrorDetails errorDetails = EntityCreator.generateErrorDetails(httpStatus,ex, webRequest);
         return new ResponseEntity<>(errorDetails, httpStatus);
-    }
-
-    public ErrorDetails generateErrorDetails(HttpStatus httpStatus,
-                                      Exception ex,
-                                      WebRequest webRequest) {
-        return ErrorDetails
-                .builder()
-                .timestamp(new Date())
-                .message(ex.getMessage())
-                .details(webRequest.getDescription(false))
-                .statusCode(httpStatus.value()+"")
-                .build();
-    }
-
-    public Message generateErrorMessage(User user, String message){
-        return Message.builder()
-                .senderId(user.getId())
-                .senderName(user.getUsername())
-                .status(Status.ERROR)
-                .message(message)
-                .date(DateGenerator.getUTCFormatDate())
-                .urlSessionId(user.getRoomId())
-                .build();
     }
 
     public User getUserFromError(SimpMessageHeaderAccessor headerAccessor){
