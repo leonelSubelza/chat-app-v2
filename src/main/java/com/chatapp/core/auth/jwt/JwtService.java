@@ -95,7 +95,8 @@ public class JwtService {
                     .build();
 
             return verifier.verify(token);
-        }catch (JWTVerificationException e) {
+        }
+        catch (JWTVerificationException e) {
             System.out.println("tiró excepcion el validar token");
             throw new JWTVerificationException("Token invalid, not Authorized");
         }
@@ -105,6 +106,7 @@ public class JwtService {
         try {
             return decodedJWT.getSubject().equals(userDetails.getUsername()) && !isTokenExpired(decodedJWT);
         } catch (TokenExpiredException ex) {
+            System.out.println("tiró excepcion token expirado");
             throw new TokenExpiredException("The token is expired",decodedJWT.getIssuedAtAsInstant());
         }
     }
@@ -144,7 +146,7 @@ public class JwtService {
         String username = extractUsername(decodedJWT);
         Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (username != null && authentication == null) {
 //            log.info("Security context was null, so authorizing user");
 //            log.info("User details request received for user: {}", username);
             UserDetails userToAuthenticate = findByUsername(username);

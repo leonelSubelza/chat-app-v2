@@ -1,14 +1,10 @@
 package com.chatapp.core.exceptions;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.chatapp.core.model.Message;
-import com.chatapp.core.model.Status;
 import com.chatapp.core.model.User;
-import com.chatapp.core.utils.DateGenerator;
 import com.chatapp.core.utils.EntityCreator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
@@ -20,13 +16,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
-
-import java.util.Date;
-import java.util.Objects;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
 @Slf4j
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
@@ -35,7 +29,7 @@ public class GlobalExceptionHandler {
     protected void handleMessageHandlingException(MethodArgumentNotValidException ex,
                                                   SimpMessageHeaderAccessor headerAccessor) {
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
-        User user = getUserFromError(headerAccessor);
+        User user = EntityCreator.getUserFromError(headerAccessor);
         if(user==null) return;
         log.error("Message Error: MethodArgumentNotValidException. The user {} with id {} sent a message too long",
                 user.getUsername(),user.getId());
@@ -47,10 +41,11 @@ public class GlobalExceptionHandler {
     //Catch general exceptions
     @MessageExceptionHandler(Exception.class)
 //    protected void handleChatAppException(Exception ex,@Headers Map<String, Object> headers) {
-    protected void handleChatAppException(MethodArgumentNotValidException ex,
+    protected void handleChatAppException(Exception ex,
                                           SimpMessageHeaderAccessor headerAccessor) {
+        System.out.println("se ejecuta error general de msj");
         HttpStatus badRequest = HttpStatus.INTERNAL_SERVER_ERROR;
-        User user = getUserFromError(headerAccessor);
+        User user = EntityCreator.getUserFromError(headerAccessor);
         if(user==null) return;
         log.error("General Message error from the user {} with id {}",user.getUsername(),user.getId());
         Message message = EntityCreator.generateErrorMessage(user,badRequest.toString());
@@ -58,64 +53,30 @@ public class GlobalExceptionHandler {
                 "/user/"+user.getId()+"/"+user.getRoomId()+"/private",message);
     }
 
-//    @ExceptionHandler(JWTVerificationException.class)
-//    public void handleJWTVerificationExceptionMessage(
-//            MethodArgumentNotValidException ex,
-//            SimpMessageHeaderAccessor headerAccessor) {
-//        log.error("Message error: JWTVerificationException function executed");
-//        HttpStatus badRequest = HttpStatus.INTERNAL_SERVER_ERROR;
-//        User user = getUserFromError(headerAccessor);
-//        if(user==null) return;
-//        Message message = EntityCreator.generateErrorMessage(user,badRequest.toString());
-//        simpMessagingTemplate.convertAndSend(
-//                "/user/"+user.getId()+"/"+user.getRoomId()+"/private",message);
-//    }
 
-    @ExceptionHandler(JWTVerificationException.class)
-    public ResponseEntity<ErrorDetails> handleJWTVerificationException(
-            UsernameNotFoundException ex,
-            WebRequest webRequest) {
-        log.error("Authentication error: UsernameNotFoundException function executed");
-        HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
-        ErrorDetails errorDetails = EntityCreator.generateErrorDetails(httpStatus,ex, webRequest);
-        return new ResponseEntity<>(errorDetails, httpStatus);
-    }
-
-    //Exception for authentication
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<ErrorDetails> handleUsernameNotFoundException(
-            UsernameNotFoundException ex,
-            WebRequest webRequest) {
-        log.error("Authentication error: UsernameNotFoundException function executed");
-        HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
-        ErrorDetails errorDetails = EntityCreator.generateErrorDetails(httpStatus,ex, webRequest);
-        return new ResponseEntity<>(errorDetails, httpStatus);
-    }
-
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorDetails> handleBadCredentialsException(
-            BadCredentialsException ex,
-            WebRequest webRequest) {
-        log.error("Authentication error: BadCredentialsException function executed");
-        HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
-        ErrorDetails errorDetails = EntityCreator.generateErrorDetails(httpStatus,ex, webRequest);
-        return new ResponseEntity<>(errorDetails,httpStatus);
-    }
-
-//    Global exception for http
+    //    Global exception for http errors
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGlobalException(Exception ex, WebRequest webRequest){
+        System.out.println("se ejecuta error Exception general para http");
+
         log.error("Http error: GlobalException function executed");
         HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorDetails errorDetails = EntityCreator.generateErrorDetails(httpStatus,ex, webRequest);
         return new ResponseEntity<>(errorDetails, httpStatus);
     }
 
-    public User getUserFromError(SimpMessageHeaderAccessor headerAccessor){
-        String headerAccessorId = headerAccessor.getSessionId();
-        return (User) headerAccessor.getSessionAttributes().get(headerAccessorId);
+    //Exception for authentication
+    //The errors during the auth cannot be caught like this, this error is caught here because
+    // is thrown by the AuthService. Other errors like the JWTVerificationException cannot be caught here
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorDetails> handleUsernameNotFoundException(
+            BadCredentialsException ex,
+            WebRequest webRequest) {
+        log.error("Authentication error: BadCredentialsException function executed");
+        HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
+        ErrorDetails errorDetails = EntityCreator.generateErrorDetails(httpStatus,ex, webRequest);
+        return new ResponseEntity<>(errorDetails, httpStatus);
     }
 
-    //it still an issue with the exception who comes from the messages that this errors don't are caught nor thrown,
-    // we must have two different exception handler
+
 }

@@ -6,6 +6,7 @@ import com.chatapp.core.model.Room;
 import com.chatapp.core.model.Status;
 import com.chatapp.core.model.User;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.Date;
@@ -49,7 +50,7 @@ public class EntityCreator {
                 .timestamp(new Date())
                 .message(ex.getMessage())
                 .details(webRequest.getDescription(false))
-                .statusCode(httpStatus.value()+"")
+                .statusCode(httpStatus.value())
                 .build();
     }
 
@@ -62,5 +63,10 @@ public class EntityCreator {
                 .date(DateGenerator.getUTCFormatDate())
                 .urlSessionId(user.getRoomId())
                 .build();
+    }
+
+    public static User getUserFromError(SimpMessageHeaderAccessor headerAccessor){
+        String headerAccessorId = headerAccessor.getSessionId();
+        return (User) headerAccessor.getSessionAttributes().get(headerAccessorId);
     }
 }

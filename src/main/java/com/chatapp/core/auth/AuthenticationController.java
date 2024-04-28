@@ -21,4 +21,9 @@ public class AuthenticationController {
         return new ResponseEntity<AuthResponse>(this.authenticationService.login(userRequest), HttpStatus.OK);
     }
 
+    @GetMapping("/helloWorld")
+    public ResponseEntity<String> helloWorld(){
+        return new ResponseEntity<String>("helloWorld",HttpStatus.OK);
+    }
+
 }

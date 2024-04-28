@@ -12,5 +12,5 @@ public class ErrorDetails {
     private Date timestamp;
     private String message;
     private String details;
-    private String statusCode;
+    private int statusCode;
 }
