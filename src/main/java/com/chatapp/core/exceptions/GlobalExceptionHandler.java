@@ -12,7 +12,6 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -26,7 +25,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     //Catch validation exceptions
     @MessageExceptionHandler(MethodArgumentNotValidException.class)
-    protected void handleMessageHandlingException(MethodArgumentNotValidException ex,
+    public void handleMessageHandlingException(MethodArgumentNotValidException ex,
                                                   SimpMessageHeaderAccessor headerAccessor) {
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
         User user = EntityCreator.getUserFromError(headerAccessor);
@@ -41,7 +40,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     //Catch general exceptions
     @MessageExceptionHandler(Exception.class)
 //    protected void handleChatAppException(Exception ex,@Headers Map<String, Object> headers) {
-    protected void handleChatAppException(Exception ex,
+    public void handleChatAppException(Exception ex,
                                           SimpMessageHeaderAccessor headerAccessor) {
         System.out.println("se ejecuta error general de msj");
         HttpStatus badRequest = HttpStatus.INTERNAL_SERVER_ERROR;

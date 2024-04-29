@@ -9,6 +9,8 @@ const clientCredentials: AuthLoginRequest = {
 //Retorna true si la auth fue exitosa
 export const startAuthentication = async (): Promise<boolean> => {
     try {
+        console.log("se hace la request");
+        
         const response = await fetch(baseServerURL + "/auth/login", {
             method: "POST",
             headers: {
@@ -20,15 +22,21 @@ export const startAuthentication = async (): Promise<boolean> => {
         if (response.ok) {
             const authResponse: AuthResponse = await response.json();
             localStorage.setItem("tokenJwt", authResponse.jwt);
-            console.log("autenticación exitosa");
             return true; // Autenticación exitosa
         } else {
+            //BadCredencials posible error (se enviaron mal las credenciales/usuario)
             const errorDetails: ErrorDetails = await response.json();
-            console.error("Error en la autenticación:", errorDetails.message);
+            console.error("Resp del serv. Error en la autenticación:", errorDetails.message);
             return false; // Autenticación fallida
         }
     } catch (error) {
-        console.error("Error al realizar la autenticación:", error);
+        console.error("Error al realizar la request auth:", error);
         return false; // Autenticación fallida
     }
+}
+
+export const isTokenInvalid = (response: string): boolean => {
+    return response.includes(
+        "Failed to send message to ExecutorSubscribableChannel[clientInboundChannel]"
+    );
 }

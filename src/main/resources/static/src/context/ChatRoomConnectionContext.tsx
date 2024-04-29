@@ -10,8 +10,7 @@ import { MessagesStatus } from '../components/interfaces/messages.status.ts';
 import { Message } from '../components/interfaces/messages.ts';
 import { getActualDate } from '../utils/MessageDateConvertor.ts';
 import { ChatUserRole, UserChat } from '../components/interfaces/chatRoom.types.ts';
-import { startAuthentication } from '../auth/authenticationCreator.ts';
-import { AuthResponse, ErrorDetails } from '../auth/auth.types.tsx';
+import { isTokenInvalid, startAuthentication } from '../auth/authenticationCreator.ts';
 
 export const chatRoomConnectionContext = React.createContext<ChatRoomConnectionContextType>(undefined);
 
@@ -34,7 +33,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     const userDataContext: UserDataContextType = useUserDataContext();
 
     const { setChannelExists, userData, setUserData, stompClient, loadUserDataValues,
-        chats, setChats, tab, setTab, tokenJwt,
+        chats, setChats, tab, setTab, tokenJwt, setTokenJwt,
         bannedUsers, setBannedUsers } = useContext(userContext) as UserDataContextType;
 
     const disconnectChat = (notifyOthers: boolean):void => {
@@ -55,7 +54,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         }
         if (stompClient.current === null && !startedConnection.current) {
             startedConnection.current = true;
-            let token = tokenJwt===null ? localStorage.getItem('tokenJwt') : tokenJwt;
+            let token = localStorage.getItem('tokenJwt');
             let Sock = new SockJS(serverURL);
             stompClient.current = over(Sock);
             // stompClient.current.debug = null
@@ -76,12 +75,15 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         setUserData({ ...userData });
     }
 
-    const onError = (err: unknown) => {
-        console.log("Error conectando al wb: " + err);
-        lostConnection.current = true;
-        //alert(err);
-        disconnectChat(false);
-        navigate('/')
+    const onError = (error: unknown) => {
+        //Si hay un error simplemente volvemos a authenticar en la app. El error mayor es si
+        //la auth también falla, ahi si se cae el sist
+        let err = error.toString();
+        console.log("Error conectando al wb: " + err+", se renueva el token");
+        startedConnection.current = false;
+        stompClient.current = null;
+        localStorage.setItem("tokenJwt",null)
+        startApplication();
     }
 
     //si la room no existe, se procede a crear una, si si existe te desconecto
@@ -189,7 +191,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             let userToMakeAdmin:UserChat = getUserSavedFromChats(message.receiverId);
             userData.chatRole = ChatUserRole.CLIENT;
             userToMakeAdmin.chatRole = ChatUserRole.ADMIN
-            alert(message.receiverName+' is the new admin!');
+            alert("ℹ️: "+message.receiverName+' is the new admin!');
         }
         //Un admin me convierte a mi en admin 😎        
         if(message.receiverId === userData.id){
@@ -199,7 +201,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 userToHandle.chatRole = ChatUserRole.CLIENT
             }
             userData.chatRole = ChatUserRole.ADMIN;
-            alert(message.senderName+' has made you the new admin!');
+            alert("ℹ️: "+message.senderName+' has made you the new admin! 😎');
         }
         //Alguien que es admin convierte a otro en admin
         if(message.senderId!==userData.id && message.receiverId!==userData.id){
@@ -212,7 +214,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 alert('Se intenta convertir en admin a alguien que no esta en la sala')
             }
             userToMakeAdmin.chatRole = ChatUserRole.ADMIN;
-            alert(message.receiverName+' is the new admin!');
+            alert("ℹ️: " +message.receiverName+' is the new admin!');
         }
         setUserData(userData);
         setChats(new Map(chats));
@@ -376,6 +378,35 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         return Array.from(chats.keys()).find(k => k.id === id)!;
     }
 
+    const authenticateClient = () => {
+        startAuthentication()
+        .then((isValidAuth: boolean) => {
+            if (!isValidAuth) {
+                console.log("la conexion fallo!");
+                lostConnection.current = true;
+                disconnectChat(false);
+                navigate('/');
+            } else {
+                loadUserDataValues();
+                startServerConnection();
+            }
+        })
+        .catch(error => {
+            lostConnection.current = true;
+        });
+    }
+
+    const startApplication = () => {
+        let tokenJwtAux: string = localStorage.getItem("tokenJwt");
+        if (tokenJwtAux === "null") {
+            authenticateClient();
+        } else {
+            loadUserDataValues();
+            startServerConnection();
+        }
+    }
+
+
 //   const [consoleLogs, setConsoleLogs] = useState<string[]>([]);
 //   useEffect(() => {
 //     const originalConsoleLog = console.log;
@@ -408,24 +439,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     }, [chats])
 
     useEffect(() => {
-        if (tokenJwt === null) {
-            startAuthentication()
-                .then((isValidAuth: boolean) => {
-                    if (!isValidAuth) {
-                        lostConnection.current = true;
-                    } else {
-                        loadUserDataValues();
-                        startServerConnection();
-                    }
-                })
-                .catch(error => {
-                    console.error("Error al autenticar:", error);
-                    lostConnection.current = true;
-                });
-        } else {
-            loadUserDataValues();
-            startServerConnection();
-        }
+        startApplication();
     }, []);
 
     return (
