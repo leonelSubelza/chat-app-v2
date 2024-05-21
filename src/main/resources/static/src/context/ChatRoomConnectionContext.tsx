@@ -1,4 +1,4 @@
-import type { ChatRoomConnectionContextType, UserData, UserDataContextType } from './types/types.ts';
+import type { ChatRoomConnectionContextType, UserData, UserDataContextType, UserDataSaveLocalStorage } from './types/types.ts';
 import React, { ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { userContext, useUserDataContext } from './UserDataContext.tsx';
 import { createMessageJoin, createPrivateMessage, createPublicMessage, createUserChat, resetValues, updateChatData } from '../components/ChatRoom/ChatRoomFunctions.ts';
@@ -10,7 +10,8 @@ import { MessagesStatus } from '../components/interfaces/messages.status.ts';
 import { Message } from '../components/interfaces/messages.ts';
 import { getActualDate } from '../utils/MessageDateConvertor.ts';
 import { ChatUserRole, UserChat } from '../components/interfaces/chatRoom.types.ts';
-import { isTokenInvalid, startAuthentication } from '../auth/authenticationCreator.ts';
+import { isAuthenticationExpired, isTokenInvalid, startAuthentication } from '../auth/authenticationCreator.ts';
+import { ChatPaths } from '../config/chatConfiguration.ts';
 
 export const chatRoomConnectionContext = React.createContext<ChatRoomConnectionContextType>(undefined);
 
@@ -33,13 +34,13 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     const userDataContext: UserDataContextType = useUserDataContext();
 
     const { setChannelExists, userData, setUserData, stompClient, loadUserDataValues,
-        chats, setChats, tab, setTab, tokenJwt, setTokenJwt,
+        chats, setChats, tab, setTab, tokenJwt,setTokenJwt,
         bannedUsers, setBannedUsers } = useContext(userContext) as UserDataContextType;
 
     const disconnectChat = (notifyOthers: boolean):void => {
         if(notifyOthers){
             let leaveMessage: Message = createPublicMessage(MessagesStatus.LEAVE,userData);
-            stompClient.current.send("/app/user.disconnected",{},JSON.stringify(leaveMessage));
+            sendMessage(leaveMessage,ChatPaths.USER_DISCONNECTED)
         }
         if (stompClient.current !== null && Object.keys(stompClient.current.subscriptions).length > 0) {
             //se desuscribe de todos los canales
@@ -67,7 +68,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
 
         if(stompClient.current!==null && stompClient.current.subscriptions){
             stompClient.current.subscribe('/chatroom/public', (payload: any)=>{
-              var message: Message = JSON.parse(payload.body);
+              let message: Message = JSON.parse(payload.body);
               console.log(message);
           });
           }
@@ -80,16 +81,16 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         //la auth también falla, ahi si se cae el sist
         let err = error.toString();
         console.log("Error conectando al wb: " + err+", se renueva el token");
-        startedConnection.current = false;
-        stompClient.current = null;
+        // startedConnection.current = false;
+        // stompClient.current = null;
         localStorage.setItem("tokenJwt",null)
-        startApplication();
+        // startApplication();
     }
 
     //si la room no existe, se procede a crear una, si si existe te desconecto
     const checkIfChannelExists = (): void => {
         stompClient.current.subscribe('/user/' + userData.id + '/exists-channel', (payload: any) => {
-            var message: Message = JSON.parse(payload.body);
+            let message: Message = JSON.parse(payload.body);
             if(message.status === MessagesStatus.ALREADY_CONNECTED){
                 alert('Ya se encuentra conectado a esta sala!');
                 disconnectChat(false);
@@ -118,8 +119,8 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             //Me desuscribo a este canal por el tema de evitar doble conexion
             //Si ya estaba conectado a esta sala, el servidor me avisará por este canal y  el msj
             //solo me llegará a la version duplicada y no al que ya esta conectado
-            let channelsSusbribed = Object.keys(stompClient.current.subscriptions)
-            let latestChannelSubscribed = channelsSusbribed[ channelsSusbribed.length-1 ];
+            let channelsSuscribed = Object.keys(stompClient.current.subscriptions)
+            let latestChannelSubscribed = channelsSuscribed[ channelsSuscribed.length-1 ];
             stompClient.current.unsubscribe(latestChannelSubscribed);
             
             setChannelExists(true);
@@ -129,17 +130,14 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             //se pasa a la room
             navigate(`${webSiteChatURL}${userData.urlSessionid}`);
         });
-        
-        console.log("se debería enviar el roomId: "+userData.urlSessionid);
-        
-        var chatMessage: Message = {
+        let chatMessage: Message = {
             senderId: userData.id,
             senderName: userData.username,
             date: getActualDate(),
             status: userData.status,
             urlSessionId: userData.urlSessionid
         }
-        stompClient.current.send("/app/check-channel", {}, JSON.stringify(chatMessage))
+        sendMessage(chatMessage,ChatPaths.CHECK_CHANNEL)
     }
 
     const subscribeRoomChannels = () => {
@@ -151,7 +149,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
 
     const userJoin = () => {
         var chatMessage: Message = createPublicMessage(userData.status, userData);
-        stompClient.current.send("/app/chat.join", {}, JSON.stringify(chatMessage));
+        sendMessage(chatMessage,ChatPaths.CHAT_JOIN)
     }
 
     //Acá no se pregunta si se es admin o no porque es un proceso ya hecho en el servidor
@@ -334,7 +332,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 userDataAux.urlSessionid = roomId;
                 var chatMessage: Message = createPrivateMessage(
                     MessagesStatus.JOIN, userDataAux, message.senderName, message.senderId);
-                stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
+                sendMessage(chatMessage,ChatPaths.PRIVATE_MESSAGE)
             }
         }
     }
@@ -378,30 +376,66 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         return Array.from(chats.keys()).find(k => k.id === id)!;
     }
 
-    const authenticateClient = () => {
-        startAuthentication()
-        .then((isValidAuth: boolean) => {
-            if (!isValidAuth) {
-                console.log("la conexion fallo!");
+    const authenticateClient = async (): Promise<string> => {
+        try {
+            const tokenResponse: string = await startAuthentication();
+            //If auth is valid the values token and expirationToken in localstorage will be not null
+            if (tokenResponse) {
+                setTokenJwt(tokenResponse);
+                let userDataStorage: UserDataSaveLocalStorage = JSON.parse(localStorage.getItem("userData"));
+                userData.tokenExpirationDate= new Date(userDataStorage.tokenExpirationDate);
+                return tokenResponse;
+            } else {
+                console.log("La conexión falló!");
                 lostConnection.current = true;
                 disconnectChat(false);
                 navigate('/');
-            } else {
-                loadUserDataValues();
-                startServerConnection();
+                return undefined;
             }
-        })
-        .catch(error => {
+        } catch (error) {
             lostConnection.current = true;
-        });
+            return undefined;
+        }
+    }
+
+    const sendMessage = (message: Message, url: string) => {
+        if(isAuthenticationExpired(userData.tokenExpirationDate)){
+            authenticateClient()
+            .then((tokenRes: string) => {
+                if(!tokenRes) return;
+                stompClient.current.send(
+                    url, 
+                    {Authorization: `Bearer ${tokenRes}`},
+                    JSON.stringify(message)
+                )
+            });
+        }else{
+            stompClient.current.send(
+                url, 
+                {Authorization: `Bearer ${tokenJwt}`},
+                JSON.stringify(message)
+            )
+        }
+    }
+
+    const isTokenPresent = (tokenJwtAux: string): boolean => {
+        return (tokenJwtAux === null || tokenJwtAux === '' || tokenJwtAux=== undefined || tokenJwtAux=== 'null');
     }
 
     const startApplication = () => {
-        let tokenJwtAux: string = localStorage.getItem("tokenJwt");
-        if (tokenJwtAux === "null") {
-            authenticateClient();
+        loadUserDataValues();
+        let tokenJwtAux: string = localStorage.getItem("tokenJwt")===null
+        ? tokenJwt : localStorage.getItem("tokenJwt");
+        // let tokenExpirationDate: Date = JSON.parse(localStorage.getItem('userData')).tokenExpirationDate;
+        if (isTokenPresent(tokenJwtAux) || isAuthenticationExpired(userData.tokenExpirationDate)) {
+            console.log("token inválido, autenticando...")
+            authenticateClient()
+            .then((tokenRes: string) => {
+                if(tokenRes) {
+                    startServerConnection()
+                }
+            });
         } else {
-            loadUserDataValues();
             startServerConnection();
         }
     }
@@ -421,6 +455,18 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
 //       console.log = originalConsoleLog;
 //     };
 // },[]);
+
+    // useEffect(()=>{
+    //     if(localStorage.getItem("userData")===null || localStorage.getItem("userData")==="null"){
+    //         return;
+    //     }
+    //     let userDataStorage: UserDataSaveLocalStorage = JSON.parse(localStorage.getItem("userData"));
+    //     let tokenExpirationDate: Date = new Date(userDataStorage.tokenExpirationDate);
+    //     let horaActual: Date = new Date();
+    //     if(tokenExpirationDate < horaActual){
+    //         authenticateClient();
+    //     }
+    // })
 
     useEffect(() => {
         //COSO PARA MARCAR MSJ NO LEIDO
@@ -448,6 +494,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 disconnectChat,
                 checkIfChannelExists,
                 startServerConnection,
+                sendMessage,
                 startedConnection,
                 lostConnection
             }}

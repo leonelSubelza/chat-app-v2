@@ -1,4 +1,4 @@
-import type { ChatRoomConnectionContextType, UserDataContextType,} from "../../context/types/types.ts";
+import type { ChatRoomConnectionContextType, UserDataContextType, UserDataSaveLocalStorage,} from "../../context/types/types.ts";
 import React, { useContext, useState } from "react";
 import { userContext} from "../../context/UserDataContext.tsx";
 import { chatRoomConnectionContext } from "../../context/ChatRoomConnectionContext.tsx";
@@ -28,6 +28,9 @@ const Register: React.FC = () => {
     setShowModalIconChooser(false);
     if (iconChoosed !== "") {
       setUserData({ ...userData, avatarImg: iconChoosed });
+      let userDataStorage =  JSON.parse(localStorage.getItem("userData"));
+      userDataStorage.avatarImg = iconChoosed;
+      localStorage.setItem("userData",JSON.stringify(userDataStorage));
     }
   };
   const handleShowModalIconChooser = () => setShowModalIconChooser(true);
@@ -48,7 +51,10 @@ const Register: React.FC = () => {
       return;
     }
     setUserData({ ...userData, username: value });
-    localStorage.setItem("username", value);
+    //saved in localstorage to
+    let userDataStorage =  JSON.parse(localStorage.getItem("userData"));
+    userDataStorage.username = value;
+    localStorage.setItem("userData",JSON.stringify(userDataStorage));
   };
 
   const handleCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -58,17 +64,11 @@ const Register: React.FC = () => {
       return;
     }
 
-    if (
-      (userData.username === "" && localStorage.getItem("username") === null) ||
-      localStorage.getItem("username") === ""
-    ) {
+    if (userData.username === '') {
       alert("se debe poner un nombre de usuario");
       return;
     }
-    if (
-      userData.avatarImg === "" ||
-      localStorage.getItem("avatarImg") === null
-    ) {
+    if (userData.avatarImg === '') {
       alert("Debe seleccionar una imagen");
       return;
     }
@@ -92,13 +92,13 @@ const Register: React.FC = () => {
       disconnectChat(false);
       window.location.reload();
     }
-  }, []);
-
-  useEffect(() => {
-    if (localStorage.getItem("avatarImg") === null) {
-      localStorage.setItem("avatarImg", imageLinks[0]);
+    //overrides these variables because it doesn't load at this moment.
+    if (userData.username === '' && localStorage.getItem("userData")!==null) {
+      let userDataStorage = JSON.parse(localStorage.getItem("userData"));
+      userData.username = userDataStorage.username;
+      userData.avatarImg = userDataStorage.avatarImg;
     }
-  });
+  }, []);
 
   return (
     <>
@@ -115,11 +115,7 @@ const Register: React.FC = () => {
                 <div
                   className="icon-img-contenedor"
                   style={{
-                    backgroundImage: `url(${
-                      localStorage.getItem("avatarImg") === null
-                        ? imageLinks[0]
-                        : localStorage.getItem("avatarImg")
-                    })`,
+                    backgroundImage: `url(${JSON.parse(localStorage.getItem("userData")).avatarImg})`,
                   }}
                 ></div>
                 <button className="icon-edit-btn" onClick={handleShowModalIconChooser}>

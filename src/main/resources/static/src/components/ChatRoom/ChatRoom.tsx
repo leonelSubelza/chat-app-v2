@@ -10,6 +10,9 @@ import { createPrivateMessage, createPublicMessage } from "./ChatRoomFunctions";
 import ChatContainer from "./chat-container/ChatContainer.jsx";
 import { MessagesStatus } from "../interfaces/messages.status";
 import { Message } from "../interfaces/messages";
+import {UserDataSaveLocalStorage} from "../../context/types/types.ts";
+import {saveUserDataStorage} from "../../utils/localStorageFunctions.ts";
+import {ChatPaths} from "../../config/chatConfiguration.ts";
 
 const ChatRoom: React.FC = () => {
   const navigate: NavigateFunction = useNavigate();
@@ -26,13 +29,14 @@ const ChatRoom: React.FC = () => {
     setChats,
   } = useContext(userContext);
 
-  const { startedConnection } = useContext(chatRoomConnectionContext);
+  const { startedConnection,sendMessage } = useContext(chatRoomConnectionContext);
 
   const { disconnectChat, checkIfChannelExists } = useContext(
     chatRoomConnectionContext
   );
 
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [writingMessage, setWritingMessage] = useState<string>();
 
   const connect = (): void => {
     if (stompClient.current === null) {
@@ -42,20 +46,16 @@ const ChatRoom: React.FC = () => {
       return;
     }
 
-    if (
-      userData.username === "" ||
-      localStorage.getItem("username") === null ||
-      localStorage.getItem("username") === "null"
-    ) {
-      let nombre: string = prompt("Ingrese un nombre de usuario");
-      if (nombre === null) {
+    if ( userData.username === "") {
+      let username: string = prompt("Ingrese un nombre de usuario");
+      if (username === null) {
         alert("El nombre no puede ser vacío");
         disconnectChat(false);
         navigate("/");
         return;
       }
-      localStorage.setItem("username", nombre);
-      setUserData({ ...userData, username: nombre });
+      saveUserDataStorage('username',username);
+      setUserData({ ...userData, username: username });
       return;
     }
     //Caso en el que se conecta copiando la url, no se tiene cargado e idRoom, entonces se carga
@@ -82,12 +82,8 @@ const ChatRoom: React.FC = () => {
       return;
     }
     if (stompClient.current) {
-      var chatMessage: Message = createPublicMessage(status, userData);
-      stompClient.current.send(
-        "/app/group-message",
-        {},
-        JSON.stringify(chatMessage)
-      );
+      let chatMessage: Message = createPublicMessage(status, userData);
+      sendMessage(chatMessage,ChatPaths.PUBLIC_MESSAGE)
       if (status === MessagesStatus.MESSAGE) {
         setUserData({ ...userData, message: "" });
       }
@@ -101,7 +97,7 @@ const ChatRoom: React.FC = () => {
       return;
     }
     if (stompClient.current) {
-      var chatMessage: Message = createPrivateMessage(
+      let chatMessage: Message = createPrivateMessage(
         status,
         userData,
         tab.username,
@@ -113,11 +109,7 @@ const ChatRoom: React.FC = () => {
         setChats(new Map(chats));
         // scrollToBottom();
       }
-      stompClient.current.send(
-        "/app/private-message",
-        {},
-        JSON.stringify(chatMessage)
-      );
+      sendMessage(chatMessage,ChatPaths.PRIVATE_MESSAGE);
       if (status === MessagesStatus.MESSAGE) {
         setUserData({ ...userData, message: "" });
         const chatContainer = document.querySelector(".scroll-messages");
@@ -155,7 +147,6 @@ const ChatRoom: React.FC = () => {
     }
   };
 
-  const [writingMessage, setWritingMessage] = useState<string>();
   useEffect(() => {
     if(tab === undefined) return;
     let userChatWriting = Array.from(chats.keys()).find(u => u.id === tab.id);

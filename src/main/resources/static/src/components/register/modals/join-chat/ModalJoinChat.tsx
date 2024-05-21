@@ -13,7 +13,7 @@ interface Props {
 
 const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) => {
 
-    const [inputValue, setInputValue] = useState('');
+    const [inputValue, setInputValue] = useState<string>('');
     const { userData,setUserData } = useContext(userContext);
     const {checkIfChannelExists} = useContext(chatRoomConnectionContext)
 
@@ -23,7 +23,7 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
           console.log("la cant de caracteres es mayor a 255");
           return;
         }
-        setInputValue(value)
+        setInputValue(value);
     }
 
     const handleCloseModal = () => {
@@ -35,13 +35,11 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
             alert('Debe escribir un link para unirse a una sala!');
             return;
         }
-        if(localStorage.getItem('username')===null || localStorage.getItem('username')===''
-        || userData.username === ''){
+        if(userData.username === ''){
             alert('Debe escribir un nombre de usuario!');
             return;
         }
-        if(localStorage.getItem('avatarImg')===null || localStorage.getItem('avatarImg')===''
-        || userData.avatarImg === ''){
+        if(userData.avatarImg === ''){
             alert('Debe seleccionar una imagen!');
             return;
         }

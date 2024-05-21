@@ -40,7 +40,6 @@ ol, ul {
 
 .member.active{
     color:#fff;
-
     background: #4E4F5B;
     transition: all 0.4s ease;
 }

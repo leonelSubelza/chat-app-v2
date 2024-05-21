@@ -11,8 +11,16 @@ export type UserData = {
     //el estado indica luego en el chatroom qué hay que hacer, si unirse auna sala o crear una
     status: MessagesStatus,
     avatarImg: string,
-    chatRole: ChatUserRole;
+    chatRole: ChatUserRole,
+    tokenExpirationDate: Date;
   }
+
+export type UserDataSaveLocalStorage = {
+    id: string,
+    username: string,
+    tokenExpirationDate: Date,
+    avatarImg: string,
+}
 
 export type UserDataContextType = {
     channelExists: boolean,setChannelExists: (value: boolean)=> void,
@@ -32,6 +40,7 @@ export type ChatRoomConnectionContextType = {
     disconnectChat: (notifyOthers: boolean)=>void,
     checkIfChannelExists: ()=>void,
     startServerConnection: ()=>void,
+    sendMessage: (message: Message, url: string)=>void,
     startedConnection: React.MutableRefObject<boolean>,
     lostConnection: React.MutableRefObject<boolean>,
 }
