@@ -83,7 +83,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         console.log("Error conectando al wb: " + err+", se renueva el token");
         // startedConnection.current = false;
         // stompClient.current = null;
-        localStorage.setItem("tokenJwt",null)
+        // localStorage.setItem("tokenJwt",null)
         // startApplication();
     }
 
@@ -399,44 +399,51 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     }
 
     const sendMessage = (message: Message, url: string) => {
-        if(isAuthenticationExpired(userData.tokenExpirationDate)){
-            authenticateClient()
-            .then((tokenRes: string) => {
-                if(!tokenRes) return;
-                stompClient.current.send(
-                    url, 
-                    {Authorization: `Bearer ${tokenRes}`},
-                    JSON.stringify(message)
-                )
-            });
-        }else{
+        let tokenJwtAux: string = localStorage.getItem('tokenJwt');
+        if(isTokenValid()){
             stompClient.current.send(
-                url, 
-                {Authorization: `Bearer ${tokenJwt}`},
+                url,
+                {Authorization: `Bearer ${tokenJwtAux}`},
                 JSON.stringify(message)
             )
+        }else{
+            authenticateClient()
+                .then((tokenRes: string) => {
+                    if(tokenRes) {
+                        console.log("token response correcto, se envía msj a "+url)
+                        stompClient.current.send(
+                            url,
+                            {Authorization: `Bearer ${tokenRes}`},
+                            JSON.stringify(message)
+                        )
+                    }
+                });
         }
     }
 
     const isTokenPresent = (tokenJwtAux: string): boolean => {
-        return (tokenJwtAux === null || tokenJwtAux === '' || tokenJwtAux=== undefined || tokenJwtAux=== 'null');
+        return (tokenJwtAux !== null && tokenJwtAux !== '' && tokenJwtAux  !== undefined && tokenJwtAux=== 'null');
+    }
+
+    const isTokenValid = (): boolean => {
+        let tokenJwtAux: string = localStorage.getItem("tokenJwt");
+        console.log("tokenGuardado: "+tokenJwtAux)
+        return !isAuthenticationExpired(userData.tokenExpirationDate)&&isTokenPresent(tokenJwtAux);
     }
 
     const startApplication = () => {
         loadUserDataValues();
-        let tokenJwtAux: string = localStorage.getItem("tokenJwt")===null
-        ? tokenJwt : localStorage.getItem("tokenJwt");
         // let tokenExpirationDate: Date = JSON.parse(localStorage.getItem('userData')).tokenExpirationDate;
-        if (isTokenPresent(tokenJwtAux) || isAuthenticationExpired(userData.tokenExpirationDate)) {
+        if (isTokenValid()) {
+            startServerConnection();
+        } else {
             console.log("token inválido, autenticando...")
             authenticateClient()
-            .then((tokenRes: string) => {
-                if(tokenRes) {
-                    startServerConnection()
-                }
-            });
-        } else {
-            startServerConnection();
+                .then((tokenRes: string) => {
+                    if(tokenRes) {
+                        startServerConnection()
+                    }
+                });
         }
     }
 

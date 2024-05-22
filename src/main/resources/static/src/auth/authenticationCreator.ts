@@ -58,8 +58,17 @@ export const isAuthenticationExpired = (tokenExpirationDate: Date): boolean => {
     // let userDataStorage: UserDataSaveLocalStorage = JSON.parse(localStorage.getItem("userData"));
     // let tokenExpirationDate = new Date(userDataStorage.tokenExpirationDate);
     if(tokenExpirationDate===undefined) {
-        startAuthentication();
+        // startAuthentication();
         return;
+    }
+    console.log("se ejecuta isAuthExpired")
+    console.log("fecha actual: "+actualDate)
+    console.log("fecha exp: "+tokenExpirationDate)
+    //ARREGLAR QUE NO SE COMPARAN BIEN LAS FECHAS
+    if(tokenExpirationDate < actualDate) {
+        console.log("token expirado");
+    }else{
+        console.log("token NO expirado");
     }
     return tokenExpirationDate < actualDate;
 }
