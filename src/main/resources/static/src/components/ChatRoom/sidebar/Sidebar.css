@@ -5,6 +5,7 @@ p{
 
 .sidebar{
     display: flex;
+    position:relative;
     /* position: fixed; */
     flex-direction: column;
     height: 100%;
@@ -285,7 +286,7 @@ p{
     }
     .sidebar{
         position: fixed;
-        width: 50%;
+        width: 100%;
     }
     .sidebar.close{
         width: 15%;
@@ -306,17 +307,30 @@ p{
 }
 @media (max-width: 560px){
     .sidebar{
-        width: 100%;
+        left: 0;
     }
+    .sidebar.close {
+        width: 100%;
+        left: -1000px;
+    }
+
+    .sidebar.close .menu-details {
+        position:fixed;
+        top:0;
+        left:0;
+        width: 10%;
+        height: 10%;
+    }
+
     .sidebar.close .menu-hamburger{
-        font-size: 28px;  
+        font-size: 28px;
     }
     .menu-details-item i{
         font-size: 18px;
     }
      .menu-details{ 
         overflow: auto;
-     } 
+     }
      .menu-details-item:first-child{
         padding: 0;
      }

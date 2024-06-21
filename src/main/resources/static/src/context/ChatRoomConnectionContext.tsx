@@ -69,7 +69,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         if(stompClient.current!==null && stompClient.current.subscriptions){
             stompClient.current.subscribe('/chatroom/public', (payload: any)=>{
               let message: Message = JSON.parse(payload.body);
-              console.log(message);
+              // console.log(message);
           });
           }
 
@@ -170,7 +170,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 bannedUsers.push(userToBan);
                 setChats(new Map(chats))
                 setBannedUsers(bannedUsers);
-                console.log("se banea a "+userToBan.username);
+                // console.log("se banea a "+userToBan.username);
             }
         }
         if(message.status === MessagesStatus.UNBAN){
@@ -178,7 +178,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             if (userToUnBan!==null) {
                 let bannedUsersAux = bannedUsers.filter( (u:UserChat) => u.id !== userToUnBan.id);
                 setBannedUsers(bannedUsersAux);
-                console.log("se desbanea a "+userToUnBan.username);
+                // console.log("se desbanea a "+userToUnBan.username);
             }
         }
     }
@@ -410,7 +410,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             authenticateClient()
                 .then((tokenRes: string) => {
                     if(tokenRes) {
-                        console.log("token response correcto, se envía msj a "+url)
+                        // console.log("token response correcto, se envía msj a "+url)
                         stompClient.current.send(
                             url,
                             {Authorization: `Bearer ${tokenRes}`},
@@ -427,7 +427,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
 
     const isTokenValid = (): boolean => {
         let tokenJwtAux: string = localStorage.getItem("tokenJwt");
-        console.log("tokenGuardado: "+tokenJwtAux)
+        // console.log("tokenGuardado: "+tokenJwtAux)
         return !isAuthenticationExpired(userData.tokenExpirationDate)&&isTokenPresent(tokenJwtAux);
     }
 
