@@ -90,6 +90,16 @@ button {
   
 }
 
+.spinner-container{
+  height: 100vh;
+  width: 100%;
+  display: flex;
+}
+
+.spinner-container div{
+  margin:auto;
+}
+
 @media screen and (max-width: 768px) {
   body{
     max-height: 100dvh;

@@ -13,6 +13,7 @@ import { Navigate } from "react-router-dom";
 import { maxUsernameLength } from "./../../config/chatConfiguration.ts"
 import { createPublicMessage } from "../ChatRoom/ChatRoomFunctions.ts";
 import { Message } from "../interfaces/messages.ts";
+import {Spinner} from "react-bootstrap";
 
 const Register: React.FC = () => {
   const { userData, setUserData, isDataLoading, stompClient,imageLinks } = useContext(userContext) as UserDataContextType;
@@ -106,7 +107,7 @@ const Register: React.FC = () => {
       <Navigate to={`/chat-app-v2/`} />
       {( (startedConnection.current && !isDataLoading && userData.connected) 
       || lostConnection.current) 
-      ? (
+      && (
         <>
           <div className="register-container">
             <div className="register">
@@ -169,8 +170,6 @@ const Register: React.FC = () => {
                 }
           }}>Probar envío</button>*/}
         </>
-      ) : (
-        <div>Loading...</div>
       )}
     </>
   );

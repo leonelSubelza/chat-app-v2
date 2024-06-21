@@ -13,6 +13,7 @@ import { Message } from "../interfaces/messages";
 import {UserDataSaveLocalStorage} from "../../context/types/types.ts";
 import {saveUserDataStorage} from "../../utils/localStorageFunctions.ts";
 import {ChatPaths} from "../../config/chatConfiguration.ts";
+import {Spinner} from "react-bootstrap";
 
 const ChatRoom: React.FC = () => {
   const navigate: NavigateFunction = useNavigate();
@@ -190,7 +191,7 @@ const ChatRoom: React.FC = () => {
   return (
     <>
       {/* <Navigate to={`/chat-app-v2/chatroom/${userData.urlSessionid}`} /> */}
-      {channelExists && startedConnection.current && !isDataLoading ? (
+      {channelExists && startedConnection.current && !isDataLoading && (
         <div className="chatRoom-global">
           <Sidebar
             sidebarOpen={sidebarOpen}
@@ -213,8 +214,6 @@ const ChatRoom: React.FC = () => {
             />
           </div>
         </div>
-      ) : (
-        <div>Loading...</div>
       )}
     </>
   );

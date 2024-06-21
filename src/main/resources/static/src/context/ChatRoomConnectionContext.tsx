@@ -12,6 +12,7 @@ import { getActualDate } from '../utils/MessageDateConvertor.ts';
 import { ChatUserRole, UserChat } from '../components/interfaces/chatRoom.types.ts';
 import { isAuthenticationExpired, isTokenInvalid, startAuthentication } from '../auth/authenticationCreator.ts';
 import { ChatPaths } from '../config/chatConfiguration.ts';
+import {Spinner} from "react-bootstrap";
 
 export const chatRoomConnectionContext = React.createContext<ChatRoomConnectionContextType>(undefined);
 
@@ -33,7 +34,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
 
     const userDataContext: UserDataContextType = useUserDataContext();
 
-    const { setChannelExists, userData, setUserData, stompClient, loadUserDataValues,
+    const { isDataLoading,setChannelExists, userData, setUserData, stompClient, loadUserDataValues,
         chats, setChats, tab, setTab, tokenJwt,setTokenJwt,
         bannedUsers, setBannedUsers } = useContext(userContext) as UserDataContextType;
 
@@ -512,11 +513,15 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                     .
             </div>
 
+
             {/* <div className='consola'>
                 {consoleLogs.map((log, index) => (
                     <div key={index}>{log}</div>
                 ))}
             </div> */}
+            {!( (startedConnection.current && !isDataLoading && userData.connected)
+                || lostConnection.current) &&
+              <div className={'spinner-container'}><Spinner animation="border" role="status" /></div>}
 
             {children}
         </chatRoomConnectionContext.Provider>
