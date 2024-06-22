@@ -25,9 +25,6 @@ export const startAuthentication = async (): Promise<string> => {
 
             //asumimos que este objeto ya existe y le guardamos el expiration time
             saveUserDataStorage("tokenExpirationDate",tokenExpirationDate.toISOString());
-/*            let userDataStorage =  JSON.parse(localStorage.getItem("userData"));
-            userDataStorage.tokenExpirationDate = tokenExpirationDate;
-            localStorage.setItem("userData",JSON.stringify(userDataStorage));*/
             return authResponse.jwt; // Autenticación exitosa
         } else {
             //BadCredencials posible error (se enviaron mal las credenciales/usuario)
@@ -55,20 +52,13 @@ const generateTokenExpirationDate = (min: number): Date => {
 
 export const isAuthenticationExpired = (tokenExpirationDate: Date): boolean => {
     let actualDate: Date = new Date();
-    // let userDataStorage: UserDataSaveLocalStorage = JSON.parse(localStorage.getItem("userData"));
-    // let tokenExpirationDate = new Date(userDataStorage.tokenExpirationDate);
     if(tokenExpirationDate===undefined) {
-        // startAuthentication();
         return;
     }
-    console.log("se ejecuta isAuthExpired")
-    console.log("fecha actual: "+actualDate)
-    console.log("fecha exp: "+tokenExpirationDate)
-    //ARREGLAR QUE NO SE COMPARAN BIEN LAS FECHAS
-    if(tokenExpirationDate < actualDate) {
+/*    if(tokenExpirationDate < actualDate) {
         console.log("token expirado");
     }else{
         console.log("token NO expirado");
-    }
+    }*/
     return tokenExpirationDate < actualDate;
 }

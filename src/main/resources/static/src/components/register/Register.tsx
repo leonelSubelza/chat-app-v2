@@ -11,9 +11,11 @@ import { generateRoomId } from "../../utils/IdGenerator.ts";
 import { ChatUserRole } from "../interfaces/chatRoom.types.ts";
 import { Navigate } from "react-router-dom";
 import { maxUsernameLength } from "./../../config/chatConfiguration.ts"
-import { createPublicMessage } from "../ChatRoom/ChatRoomFunctions.ts";
-import { Message } from "../interfaces/messages.ts";
-import {Spinner} from "react-bootstrap";
+import {
+  loadLocalStorageObject,
+  saveLocalStorageObject,
+  saveUserDataStorage
+} from "../../utils/localStorageFunctions.ts";
 
 const Register: React.FC = () => {
   const { userData, setUserData, isDataLoading, stompClient,imageLinks } = useContext(userContext) as UserDataContextType;
@@ -29,9 +31,9 @@ const Register: React.FC = () => {
     setShowModalIconChooser(false);
     if (iconChoosed !== "") {
       setUserData({ ...userData, avatarImg: iconChoosed });
-      let userDataStorage =  JSON.parse(localStorage.getItem("userData"));
+      let userDataStorage =  loadLocalStorageObject("userData");
       userDataStorage.avatarImg = iconChoosed;
-      localStorage.setItem("userData",JSON.stringify(userDataStorage));
+      saveLocalStorageObject("userData",userDataStorage);
     }
   };
   const handleShowModalIconChooser = () => setShowModalIconChooser(true);
@@ -53,9 +55,9 @@ const Register: React.FC = () => {
     }
     setUserData({ ...userData, username: value });
     //saved in localstorage to
-    let userDataStorage =  JSON.parse(localStorage.getItem("userData"));
+    let userDataStorage: UserDataSaveLocalStorage =  loadLocalStorageObject("userData");
     userDataStorage.username = value;
-    localStorage.setItem("userData",JSON.stringify(userDataStorage));
+    saveLocalStorageObject("userData",userDataStorage);
   };
 
   const handleCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -94,8 +96,8 @@ const Register: React.FC = () => {
       window.location.reload();
     }
     //overrides these variables because it doesn't load at this moment.
-    if (userData.username === '' && localStorage.getItem("userData")!==null) {
-      let userDataStorage = JSON.parse(localStorage.getItem("userData"));
+    if (userData.username === '' && loadLocalStorageObject("userData")!==null) {
+      let userDataStorage = loadLocalStorageObject("userData");
       userData.username = userDataStorage.username;
       userData.avatarImg = userDataStorage.avatarImg;
     }
@@ -116,7 +118,7 @@ const Register: React.FC = () => {
                 <div
                   className="icon-img-contenedor"
                   style={{
-                    backgroundImage: `url(${JSON.parse(localStorage.getItem("userData")).avatarImg})`,
+                    backgroundImage: `url(${loadLocalStorageObject("userData").avatarImg})`,
                   }}
                 ></div>
                 <button className="icon-edit-btn" onClick={handleShowModalIconChooser}>
@@ -159,16 +161,6 @@ const Register: React.FC = () => {
             showModalJoinChat={showModalJoinChat}
             handleCloseModalJoinChat={()=>setShowModalJoinChat(false)}
           />
-{/*          <button onClick={()=> {
-                if (stompClient.current) {
-                  var chatMessage: Message = createPublicMessage(MessagesStatus.MESSAGE, userData);
-                  stompClient.current.send(
-                    "/app/message",
-                    {},
-                    JSON.stringify(chatMessage)
-                  );
-                }
-          }}>Probar envío</button>*/}
         </>
       )}
     </>

@@ -1,5 +1,9 @@
-export const saveValue = (key:string, value:object) => {
+export const loadLocalStorageObject = (key:string): any => {
+    return JSON.parse(localStorage.getItem(key));
+}
 
+export const saveLocalStorageObject = (key: string, value: any) => {
+    localStorage.setItem(key, JSON.stringify(value));
 }
 
 export const saveUserDataStorage= (key:string, value:string) => {

@@ -82,10 +82,6 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         //la auth también falla, ahi si se cae el sist
         let err = error.toString();
         console.log("Error conectando al wb: " + err+", se renueva el token");
-        // startedConnection.current = false;
-        // stompClient.current = null;
-        // localStorage.setItem("tokenJwt",null)
-        // startApplication();
     }
 
     //si la room no existe, se procede a crear una, si si existe te desconecto
