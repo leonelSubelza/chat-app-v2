@@ -70,10 +70,10 @@ p{
     display: none;
     transition: opacity .5s ease;
     font-size: 14px;
-    z-index: 2000; 
+    z-index: 2000;
 }
-
-/* TRIANGULITO DE INFO */
+/*
+!* TRIANGULITO DE INFO *!
 .menu-details-item-info::before{
     content: "";
     position: absolute;
@@ -84,15 +84,20 @@ p{
     border-color: #0000 #0000 #000 #0000;
 }
 
-/* cuando se hace hover sobre el item se muestra el tooltip */
+!* cuando se hace hover sobre el item se muestra el tooltip *!
 .menu-details-item:hover .menu-details-item-info{
     top:120%;
     visibility: visible;
     opacity: 1;
     display: block;
     user-select: none;
-}
+}*/
 
+.menu-details-item .tooltip-sidebar {
+    padding: 5px 10px;
+    border-radius: 10px;
+    font-size: 16px;
+}
 
 .menu-hamburger{
     font-size: 30px;
