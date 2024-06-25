@@ -5,7 +5,7 @@ import { userContext } from "../../context/UserDataContext";
 import { chatRoomConnectionContext } from "../../context/ChatRoomConnectionContext";
 import MessageInput from "./MessageInput/MessageInput.jsx";
 import Sidebar from "./sidebar/Sidebar.jsx";
-import { getRoomIdFromURL } from "../../utils/InputValidator.js";
+import { getRoomIdFromURL } from "../../utils/InputFunctions.js";
 import { createPrivateMessage, createPublicMessage } from "./ChatRoomFunctions";
 import ChatContainer from "./chat-container/ChatContainer.jsx";
 import { MessagesStatus } from "../interfaces/messages.status";

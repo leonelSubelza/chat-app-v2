@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import MembersList from "./MemberList/MembersList.jsx";
 import { userContext } from "../../../context/UserDataContext.js";
-import Toast from "react-bootstrap/Toast";
+import { Toaster, toast } from 'sonner'
 import "./Sidebar.css";
 import ModalIconChooser from "../../register/modals/item-chooser/ModalIconChooser.jsx";
 import { createPublicMessage } from "../ChatRoomFunctions.js";
@@ -12,6 +12,7 @@ import { Message } from "../../interfaces/messages.js";
 import adminImg from "../../../assets/crown-icon.svg";
 import { ChatUserRole } from "../../interfaces/chatRoom.types.js";
 import BannedUsersList from "./bannedUsers/BannedUsersList.js";
+import {copyInputSuccessful} from "../../../utils/InputFunctions.ts";
 
 interface Props {
   sidebarOpen: boolean;
@@ -27,8 +28,6 @@ const Sidebar = ({ sidebarOpen, disconnectChat, handleSideBarOpen }: Props) => {
   //MOdal icon chooser
   const [showModalIconChooser, setShowModalIconChooser] =
     useState<boolean>(false);
-
-  const [showToastCopied, setShowToastMessage] = useState<boolean>(false);
 
   const handleDisconnectChat = (): void => {
     return disconnectChat();
@@ -61,16 +60,20 @@ const Sidebar = ({ sidebarOpen, disconnectChat, handleSideBarOpen }: Props) => {
     }
   };
 
+  const showSonnerMessage = () => {
+    toast.info("URL Copied to clipboard!",{
+      style: {
+        background: '#383258',
+        color: "#fff",
+      },
+      className: 'class',
+    });
+  }
+
   const copyInput = (): void => {
-    setShowToastMessage(true);
-    navigator.clipboard
-      .writeText(window.location.toString())
-      .then(() => {
-        console.log("Text copied to clipboard! 📎");
-      })
-      .catch((err) => {
-        console.error("Error in copying text: ", err);
-      });
+    if (copyInputSuccessful(window.location.toString())){
+      showSonnerMessage();
+    }
   };
 
   const handleClickOutsideSidebar = () => {
@@ -131,15 +134,7 @@ const Sidebar = ({ sidebarOpen, disconnectChat, handleSideBarOpen }: Props) => {
           showModalIconChooser={showModalIconChooser}
           handleCloseModalIconChooser={handleCloseModalIconChooser}
         />
-        <Toast
-          onClose={() => setShowToastMessage(false)}
-          show={showToastCopied}
-          delay={800}
-          animation={true}
-          autohide
-        >
-          <Toast.Body>URL Copied to clipboard!</Toast.Body>
-        </Toast>
+        <Toaster richColors position="bottom-center"/>
       </div>
       <div 
       className={`sidebar-mobile-background ${sidebarOpen ? "" : "close"}`}

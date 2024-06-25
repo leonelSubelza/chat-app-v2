@@ -1,10 +1,11 @@
 import React, { useState,useContext, useEffect } from 'react'
 import Modal from 'react-bootstrap/Modal';
 import './ModalJoinChat.css'
-import { isCorrectURL } from '../../../../utils/InputValidator.ts';
+import {copyInputSuccessful, isCorrectURL} from '../../../../utils/InputFunctions.ts';
 import {userContext} from '../../../../context/UserDataContext.tsx';
 import { chatRoomConnectionContext } from '../../../../context/ChatRoomConnectionContext.tsx';
 import { webSiteChatURL, maxMessageLength } from '../../../../config/chatConfiguration.ts'
+import {toast, Toaster} from "sonner";
 
 interface Props {
     showModalJoinChat: boolean;
@@ -77,15 +78,22 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
         return handleCloseModalJoinChat();
     }
 
-    const copyInput = () => {
-        navigator.clipboard.writeText(inputValue)
-        .then(() => {
-            console.log('Text copied to clipboard');
-        })
-        .catch(err => {
-            console.error('Error in copying text: ', err);
+    const showSonnerMessage = () => {
+        toast.info("URL Copied to clipboard!",{
+            style: {
+                background: '#383258',
+                color: "#fff",
+                border: '1px solid #383258'
+            },
+            className: 'class',
         });
     }
+
+    const copyInput = (): void => {
+        if(copyInputSuccessful(inputValue))  {
+            showSonnerMessage();
+        }
+    };
 
     const handleKeyPressed = (e:KeyboardEvent|string) => {
         let key = e;
@@ -127,11 +135,13 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
                     <i className="bi bi-copy url-input-icon" onClick={copyInput}></i>
                 </div>
             </Modal.Body>
+
             <Modal.Footer>
                 <button className='button-join-chat' onClick={handleCloseModal}>
                     JOIN!!!
                 </button>
             </Modal.Footer>
+            <Toaster richColors position="bottom-center"/>
         </Modal>
     );
 }

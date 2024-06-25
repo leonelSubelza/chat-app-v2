@@ -55,10 +55,10 @@ export const isAuthenticationExpired = (tokenExpirationDate: Date): boolean => {
     if(tokenExpirationDate===undefined) {
         return;
     }
-/*    if(tokenExpirationDate < actualDate) {
+    if(tokenExpirationDate < actualDate) {
         console.log("token expirado");
     }else{
         console.log("token NO expirado");
-    }*/
+    }
     return tokenExpirationDate < actualDate;
 }

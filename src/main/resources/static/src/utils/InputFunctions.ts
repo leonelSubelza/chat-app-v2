@@ -28,3 +28,28 @@ export const getRoomIdFromURL = (url: string): string => {
   }
   return urlSessionIdAux;
 };
+
+export const copyInputSuccessful = (textToCopy: string): boolean => {
+  if (navigator.clipboard) {
+    navigator.clipboard
+        .writeText(textToCopy)
+        .then(() => {
+          console.log("Text copied to clipboard! 📎");
+          return true;
+        })
+        .catch((err) => {
+          console.error("Error copying text: ", err);
+          return false;
+        });
+
+  } else {
+    const input = document.createElement('textarea')
+    input.value = textToCopy;
+    document.body.appendChild(input)
+    input.select()
+    document.execCommand('copy')
+    document.body.removeChild(input);
+    return true;
+  }
+  return false;
+};
