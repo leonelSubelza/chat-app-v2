@@ -96,7 +96,8 @@ const MembersList = ({showMembers}: Props) => {
               Array.from(chats.keys())[0].hasUnreadedMessages && "active"
             }`}
           >
-            <i className="bi bi-exclamation-octagon-fill"></i>
+            {/*<i className="bi bi-exclamation-octagon-fill"></i>*/}
+            <i className="bi bi-chat-dots"></i>
           </div>
         </li>
 
@@ -161,7 +162,8 @@ const MembersList = ({showMembers}: Props) => {
                       chatData.hasUnreadedMessages && "active"
                     }`}
                   >
-                    <i className="bi bi-exclamation-octagon-fill"></i>
+                    {/*<i className="bi bi-exclamation-octagon-fill"></i>*/}
+                    <i className="bi bi-chat-dots"></i>
                   </div>
                 </li>
               )

@@ -429,6 +429,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     }
 
     const startApplication = () => {
+        sound.src = "../../public/sound/Ding.mp3";
         loadUserDataValues();
         // let tokenExpirationDate: Date = JSON.parse(localStorage.getItem('userData')).tokenExpirationDate;
         if (isTokenValid()) {
@@ -472,20 +473,25 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     //     }
     // })
 
+    const [sound, setSound] = useState(new Audio());
+
     useEffect(() => {
-        //COSO PARA MARCAR MSJ NO LEIDO
+        //Unread message notification. All the messages are set as unread. Here we check if we are not in the chat
         let unreadChat: UserChat = Array.from(chats.keys())!.find(c => c.hasUnreadedMessages)!;
         if (unreadChat === undefined || tab === undefined) {
             return;
         }
+        //if we receive a message in the active chat
         if (tab.id === unreadChat.id) {
             Array.from(chats.keys())!.find(c => c.id === unreadChat.id)!.hasUnreadedMessages = false;
             setChats(new Map(chats))
             //COSO PARA PONER EL SCROLL AL FINAL CUANDO LLEGA UN MSJ
             const chatContainer = document.querySelector(".scroll-messages");
             chatContainer.scrollTo(0, chatContainer.scrollHeight);
-        }        
-        
+        }else{
+            //if we receive a message and we are not in the chat we make a sound notification.
+            sound.play();
+        }
     }, [chats])
 
     useEffect(() => {

@@ -11,6 +11,8 @@ import { generateRoomId } from "../../utils/IdGenerator.ts";
 import { ChatUserRole } from "../interfaces/chatRoom.types.ts";
 import { Navigate } from "react-router-dom";
 import { maxUsernameLength } from "./../../config/chatConfiguration.ts"
+
+
 import {
   loadLocalStorageObject,
   saveLocalStorageObject,
@@ -101,6 +103,8 @@ const Register: React.FC = () => {
       userData.username = userDataStorage.username;
       userData.avatarImg = userDataStorage.avatarImg;
     }
+
+    // sound.src="../../public/sound/Ding.mp3";
   }, []);
 
   return (

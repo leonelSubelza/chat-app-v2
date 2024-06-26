@@ -170,12 +170,30 @@ ol, ul {
     position: absolute;
     top:0;
     right: 0;
-    color:rgb(231, 52, 52);
+    width: 28px;
+    height: 28px;
+    /*color:rgb(231, 52, 52);*/
     display: none;
+    /*border: 1px solid red;*/
 }
 
 .member-item__icon-exclamation.active{
-    display: block;
+    display: flex;
+}
+
+.member-item__icon-exclamation i{
+    margin: auto;
+    /*border: 1px solid red;*/
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        font-size: 14px; /* Tamaño inicial */
+    }
+    100% {
+        font-size: 15px; /* Tamaño inicial */
+    }
 }
 
 /*
