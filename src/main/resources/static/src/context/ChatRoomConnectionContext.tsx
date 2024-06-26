@@ -1,17 +1,28 @@
-import type { ChatRoomConnectionContextType, UserData, UserDataContextType, UserDataSaveLocalStorage } from './types/types.ts';
-import React, { ReactNode, useContext, useEffect, useRef, useState } from 'react'
-import { userContext, useUserDataContext } from './UserDataContext.tsx';
-import { createMessageJoin, createPrivateMessage, createPublicMessage, createUserChat, resetValues, updateChatData } from '../components/ChatRoom/ChatRoomFunctions.ts';
-import { useNavigate } from 'react-router-dom';
-import { over } from 'stompjs';
+import type {
+    ChatRoomConnectionContextType,
+    UserData,
+    UserDataContextType,
+    UserDataSaveLocalStorage
+} from './types/types.ts';
+import React, {ReactNode, useContext, useEffect, useRef, useState} from 'react'
+import {userContext, useUserDataContext} from './UserDataContext.tsx';
+import {
+    createMessageJoin,
+    createPrivateMessage,
+    createPublicMessage,
+    createUserChat,
+    resetValues,
+    updateChatData
+} from '../components/ChatRoom/ChatRoomFunctions.ts';
+import {useNavigate} from 'react-router-dom';
+import {over} from 'stompjs';
 import SockJS from 'sockjs-client';
-import { serverURL, webSiteChatURL, webSiteBaseURL } from '../config/chatConfiguration.ts';
-import { MessagesStatus } from '../components/interfaces/messages.status.ts';
-import { Message } from '../components/interfaces/messages.ts';
-import { getActualDate } from '../utils/MessageDateConvertor.ts';
-import { ChatUserRole, UserChat } from '../components/interfaces/chatRoom.types.ts';
-import { isAuthenticationExpired, isTokenInvalid, startAuthentication } from '../auth/authenticationCreator.ts';
-import { ChatPaths } from '../config/chatConfiguration.ts';
+import {ChatPaths, serverURL, webSiteChatURL} from '../config/chatConfiguration.ts';
+import {MessagesStatus} from '../components/interfaces/messages.status.ts';
+import {Message} from '../components/interfaces/messages.ts';
+import {getActualDate} from '../utils/MessageDateConvertor.ts';
+import {ChatUserRole, UserChat} from '../components/interfaces/chatRoom.types.ts';
+import {isAuthenticationExpired, startAuthentication} from '../auth/authenticationCreator.ts';
 import {Spinner} from "react-bootstrap";
 
 export const chatRoomConnectionContext = React.createContext<ChatRoomConnectionContextType>(undefined);
@@ -37,6 +48,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     const { isDataLoading,setChannelExists, userData, setUserData, stompClient, loadUserDataValues,
         chats, setChats, tab, setTab, tokenJwt,setTokenJwt,
         bannedUsers, setBannedUsers } = useContext(userContext) as UserDataContextType;
+    const [sound, setSound] = useState(new Audio("../../sound/Ding.mp3"));
 
     const disconnectChat = (notifyOthers: boolean):void => {
         if(notifyOthers){
@@ -229,11 +241,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             }else{
                 senderUser = getUserSavedFromChats(message.senderId);
             }
-            senderUser.isWriting = message.status===MessagesStatus.WRITING ? true : false;
-            if(tab.id === message.senderId){
-                tab.isWriting = message.status===MessagesStatus.WRITING;
-                setTab(tab)
-            }
+            senderUser.isWriting = message.status === MessagesStatus.WRITING;
             chats.set(senderUser,chats.get(senderUser));
             setChats(new Map(chats));
         }
@@ -315,7 +323,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         }
         let userSaved: UserChat = getUserSavedFromChats(message.senderId);
         if (!chats.get(userSaved)) {
-            var chatUser: UserChat = createUserChat(message);
+            const chatUser: UserChat = createUserChat(message);
             chats.set(chatUser, new Array<Message>);
             setChats(new Map(chats));
             if (resend) {
@@ -334,6 +342,38 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         }
     }
 
+/*    const handleMessageNotification = (userWhoSendTheMessage: UserChat, message: Message) => {
+        //Unread message notification.
+        /!*let unreadChat: UserChat = Array.from(chats.keys())!.find(c => c.hasUnreadedMessages)!;
+        if (unreadChat === undefined || tab === undefined) {
+            return;
+        }
+        //if we receive a message in the active chat
+        if (tab.id === unreadChat.id) {
+            Array.from(chats.keys())!.find(c => c.id === unreadChat.id)!.hasUnreadedMessages = false;
+            setChats(new Map(chats))
+            //COSO PARA PONER EL SCROLL AL FINAL CUANDO LLEGA UN MSJ
+            const chatContainer = document.querySelector(".scroll-messages");
+            chatContainer.scrollTo(0, chatContainer.scrollHeight);
+        }*!/
+        //if we receive a message in the active chat
+        console.log("ususario que envio msj id: "+userWhoSendTheMessage.id)
+        console.log("tab id: "+tab.id)
+        if (tab.id === userWhoSendTheMessage.id) {
+            // userWhoSendTheMessage.hasUnreadedMessages = false;
+            Array.from(chats.keys())!.find(c => c.id === userWhoSendTheMessage.id)!.hasUnreadedMessages = false;
+            // setChats(new Map(chats))
+            //COSO PARA PONER EL SCROLL AL FINAL CUANDO LLEGA UN MSJ
+            const chatContainer = document.querySelector(".scroll-messages");
+            chatContainer.scrollTo(0, chatContainer.scrollHeight);
+        }else{
+            if(message.status === MessagesStatus.MESSAGE || message.status === MessagesStatus.JOIN) {
+                sound.play();
+            }
+        }
+
+    }*/
+
     const saveMessage = (user: UserChat, message: Message)=>{
         const updatedChats: Map<UserChat, Message[]> = new Map(chats);
         const currentMessages: Message[]= updatedChats.get(user) || new Array<Message>;
@@ -341,6 +381,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         updatedChats.set(user, updatedMessages);
         chats.set(user, updatedMessages);
         setChats(new Map(updatedChats));
+        // handleMessageNotification(user,message);
     }
 
     const savePublicMessage = (message: Message) => {
@@ -352,7 +393,8 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     const handlePrivateMessageReceived = (message: Message) => {
         let userSaved: UserChat = getUserSavedFromChats(message.senderId)
         if (userSaved) {
-            Array.from(chats.keys())!.find(c => c.id === userSaved.id)!.hasUnreadedMessages = true;
+            // Array.from(chats.keys())!.find(c => c.id === userSaved.id)!.hasUnreadedMessages = true;
+            userSaved.hasUnreadedMessages = true;
             saveMessage(userSaved,message);
         }
     }
@@ -429,7 +471,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     }
 
     const startApplication = () => {
-        sound.src = "../../public/sound/Ding.mp3";
+        // sound.src = "../../public/sound/Ding.mp3";
         loadUserDataValues();
         // let tokenExpirationDate: Date = JSON.parse(localStorage.getItem('userData')).tokenExpirationDate;
         if (isTokenValid()) {
@@ -473,10 +515,9 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     //     }
     // })
 
-    const [sound, setSound] = useState(new Audio());
-
+    /*the notification has to be handled in a useEffect because the function onMessageReceived and onPrivateMessage
+    are saved in memory for once and the states created doesn't have the actual value*/
     useEffect(() => {
-        //Unread message notification. All the messages are set as unread. Here we check if we are not in the chat
         let unreadChat: UserChat = Array.from(chats.keys())!.find(c => c.hasUnreadedMessages)!;
         if (unreadChat === undefined || tab === undefined) {
             return;
@@ -489,8 +530,10 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             const chatContainer = document.querySelector(".scroll-messages");
             chatContainer.scrollTo(0, chatContainer.scrollHeight);
         }else{
-            //if we receive a message and we are not in the chat we make a sound notification.
-            sound.play();
+            // A little bug, we cannot capture if the last message is a writing notification, so we solved like this
+            if(!unreadChat.isWriting) {
+                sound.play();
+            }
         }
     }, [chats])
 

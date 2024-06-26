@@ -18,6 +18,7 @@ import {
   saveLocalStorageObject,
   saveUserDataStorage
 } from "../../utils/localStorageFunctions.ts";
+import {Toaster, toast} from "sonner";
 
 const Register: React.FC = () => {
   const { userData, setUserData, isDataLoading, stompClient,imageLinks } = useContext(userContext) as UserDataContextType;
@@ -43,7 +44,7 @@ const Register: React.FC = () => {
   const handleShowModalJoinChat = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (userData.username === "") {
-      alert("Se debe poner un nombre de usuario!");
+      toast.error('You must write a username')
       return;
     }
     setShowModalJoinChat(true);
@@ -70,11 +71,11 @@ const Register: React.FC = () => {
     }
 
     if (userData.username === '') {
-      alert("se debe poner un nombre de usuario");
+      toast.error('You must write a username')
       return;
     }
     if (userData.avatarImg === '') {
-      alert("Debe seleccionar una imagen");
+      toast.error('You must choose a image')
       return;
     }
     let idRoom: string = generateRoomId();
@@ -165,6 +166,7 @@ const Register: React.FC = () => {
             showModalJoinChat={showModalJoinChat}
             handleCloseModalJoinChat={()=>setShowModalJoinChat(false)}
           />
+          <Toaster richColors position="bottom-center"/>
         </>
       )}
     </>

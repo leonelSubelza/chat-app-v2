@@ -33,7 +33,8 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
         //     return;
         // }
         if (inputValue === '') {
-            alert('Debe escribir un link para unirse a una sala!');
+            // alert('Debe escribir un link para unirse a una sala!');
+            toast.error("You must write a link to join a room!")
             return;
         }
         if(userData.username === ''){
@@ -90,6 +91,10 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
     }
 
     const copyInput = (): void => {
+        if(inputValue === '') {
+            toast.error("No text to copy")
+            return;
+        }
         if(copyInputSuccessful(inputValue))  {
             showSonnerMessage();
         }
