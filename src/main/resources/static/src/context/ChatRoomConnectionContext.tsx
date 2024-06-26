@@ -461,12 +461,11 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     }
 
     const isTokenPresent = (tokenJwtAux: string): boolean => {
-        return (tokenJwtAux !== null && tokenJwtAux !== '' && tokenJwtAux  !== undefined && tokenJwtAux=== 'null');
+        return (tokenJwtAux !== null && tokenJwtAux !== '');
     }
 
     const isTokenValid = (): boolean => {
         let tokenJwtAux: string = localStorage.getItem("tokenJwt");
-        // console.log("tokenGuardado: "+tokenJwtAux)
         return !isAuthenticationExpired(userData.tokenExpirationDate)&&isTokenPresent(tokenJwtAux);
     }
 
