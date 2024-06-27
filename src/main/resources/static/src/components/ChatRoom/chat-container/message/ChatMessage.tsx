@@ -9,7 +9,7 @@ interface Props {
   isPublicChat: boolean;
 }
 
-const Message = ({ message, userData, isPublicChat }: Props) => {
+const ChatMessage = ({ message, userData, isPublicChat }: Props) => {
   return (
     <>
       {message.status === "MESSAGE" ? (
@@ -54,4 +54,4 @@ const Message = ({ message, userData, isPublicChat }: Props) => {
     </>
   );
 };
-export default Message;
+export default ChatMessage;

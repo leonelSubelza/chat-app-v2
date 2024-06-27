@@ -1,10 +1,11 @@
 import React, { useState,useContext, useEffect } from 'react'
-import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import './ModalJoinChat.css'
-import { isCorrectURL } from '../../../../utils/InputValidator.ts';
+import {copyInputSuccessful, isCorrectURL} from '../../../../utils/InputFunctions.ts';
 import {userContext} from '../../../../context/UserDataContext.tsx';
 import { chatRoomConnectionContext } from '../../../../context/ChatRoomConnectionContext.tsx';
+import { webSiteChatURL, maxMessageLength } from '../../../../config/chatConfiguration.ts'
+import {toast, Toaster} from "sonner";
 
 interface Props {
     showModalJoinChat: boolean;
@@ -13,9 +14,18 @@ interface Props {
 
 const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) => {
 
-    const [inputValue, setInputValue] = useState('');
+    const [inputValue, setInputValue] = useState<string>('');
     const { userData,setUserData } = useContext(userContext);
     const {checkIfChannelExists} = useContext(chatRoomConnectionContext)
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        if(value.length>maxMessageLength){
+          console.log("la cant de caracteres es mayor a 255");
+          return;
+        }
+        setInputValue(value);
+    }
 
     const handleCloseModal = () => {
         // if(e===undefined){
@@ -23,16 +33,15 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
         //     return;
         // }
         if (inputValue === '') {
-            alert('Debe escribir un link para unirse a una sala!');
+            // alert('Debe escribir un link para unirse a una sala!');
+            toast.error("You must write a link to join a room!")
             return;
         }
-        if(localStorage.getItem('username')===null || localStorage.getItem('username')===''
-        || userData.username === ''){
+        if(userData.username === ''){
             alert('Debe escribir un nombre de usuario!');
             return;
         }
-        if(localStorage.getItem('avatarImg')===null || localStorage.getItem('avatarImg')===''
-        || userData.avatarImg === ''){
+        if(userData.avatarImg === ''){
             alert('Debe seleccionar una imagen!');
             return;
         }
@@ -40,7 +49,7 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
             console.log("el link escrito es un link valido");
 
             const domain = window.location.origin;
-            let urlSessionIdAux = inputValue.split(domain+'/chatroom/')[1];
+            let urlSessionIdAux = inputValue.split(domain+webSiteChatURL)[1];
             userData.urlSessionid = urlSessionIdAux;
             setUserData({...userData,"urlSessionid": urlSessionIdAux});
             //navigate(`/chatroom/${urlSessionIdAux}`);
@@ -70,15 +79,26 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
         return handleCloseModalJoinChat();
     }
 
-    const copyInput = () => {
-        navigator.clipboard.writeText(inputValue)
-        .then(() => {
-            console.log('Text copied to clipboard');
-        })
-        .catch(err => {
-            console.error('Error in copying text: ', err);
+    const showSonnerMessage = () => {
+        toast.info("URL Copied to clipboard!",{
+            style: {
+                background: '#383258',
+                color: "#fff",
+                border: '1px solid #383258'
+            },
+            className: 'class',
         });
     }
+
+    const copyInput = (): void => {
+        if(inputValue === '') {
+            toast.error("No text to copy")
+            return;
+        }
+        if(copyInputSuccessful(inputValue))  {
+            showSonnerMessage();
+        }
+    };
 
     const handleKeyPressed = (e:KeyboardEvent|string) => {
         let key = e;
@@ -115,16 +135,18 @@ const ModalJoinChat = ({ showModalJoinChat, handleCloseModalJoinChat }: Props) =
                         className='url-input'
                         placeholder='Enter the URL or the key of the channel!'
                         value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)} 
+                        onChange={handleInputChange} 
                         autoFocus/>
                     <i className="bi bi-copy url-input-icon" onClick={copyInput}></i>
                 </div>
             </Modal.Body>
+
             <Modal.Footer>
                 <button className='button-join-chat' onClick={handleCloseModal}>
                     JOIN!!!
                 </button>
             </Modal.Footer>
+            <Toaster richColors position="bottom-center"/>
         </Modal>
     );
 }

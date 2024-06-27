@@ -3,8 +3,9 @@
     flex-direction: row;
     width: 100%;
     margin-top: auto;
-    margin-bottom: 15px;
+    /*margin-bottom: 15px;*/
     height: 10%;
+    background-color: #fff;
 }
 
 .chat-text-button.close .send-message{
@@ -72,7 +73,7 @@
 
 @media screen and (max-width: 768px) {
     .send-message{
-        margin-bottom:5px;
+        /*margin-bottom:5px;*/
     }
     
     .input-message{
@@ -95,9 +96,12 @@
 }
 
 @media (max-width: 376px){
+    .send-message{
+    }
     .input-message{
         width: 80%;
         margin: auto;
+        height: 80%;
     }
     .send-button{
         /* width: 15%; */

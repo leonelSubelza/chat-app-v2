@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import MembersList from "./MemberList/MembersList.jsx";
 import { userContext } from "../../../context/UserDataContext.js";
-import Toast from "react-bootstrap/Toast";
+import { Toaster, toast } from 'sonner'
 import "./Sidebar.css";
 import ModalIconChooser from "../../register/modals/item-chooser/ModalIconChooser.jsx";
 import { createPublicMessage } from "../ChatRoomFunctions.js";
@@ -12,6 +12,8 @@ import { Message } from "../../interfaces/messages.js";
 import adminImg from "../../../assets/crown-icon.svg";
 import { ChatUserRole } from "../../interfaces/chatRoom.types.js";
 import BannedUsersList from "./bannedUsers/BannedUsersList.js";
+import {copyInputSuccessful} from "../../../utils/InputFunctions.ts";
+import {Tooltip} from "react-tooltip";
 
 interface Props {
   sidebarOpen: boolean;
@@ -27,8 +29,6 @@ const Sidebar = ({ sidebarOpen, disconnectChat, handleSideBarOpen }: Props) => {
   //MOdal icon chooser
   const [showModalIconChooser, setShowModalIconChooser] =
     useState<boolean>(false);
-
-  const [showToastCopied, setShowToastMessage] = useState<boolean>(false);
 
   const handleDisconnectChat = (): void => {
     return disconnectChat();
@@ -61,16 +61,20 @@ const Sidebar = ({ sidebarOpen, disconnectChat, handleSideBarOpen }: Props) => {
     }
   };
 
+  const showSonnerMessage = () => {
+    toast.info("URL Copied to clipboard!",{
+      style: {
+        background: '#383258',
+        color: "#fff",
+      },
+      className: 'class',
+    });
+  }
+
   const copyInput = (): void => {
-    setShowToastMessage(true);
-    navigator.clipboard
-      .writeText(window.location.toString())
-      .then(() => {
-        console.log("Text copied to clipboard! 📎");
-      })
-      .catch((err) => {
-        console.error("Error in copying text: ", err);
-      });
+    if (copyInputSuccessful(window.location.toString())){
+      showSonnerMessage();
+    }
   };
 
   const handleClickOutsideSidebar = () => {
@@ -86,24 +90,28 @@ const Sidebar = ({ sidebarOpen, disconnectChat, handleSideBarOpen }: Props) => {
             <i className="bi bi-list menu-hamburger" onClick={toggleSidebar}></i>
           </div>
           <div className={`menu-details-item ${isShowMemberActive && 'active'}`} onClick={()=> setIsShowMemberActive(true)}>
-            <i className="bi bi-chat-left"></i>
-            <div className="menu-details-item-info">Chats</div>
+            <i id={'chats-tooltip'} className="bi bi-chat-left"></i>
+            {/*<div className="menu-details-item-info">Chats</div>*/}
+            <Tooltip anchorSelect="#chats-tooltip" className="tooltip-sidebar" content={`Chats`} place={"bottom"} />
           </div>
           
           <div className={`menu-details-item ${!isShowMemberActive && 'active'}`}  onClick={()=> setIsShowMemberActive(false)}>
-            <i className="bi bi-person-fill-slash"></i>
-            <div className="menu-details-item-info">Banned users</div>
+            <i id={'banned-users-tooltip'} className="bi bi-person-fill-slash"></i>
+            {/*<div className="menu-details-item-info">Banned users</div>*/}
+            <Tooltip anchorSelect="#banned-users-tooltip" className="tooltip-sidebar" content={`Banned users`} place={"bottom"} />
           </div>
           <div className="menu-details-item" onClick={copyInput}>
-            <i
+            <i id={'copy-URL-tooltip'}
               className="bi bi-clipboard url-input-icon"
               style={{ color: "white" }}
             ></i>
-            <div className="menu-details-item-info">Copy URL</div>
+            {/*<div className="menu-details-item-info">Copy URL</div>*/}
+            <Tooltip anchorSelect="#copy-URL-tooltip" className="tooltip-sidebar" content={`Copy URL`} place={"bottom"} />
           </div>
           <div className="menu-details-item" onClick={handleDisconnectChat}>
-            <i className="bi bi-box-arrow-left btn-exit"></i>
-            <div className="menu-details-item-info">Leave the room</div>
+            <i id={'leave-the-room-tooltip'} className="bi bi-box-arrow-left btn-exit"></i>
+            {/*<div className="menu-details-item-info">Leave the room</div>*/}
+            <Tooltip anchorSelect="#leave-the-room-tooltip" className="tooltip-sidebar" content={`Leave the room`} place={"bottom"} />
           </div>      
         </div>
 
@@ -131,15 +139,7 @@ const Sidebar = ({ sidebarOpen, disconnectChat, handleSideBarOpen }: Props) => {
           showModalIconChooser={showModalIconChooser}
           handleCloseModalIconChooser={handleCloseModalIconChooser}
         />
-        <Toast
-          onClose={() => setShowToastMessage(false)}
-          show={showToastCopied}
-          delay={800}
-          animation={true}
-          autohide
-        >
-          <Toast.Body>URL Copied to clipboard!</Toast.Body>
-        </Toast>
+        <Toaster richColors position="bottom-center"/>
       </div>
       <div 
       className={`sidebar-mobile-background ${sidebarOpen ? "" : "close"}`}

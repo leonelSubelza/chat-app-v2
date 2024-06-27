@@ -1,7 +1,7 @@
 package com.chatapp.core.config;
 
-import com.chatapp.core.controller.model.Room;
-import com.chatapp.core.controller.model.User;
+import com.chatapp.core.model.Room;
+import com.chatapp.core.model.User;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;

@@ -2,7 +2,7 @@ package com.chatapp.core.service;
 
 import com.chatapp.core.config.WebSocketRoomHandler;
 import com.chatapp.core.config.WebSocketSessionHandler;
-import com.chatapp.core.controller.model.*;
+import com.chatapp.core.model.*;
 import com.chatapp.core.utils.DateGenerator;
 import com.chatapp.core.utils.EntityCreator;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
 
 @Service
 @Slf4j

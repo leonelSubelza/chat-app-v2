@@ -23,5 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
+target
+/target
 target/*
+target/classes/*
 HELP.md

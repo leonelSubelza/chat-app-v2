@@ -49,6 +49,7 @@ button {
   height: 100%;
   width: 100% !important;
   max-width: 100%;
+  transition: all 0.3s ease;
 }
 
 .error-connection-msg{
@@ -73,9 +74,29 @@ button {
   top: 0px;
 }
 
-.error-connection-msg p{
+.error-connection-msg{
   font-size: 20px;
   color:#fff;
+  margin:auto;
+}
+
+.error-connection-msg button{
+  border: none;
+  background-color: transparent;
+}
+
+.error-connection-msg button:hover{
+  filter: brightness(110%);
+  
+}
+
+.spinner-container{
+  height: 100vh;
+  width: 100%;
+  display: flex;
+}
+
+.spinner-container div{
   margin:auto;
 }
 

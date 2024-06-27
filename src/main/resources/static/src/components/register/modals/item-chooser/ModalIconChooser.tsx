@@ -5,7 +5,7 @@ import './ModalIconChooser.css';
 import { useContext, useState } from 'react';
 import ItemAvatar from './ItemAvatar.tsx';
 import { userContext } from '../../../../context/UserDataContext.tsx';
-import { UserDataContextType } from '../../../../context/types/types.ts';
+import { UserDataContextType, UserDataSaveLocalStorage } from '../../../../context/types/types.ts';
 
 interface Props {
   showModalIconChooser: boolean; 
@@ -14,8 +14,11 @@ interface Props {
 
 const ModalIconChooser = ({ showModalIconChooser, handleCloseModalIconChooser }:Props) => {
   const { imageLinks } = useContext(userContext) as UserDataContextType;
+
+  //El valor avatarImg se supone que ya se cargó en el context UserDataContext osea que no es null
   const [iconPrevChoosed] = useState<string>(localStorage.getItem('avatarImg'));
-  const [iconChoosed, setIconChoosed] = useState<string>(localStorage.getItem('avatarImg').toString());
+  const [iconChoosed, setIconChoosed] = useState<string>(JSON.parse(localStorage.getItem('userData')).avatarImg);
+
   const [itemActiveIndex, setItemActiveIndex] = useState<number>(null);
 
   const handleItemChoosed = (urlIcon:string, index: number) => {
@@ -24,8 +27,10 @@ const ModalIconChooser = ({ showModalIconChooser, handleCloseModalIconChooser }:
   }
 
   const handleConfirmItemChoosed = (isConfirmButton: boolean) => {
-    if(isConfirmButton){
-      localStorage.setItem('avatarImg', iconChoosed)
+    if(isConfirmButton) {
+      let userDataStorage: UserDataSaveLocalStorage = JSON.parse(localStorage.getItem('userData'));
+      userDataStorage.avatarImg = iconChoosed;
+      localStorage.setItem('userData', JSON.stringify(userDataStorage))
       return handleCloseModalIconChooser(iconChoosed);
     }else{
       return handleCloseModalIconChooser(iconPrevChoosed);

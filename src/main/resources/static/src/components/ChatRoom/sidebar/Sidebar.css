@@ -5,6 +5,7 @@ p{
 
 .sidebar{
     display: flex;
+    position:relative;
     /* position: fixed; */
     flex-direction: column;
     height: 100%;
@@ -69,10 +70,10 @@ p{
     display: none;
     transition: opacity .5s ease;
     font-size: 14px;
-    z-index: 2000; 
+    z-index: 2000;
 }
-
-/* TRIANGULITO DE INFO */
+/*
+!* TRIANGULITO DE INFO *!
 .menu-details-item-info::before{
     content: "";
     position: absolute;
@@ -83,15 +84,20 @@ p{
     border-color: #0000 #0000 #000 #0000;
 }
 
-/* cuando se hace hover sobre el item se muestra el tooltip */
+!* cuando se hace hover sobre el item se muestra el tooltip *!
 .menu-details-item:hover .menu-details-item-info{
     top:120%;
     visibility: visible;
     opacity: 1;
     display: block;
     user-select: none;
-}
+}*/
 
+.menu-details-item .tooltip-sidebar {
+    padding: 5px 10px;
+    border-radius: 10px;
+    font-size: 16px;
+}
 
 .menu-hamburger{
     font-size: 30px;
@@ -285,7 +291,7 @@ p{
     }
     .sidebar{
         position: fixed;
-        width: 50%;
+        width: 100%;
     }
     .sidebar.close{
         width: 15%;
@@ -306,17 +312,30 @@ p{
 }
 @media (max-width: 560px){
     .sidebar{
-        width: 100%;
+        left: 0;
     }
+    .sidebar.close {
+        width: 100%;
+        left: -1000px;
+    }
+
+    .sidebar.close .menu-details {
+        position:fixed;
+        top:0;
+        left:0;
+        width: 10%;
+        height: 10%;
+    }
+
     .sidebar.close .menu-hamburger{
-        font-size: 28px;  
+        font-size: 28px;
     }
     .menu-details-item i{
         font-size: 18px;
     }
      .menu-details{ 
         overflow: auto;
-     } 
+     }
      .menu-details-item:first-child{
         padding: 0;
      }

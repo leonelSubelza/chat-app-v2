@@ -1,8 +1,7 @@
 package com.chatapp.core.config;
 
-import com.chatapp.core.controller.model.Message;
-import com.chatapp.core.controller.model.User;
-import com.chatapp.core.service.ChatService;
+import com.chatapp.core.model.Message;
+import com.chatapp.core.model.User;
 import com.chatapp.core.service.RoomChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

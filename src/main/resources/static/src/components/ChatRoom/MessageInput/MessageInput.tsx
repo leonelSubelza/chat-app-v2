@@ -1,6 +1,7 @@
 import React, { useContext, useRef, useState } from "react";
 import "./MessageInput.css";
 import { userContext } from "../../../context/UserDataContext";
+import { maxMessageLength } from "../../../config/chatConfiguration";
 
 interface Props {
   onSend: () => void;
@@ -15,6 +16,10 @@ const MessageInput = ({ onSend, handleWritingNotification }: Props) => {
 
   const handleMessage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
+    if(value.length>maxMessageLength){
+      console.log("la cant de caracteres es mayor a 255");
+      return;
+    }
     setUserData({ ...userData, message: value });
   };
 

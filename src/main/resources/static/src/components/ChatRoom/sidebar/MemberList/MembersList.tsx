@@ -27,7 +27,6 @@ const MembersList = ({showMembers}: Props) => {
   
   //const chatRoomIcon = require('../../../../assets/people-icon.svg') as string;
   const onUserChatClick = (
-    e: React.MouseEvent<HTMLLIElement>,
     chatData: UserChat
   ) => {
     chatData.hasUnreadedMessages = false;
@@ -84,7 +83,7 @@ const MembersList = ({showMembers}: Props) => {
     <div className={`sidebar-nav-links-container ${showMembers && 'active'}`}>
       <ul className="sidebar-nav-links">
         <li
-          onClick={(e) => onUserChatClick(e, Array.from(chats.keys())[0])}
+          onClick={(e) => onUserChatClick(Array.from(chats.keys())[0])}
           className={`member ${tab.username === "CHATROOM" && "active"}`}
         >
           <div className="member-item">
@@ -96,7 +95,8 @@ const MembersList = ({showMembers}: Props) => {
               Array.from(chats.keys())[0].hasUnreadedMessages && "active"
             }`}
           >
-            <i className="bi bi-exclamation-octagon-fill"></i>
+            {/*<i className="bi bi-exclamation-octagon-fill"></i>*/}
+            <i className="bi bi-chat-dots"></i>
           </div>
         </li>
 
@@ -110,26 +110,27 @@ const MembersList = ({showMembers}: Props) => {
             (chatData: UserChat) =>
               chatData.username !== "CHATROOM" && (
                 <li
-                  onClick={(e) => onUserChatClick(e, chatData)}
                   className={`member ${tab === chatData && "active"} ${
                     chatData.hasUnreadedMessages && "hasUnreadedMessages"
                   }`}
                   key={uuidv4()}
                 >
-                  <div className="member-item">
-                    <img
-                      className="profile_img"
-                      src={`${chatData.avatarImg}`}
-                      alt="icon"
-                    />
-                    <span className="link_name">{chatData.username}</span>
-                    <img
-                      className={`admin_img ${
-                        chatData.chatRole === ChatUserRole.ADMIN && "active"
-                      }`}
-                      src={adminImg}
-                      alt="icon"
-                    />
+                  <div className='member-item-container' onClick={(e) => onUserChatClick(chatData)}>
+                    <div className="member-item">
+                      <img
+                        className="profile_img"
+                        src={`${chatData.avatarImg}`}
+                        alt="icon"
+                      />
+                      <span className="link_name">{chatData.username}</span>
+                      <img
+                        className={`admin_img ${
+                          chatData.chatRole === ChatUserRole.ADMIN && "active"
+                        }`}
+                        src={adminImg}
+                        alt="icon"
+                      />
+                    </div>
                   </div>
                   <DropdownButton
                     key={"end"}
@@ -161,7 +162,8 @@ const MembersList = ({showMembers}: Props) => {
                       chatData.hasUnreadedMessages && "active"
                     }`}
                   >
-                    <i className="bi bi-exclamation-octagon-fill"></i>
+                    {/*<i className="bi bi-exclamation-octagon-fill"></i>*/}
+                    <i className="bi bi-chat-dots"></i>
                   </div>
                 </li>
               )

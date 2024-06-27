@@ -1,15 +1,29 @@
-import type { ChatRoomConnectionContextType, UserData, UserDataContextType } from './types/types.ts';
-import React, { ReactNode, useContext, useEffect, useRef, useState } from 'react'
-import { userContext, useUserDataContext } from './UserDataContext.tsx';
-import { createMessageJoin, createPrivateMessage, createPublicMessage, createUserChat, resetValues, updateChatData } from '../components/ChatRoom/ChatRoomFunctions.ts';
-import { useNavigate } from 'react-router-dom';
-import { over } from 'stompjs';
+import type {
+    ChatRoomConnectionContextType,
+    UserData,
+    UserDataContextType,
+    UserDataSaveLocalStorage
+} from './types/types.ts';
+import React, {ReactNode, useContext, useEffect, useRef, useState} from 'react'
+import {userContext, useUserDataContext} from './UserDataContext.tsx';
+import {
+    createMessageJoin,
+    createPrivateMessage,
+    createPublicMessage,
+    createUserChat,
+    resetValues,
+    updateChatData
+} from '../components/ChatRoom/ChatRoomFunctions.ts';
+import {useNavigate} from 'react-router-dom';
+import {over} from 'stompjs';
 import SockJS from 'sockjs-client';
-import { serverURL } from '../config/chatConfiguration.ts';
-import { MessagesStatus } from '../components/interfaces/messages.status.ts';
-import { Message } from '../components/interfaces/messages.ts';
-import { getActualDate } from '../utils/MessageDateConvertor.ts';
-import { ChatUserRole, UserChat } from '../components/interfaces/chatRoom.types.ts';
+import {ChatPaths, serverURL, webSiteChatURL} from '../config/chatConfiguration.ts';
+import {MessagesStatus} from '../components/interfaces/messages.status.ts';
+import {Message} from '../components/interfaces/messages.ts';
+import {getActualDate} from '../utils/MessageDateConvertor.ts';
+import {ChatUserRole, UserChat} from '../components/interfaces/chatRoom.types.ts';
+import {isAuthenticationExpired, startAuthentication} from '../auth/authenticationCreator.ts';
+import {Spinner} from "react-bootstrap";
 
 export const chatRoomConnectionContext = React.createContext<ChatRoomConnectionContextType>(undefined);
 
@@ -31,14 +45,15 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
 
     const userDataContext: UserDataContextType = useUserDataContext();
 
-    const { setChannelExists, userData, setUserData, stompClient, loadUserDataValues,
-        chats, setChats, tab, setTab,
+    const { isDataLoading,setChannelExists, userData, setUserData, stompClient, loadUserDataValues,
+        chats, setChats, tab, setTab, tokenJwt,setTokenJwt,
         bannedUsers, setBannedUsers } = useContext(userContext) as UserDataContextType;
+    const [sound, setSound] = useState(new Audio("../../sound/Ding.mp3"));
 
     const disconnectChat = (notifyOthers: boolean):void => {
         if(notifyOthers){
             let leaveMessage: Message = createPublicMessage(MessagesStatus.LEAVE,userData);
-            stompClient.current.send("/app/user.disconnected",{},JSON.stringify(leaveMessage));
+            sendMessage(leaveMessage,ChatPaths.USER_DISCONNECTED)
         }
         if (stompClient.current !== null && Object.keys(stompClient.current.subscriptions).length > 0) {
             //se desuscribe de todos los canales
@@ -53,30 +68,42 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         }
         if (stompClient.current === null && !startedConnection.current) {
             startedConnection.current = true;
+            let token = localStorage.getItem('tokenJwt');
             let Sock = new SockJS(serverURL);
             stompClient.current = over(Sock);
             // stompClient.current.debug = null
-            stompClient.current.connect({}, onConnected, onError);
+            stompClient.current.connect({Authorization: `Bearer ${token}`}, onConnected, onError);
         }
     }
 
     const onConnected = ():void => {
         userData.connected = true
+
+        if(stompClient.current!==null && stompClient.current.subscriptions){
+            stompClient.current.subscribe('/chatroom/public', (payload: any)=>{
+              let message: Message = JSON.parse(payload.body);
+              // console.log(message);
+          });
+          }
+
         setUserData({ ...userData });
     }
 
-    const onError = (err: unknown) => {
-        console.log("Error conectando al wb: " + err);
+    const onError = (error: unknown) => {
+        //Si hay un error simplemente volvemos a authenticar en la app. El error mayor es si
+        //la auth también falla, ahi si se cae el sist
+        let err = error.toString();
+        // console.log("Error conectando al wb: " + err+", se renueva el token");
+        console.log(err);
         lostConnection.current = true;
-        //alert(err);
         disconnectChat(false);
-        navigate('/')
+        navigate('/');
     }
 
     //si la room no existe, se procede a crear una, si si existe te desconecto
     const checkIfChannelExists = (): void => {
         stompClient.current.subscribe('/user/' + userData.id + '/exists-channel', (payload: any) => {
-            var message: Message = JSON.parse(payload.body);
+            let message: Message = JSON.parse(payload.body);
             if(message.status === MessagesStatus.ALREADY_CONNECTED){
                 alert('Ya se encuentra conectado a esta sala!');
                 disconnectChat(false);
@@ -105,24 +132,25 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             //Me desuscribo a este canal por el tema de evitar doble conexion
             //Si ya estaba conectado a esta sala, el servidor me avisará por este canal y  el msj
             //solo me llegará a la version duplicada y no al que ya esta conectado
-            let channelsSusbribed = Object.keys(stompClient.current.subscriptions)
-            let latestChannelSubscribed = channelsSusbribed[ channelsSusbribed.length-1 ];
+            let channelsSuscribed = Object.keys(stompClient.current.subscriptions)
+            let latestChannelSubscribed = channelsSuscribed[ channelsSuscribed.length-1 ];
             stompClient.current.unsubscribe(latestChannelSubscribed);
             
             setChannelExists(true);
             subscribeRoomChannels();
             userJoin();
-            navigate(`/chat-app-v2/chatroom/${userData.urlSessionid}`);
+            // navigate(`/chat-app-v2/chatroom/${userData.urlSessionid}`);
+            //se pasa a la room
+            navigate(`${webSiteChatURL}${userData.urlSessionid}`);
         });
-        
-        var chatMessage: Message = {
+        let chatMessage: Message = {
             senderId: userData.id,
             senderName: userData.username,
             date: getActualDate(),
             status: userData.status,
             urlSessionId: userData.urlSessionid
         }
-        stompClient.current.send("/app/check-channel", {}, JSON.stringify(chatMessage))
+        sendMessage(chatMessage,ChatPaths.CHECK_CHANNEL)
     }
 
     const subscribeRoomChannels = () => {
@@ -134,7 +162,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
 
     const userJoin = () => {
         var chatMessage: Message = createPublicMessage(userData.status, userData);
-        stompClient.current.send("/app/chat.join", {}, JSON.stringify(chatMessage));
+        sendMessage(chatMessage,ChatPaths.CHAT_JOIN)
     }
 
     //Acá no se pregunta si se es admin o no porque es un proceso ya hecho en el servidor
@@ -155,7 +183,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 bannedUsers.push(userToBan);
                 setChats(new Map(chats))
                 setBannedUsers(bannedUsers);
-                console.log("se banea a "+userToBan.username);
+                // console.log("se banea a "+userToBan.username);
             }
         }
         if(message.status === MessagesStatus.UNBAN){
@@ -163,7 +191,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             if (userToUnBan!==null) {
                 let bannedUsersAux = bannedUsers.filter( (u:UserChat) => u.id !== userToUnBan.id);
                 setBannedUsers(bannedUsersAux);
-                console.log("se desbanea a "+userToUnBan.username);
+                // console.log("se desbanea a "+userToUnBan.username);
             }
         }
     }
@@ -174,7 +202,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             let userToMakeAdmin:UserChat = getUserSavedFromChats(message.receiverId);
             userData.chatRole = ChatUserRole.CLIENT;
             userToMakeAdmin.chatRole = ChatUserRole.ADMIN
-            alert(message.receiverName+' is the new admin!');
+            alert("ℹ️: "+message.receiverName+' is the new admin!');
         }
         //Un admin me convierte a mi en admin 😎        
         if(message.receiverId === userData.id){
@@ -184,7 +212,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 userToHandle.chatRole = ChatUserRole.CLIENT
             }
             userData.chatRole = ChatUserRole.ADMIN;
-            alert(message.senderName+' has made you the new admin!');
+            alert("ℹ️: "+message.senderName+' has made you the new admin! 😎');
         }
         //Alguien que es admin convierte a otro en admin
         if(message.senderId!==userData.id && message.receiverId!==userData.id){
@@ -197,7 +225,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 alert('Se intenta convertir en admin a alguien que no esta en la sala')
             }
             userToMakeAdmin.chatRole = ChatUserRole.ADMIN;
-            alert(message.receiverName+' is the new admin!');
+            alert("ℹ️: " +message.receiverName+' is the new admin!');
         }
         setUserData(userData);
         setChats(new Map(chats));
@@ -217,11 +245,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             }else{
                 senderUser = getUserSavedFromChats(message.senderId);
             }
-            senderUser.isWriting = message.status===MessagesStatus.WRITING ? true : false;
-            if(tab.id === message.senderId){
-                tab.isWriting = message.status===MessagesStatus.WRITING;
-                setTab(tab)
-            }
+            senderUser.isWriting = message.status === MessagesStatus.WRITING;
             chats.set(senderUser,chats.get(senderUser));
             setChats(new Map(chats));
         }
@@ -287,6 +311,11 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 case MessagesStatus.WRITING :
                     handleUserWriting(message,false);
                     break;
+                case MessagesStatus.ERROR:
+                    alert('Se ha producido un error. '+message.message);
+                    // disconnectChat(true)
+                    // navigate('/');
+                    break;
             default:
                 break;
         }
@@ -298,7 +327,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         }
         let userSaved: UserChat = getUserSavedFromChats(message.senderId);
         if (!chats.get(userSaved)) {
-            var chatUser: UserChat = createUserChat(message);
+            const chatUser: UserChat = createUserChat(message);
             chats.set(chatUser, new Array<Message>);
             setChats(new Map(chats));
             if (resend) {
@@ -312,10 +341,42 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 userDataAux.urlSessionid = roomId;
                 var chatMessage: Message = createPrivateMessage(
                     MessagesStatus.JOIN, userDataAux, message.senderName, message.senderId);
-                stompClient.current.send("/app/private-message", {}, JSON.stringify(chatMessage))
+                sendMessage(chatMessage,ChatPaths.PRIVATE_MESSAGE)
             }
         }
     }
+
+/*    const handleMessageNotification = (userWhoSendTheMessage: UserChat, message: Message) => {
+        //Unread message notification.
+        /!*let unreadChat: UserChat = Array.from(chats.keys())!.find(c => c.hasUnreadedMessages)!;
+        if (unreadChat === undefined || tab === undefined) {
+            return;
+        }
+        //if we receive a message in the active chat
+        if (tab.id === unreadChat.id) {
+            Array.from(chats.keys())!.find(c => c.id === unreadChat.id)!.hasUnreadedMessages = false;
+            setChats(new Map(chats))
+            //COSO PARA PONER EL SCROLL AL FINAL CUANDO LLEGA UN MSJ
+            const chatContainer = document.querySelector(".scroll-messages");
+            chatContainer.scrollTo(0, chatContainer.scrollHeight);
+        }*!/
+        //if we receive a message in the active chat
+        console.log("ususario que envio msj id: "+userWhoSendTheMessage.id)
+        console.log("tab id: "+tab.id)
+        if (tab.id === userWhoSendTheMessage.id) {
+            // userWhoSendTheMessage.hasUnreadedMessages = false;
+            Array.from(chats.keys())!.find(c => c.id === userWhoSendTheMessage.id)!.hasUnreadedMessages = false;
+            // setChats(new Map(chats))
+            //COSO PARA PONER EL SCROLL AL FINAL CUANDO LLEGA UN MSJ
+            const chatContainer = document.querySelector(".scroll-messages");
+            chatContainer.scrollTo(0, chatContainer.scrollHeight);
+        }else{
+            if(message.status === MessagesStatus.MESSAGE || message.status === MessagesStatus.JOIN) {
+                sound.play();
+            }
+        }
+
+    }*/
 
     const saveMessage = (user: UserChat, message: Message)=>{
         const updatedChats: Map<UserChat, Message[]> = new Map(chats);
@@ -324,6 +385,7 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         updatedChats.set(user, updatedMessages);
         chats.set(user, updatedMessages);
         setChats(new Map(updatedChats));
+        // handleMessageNotification(user,message);
     }
 
     const savePublicMessage = (message: Message) => {
@@ -335,7 +397,8 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
     const handlePrivateMessageReceived = (message: Message) => {
         let userSaved: UserChat = getUserSavedFromChats(message.senderId)
         if (userSaved) {
-            Array.from(chats.keys())!.find(c => c.id === userSaved.id)!.hasUnreadedMessages = true;
+            // Array.from(chats.keys())!.find(c => c.id === userSaved.id)!.hasUnreadedMessages = true;
+            userSaved.hasUnreadedMessages = true;
             saveMessage(userSaved,message);
         }
     }
@@ -356,25 +419,129 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         return Array.from(chats.keys()).find(k => k.id === id)!;
     }
 
+    const authenticateClient = async (): Promise<string> => {
+        try {
+            const tokenResponse: string = await startAuthentication();
+            //If auth is valid the values token and expirationToken in localstorage will be not null
+            if (tokenResponse) {
+                setTokenJwt(tokenResponse);
+                let userDataStorage: UserDataSaveLocalStorage = JSON.parse(localStorage.getItem("userData"));
+                userData.tokenExpirationDate= new Date(userDataStorage.tokenExpirationDate);
+                return tokenResponse;
+            } else {
+                console.log("La conexión falló!");
+                lostConnection.current = true;
+                disconnectChat(false);
+                navigate('/');
+                return undefined;
+            }
+        } catch (error) {
+            lostConnection.current = true;
+            return undefined;
+        }
+    }
+
+    const sendMessage = (message: Message, url: string) => {
+        let tokenJwtAux: string = localStorage.getItem('tokenJwt');
+        if(isTokenValid()){
+            stompClient.current.send(
+                url,
+                {Authorization: `Bearer ${tokenJwtAux}`},
+                JSON.stringify(message)
+            )
+        }else{
+            authenticateClient()
+                .then((tokenRes: string) => {
+                    if(tokenRes) {
+                        // console.log("token response correcto, se envía msj a "+url)
+                        stompClient.current.send(
+                            url,
+                            {Authorization: `Bearer ${tokenRes}`},
+                            JSON.stringify(message)
+                        )
+                    }
+                });
+        }
+    }
+
+    const isTokenPresent = (tokenJwtAux: string): boolean => {
+        return (tokenJwtAux !== null && tokenJwtAux !== '');
+    }
+
+    const isTokenValid = (): boolean => {
+        let tokenJwtAux: string = localStorage.getItem("tokenJwt");
+        return !isAuthenticationExpired(userData.tokenExpirationDate)&&isTokenPresent(tokenJwtAux);
+    }
+
+    const startApplication = () => {
+        // sound.src = "../../public/sound/Ding.mp3";
+        loadUserDataValues();
+        // let tokenExpirationDate: Date = JSON.parse(localStorage.getItem('userData')).tokenExpirationDate;
+        if (isTokenValid()) {
+            startServerConnection();
+        } else {
+            console.log("token inválido, autenticando...")
+            authenticateClient()
+                .then((tokenRes: string) => {
+                    if(tokenRes) {
+                        startServerConnection()
+                    }
+                });
+        }
+    }
+
+
+//   const [consoleLogs, setConsoleLogs] = useState<string[]>([]);
+//   useEffect(() => {
+//     const originalConsoleLog = console.log;
+//     console.log = (...args: any[]) => {
+//       // Mantenemos el comportamiento original de console.log
+//       originalConsoleLog(...args);
+//       // Actualizamos el estado para mostrar el mensaje en pantalla
+//       setConsoleLogs(prevLogs => [...prevLogs, args.join(' ')]);
+//     }
+//         return () => {
+//       // Restauramos console.log al valor original cuando el componente se desmonta
+//       console.log = originalConsoleLog;
+//     };
+// },[]);
+
+    // useEffect(()=>{
+    //     if(localStorage.getItem("userData")===null || localStorage.getItem("userData")==="null"){
+    //         return;
+    //     }
+    //     let userDataStorage: UserDataSaveLocalStorage = JSON.parse(localStorage.getItem("userData"));
+    //     let tokenExpirationDate: Date = new Date(userDataStorage.tokenExpirationDate);
+    //     let horaActual: Date = new Date();
+    //     if(tokenExpirationDate < horaActual){
+    //         authenticateClient();
+    //     }
+    // })
+
+    /*the notification has to be handled in a useEffect because the function onMessageReceived and onPrivateMessage
+    are saved in memory for once and the states created doesn't have the actual value*/
     useEffect(() => {
-        //COSO PARA MARCAR MSJ NO LEIDO
         let unreadChat: UserChat = Array.from(chats.keys())!.find(c => c.hasUnreadedMessages)!;
         if (unreadChat === undefined || tab === undefined) {
             return;
         }
+        //if we receive a message in the active chat
         if (tab.id === unreadChat.id) {
             Array.from(chats.keys())!.find(c => c.id === unreadChat.id)!.hasUnreadedMessages = false;
             setChats(new Map(chats))
             //COSO PARA PONER EL SCROLL AL FINAL CUANDO LLEGA UN MSJ
             const chatContainer = document.querySelector(".scroll-messages");
             chatContainer.scrollTo(0, chatContainer.scrollHeight);
-        }        
-        
+        }else{
+            // A little bug, we cannot capture if the last message is a writing notification, so we solved like this
+            if(!unreadChat.isWriting) {
+                sound.play();
+            }
+        }
     }, [chats])
 
     useEffect(() => {
-        loadUserDataValues();
-        startServerConnection();
+        startApplication();
     }, []);
 
     return (
@@ -383,13 +550,27 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
                 disconnectChat,
                 checkIfChannelExists,
                 startServerConnection,
+                sendMessage,
                 startedConnection,
                 lostConnection
             }}
         >
             <div className={`error-connection-msg ${lostConnection.current && 'active'}`}>
-                <p>Connection Lost!⚠️. Try uploading the page 🔄.</p>
+                This application does not have a server to run yet, so it is not working
+                    {/*<button onClick={()=> window.location.reload()}>🔄</button>*/}
+                    .
             </div>
+
+
+            {/* <div className='consola'>
+                {consoleLogs.map((log, index) => (
+                    <div key={index}>{log}</div>
+                ))}
+            </div> */}
+            {!( (startedConnection.current && !isDataLoading && userData.connected)
+                || lostConnection.current) &&
+              <div className={'spinner-container'}><Spinner animation="border" role="status" /></div>}
+
             {children}
         </chatRoomConnectionContext.Provider>
     )

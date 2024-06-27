@@ -17,7 +17,6 @@ ol, ul {
 
 .sidebar-nav-links {
     height: 100%;
-    width: 100%;
     width: 90%;
     margin: auto;
 }
@@ -27,6 +26,12 @@ ol, ul {
     cursor: pointer;
     padding: 5px;
     border-radius: 10px;
+}
+
+.member-item-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
 }
 
 .member-item{
@@ -40,7 +45,6 @@ ol, ul {
 
 .member.active{
     color:#fff;
-
     background: #4E4F5B;
     transition: all 0.4s ease;
 }
@@ -171,12 +175,30 @@ ol, ul {
     position: absolute;
     top:0;
     right: 0;
-    color:rgb(231, 52, 52);
+    width: 28px;
+    height: 28px;
+    /*color:rgb(231, 52, 52);*/
     display: none;
+    /*border: 1px solid red;*/
 }
 
 .member-item__icon-exclamation.active{
-    display: block;
+    display: flex;
+}
+
+.member-item__icon-exclamation i{
+    margin: auto;
+    /*border: 1px solid red;*/
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        font-size: 14px; /* Tamaño inicial */
+    }
+    100% {
+        font-size: 15px; /* Tamaño inicial */
+    }
 }
 
 /*

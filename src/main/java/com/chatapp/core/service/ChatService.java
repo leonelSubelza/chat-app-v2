@@ -2,7 +2,7 @@ package com.chatapp.core.service;
 
 import com.chatapp.core.config.WebSocketRoomHandler;
 import com.chatapp.core.config.WebSocketSessionHandler;
-import com.chatapp.core.controller.model.*;
+import com.chatapp.core.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;

@@ -1,4 +1,4 @@
-import type { ChatRoomConnectionContextType, UserDataContextType,} from "../../context/types/types.ts";
+import type { ChatRoomConnectionContextType, UserDataContextType, UserDataSaveLocalStorage,} from "../../context/types/types.ts";
 import React, { useContext, useState } from "react";
 import { userContext} from "../../context/UserDataContext.tsx";
 import { chatRoomConnectionContext } from "../../context/ChatRoomConnectionContext.tsx";
@@ -10,6 +10,15 @@ import { MessagesStatus } from "../interfaces/messages.status.ts";
 import { generateRoomId } from "../../utils/IdGenerator.ts";
 import { ChatUserRole } from "../interfaces/chatRoom.types.ts";
 import { Navigate } from "react-router-dom";
+import { maxUsernameLength } from "./../../config/chatConfiguration.ts"
+
+
+import {
+  loadLocalStorageObject,
+  saveLocalStorageObject,
+  saveUserDataStorage
+} from "../../utils/localStorageFunctions.ts";
+import {Toaster, toast} from "sonner";
 
 const Register: React.FC = () => {
   const { userData, setUserData, isDataLoading, stompClient,imageLinks } = useContext(userContext) as UserDataContextType;
@@ -25,6 +34,9 @@ const Register: React.FC = () => {
     setShowModalIconChooser(false);
     if (iconChoosed !== "") {
       setUserData({ ...userData, avatarImg: iconChoosed });
+      let userDataStorage =  loadLocalStorageObject("userData");
+      userDataStorage.avatarImg = iconChoosed;
+      saveLocalStorageObject("userData",userDataStorage);
     }
   };
   const handleShowModalIconChooser = () => setShowModalIconChooser(true);
@@ -32,7 +44,7 @@ const Register: React.FC = () => {
   const handleShowModalJoinChat = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (userData.username === "") {
-      alert("Se debe poner un nombre de usuario!");
+      toast.error('You must write a username')
       return;
     }
     setShowModalJoinChat(true);
@@ -40,8 +52,15 @@ const Register: React.FC = () => {
 
   const handleUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
+    if(value.length>maxUsernameLength){
+      console.log("la cant de caracteres es mayor a 255");
+      return;
+    }
     setUserData({ ...userData, username: value });
-    localStorage.setItem("username", value);
+    //saved in localstorage to
+    let userDataStorage: UserDataSaveLocalStorage =  loadLocalStorageObject("userData");
+    userDataStorage.username = value;
+    saveLocalStorageObject("userData",userDataStorage);
   };
 
   const handleCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -51,18 +70,12 @@ const Register: React.FC = () => {
       return;
     }
 
-    if (
-      (userData.username === "" && localStorage.getItem("username") === null) ||
-      localStorage.getItem("username") === ""
-    ) {
-      alert("se debe poner un nombre de usuario");
+    if (userData.username === '') {
+      toast.error('You must write a username')
       return;
     }
-    if (
-      userData.avatarImg === "" ||
-      localStorage.getItem("avatarImg") === null
-    ) {
-      alert("Debe seleccionar una imagen");
+    if (userData.avatarImg === '') {
+      toast.error('You must choose a image')
       return;
     }
     let idRoom: string = generateRoomId();
@@ -85,20 +98,23 @@ const Register: React.FC = () => {
       disconnectChat(false);
       window.location.reload();
     }
-  }, []);
-
-  useEffect(() => {
-    if (localStorage.getItem("avatarImg") === null) {
-      localStorage.setItem("avatarImg", imageLinks[0]);
+    //overrides these variables because it doesn't load at this moment.
+    if (userData.username === '' && loadLocalStorageObject("userData")!==null) {
+      let userDataStorage = loadLocalStorageObject("userData");
+      userData.username = userDataStorage.username;
+      userData.avatarImg = userDataStorage.avatarImg;
     }
-  });
+
+    // sound.src="../../public/sound/Ding.mp3";
+  }, []);
 
   return (
     <>
+      {/* cuando se carga este componente la url se setea en '/chat-app-v2/' */}
       <Navigate to={`/chat-app-v2/`} />
       {( (startedConnection.current && !isDataLoading && userData.connected) 
       || lostConnection.current) 
-      ? (
+      && (
         <>
           <div className="register-container">
             <div className="register">
@@ -107,11 +123,7 @@ const Register: React.FC = () => {
                 <div
                   className="icon-img-contenedor"
                   style={{
-                    backgroundImage: `url(${
-                      localStorage.getItem("avatarImg") === null
-                        ? imageLinks[0]
-                        : localStorage.getItem("avatarImg")
-                    })`,
+                    backgroundImage: `url(${loadLocalStorageObject("userData").avatarImg})`,
                   }}
                 ></div>
                 <button className="icon-edit-btn" onClick={handleShowModalIconChooser}>
@@ -154,9 +166,8 @@ const Register: React.FC = () => {
             showModalJoinChat={showModalJoinChat}
             handleCloseModalJoinChat={()=>setShowModalJoinChat(false)}
           />
+          <Toaster richColors position="bottom-center"/>
         </>
-      ) : (
-        <div>Loading...</div>
       )}
     </>
   );
