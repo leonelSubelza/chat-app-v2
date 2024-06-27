@@ -14,7 +14,7 @@ export const maxMessageLength: number = 255;
 export const maxUsernameLength: number = 255
 
 //1 min
-export const tokenExpirationTimeByMinute = 30;
+export const tokenExpirationTimeByMinute = 60;
 
 export enum ChatPaths {
     CHECK_CHANNEL = "/app/check-channel",

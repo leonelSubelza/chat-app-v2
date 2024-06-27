@@ -27,7 +27,6 @@ const MembersList = ({showMembers}: Props) => {
   
   //const chatRoomIcon = require('../../../../assets/people-icon.svg') as string;
   const onUserChatClick = (
-    e: React.MouseEvent<HTMLLIElement>,
     chatData: UserChat
   ) => {
     chatData.hasUnreadedMessages = false;
@@ -84,7 +83,7 @@ const MembersList = ({showMembers}: Props) => {
     <div className={`sidebar-nav-links-container ${showMembers && 'active'}`}>
       <ul className="sidebar-nav-links">
         <li
-          onClick={(e) => onUserChatClick(e, Array.from(chats.keys())[0])}
+          onClick={(e) => onUserChatClick(Array.from(chats.keys())[0])}
           className={`member ${tab.username === "CHATROOM" && "active"}`}
         >
           <div className="member-item">
@@ -116,7 +115,7 @@ const MembersList = ({showMembers}: Props) => {
                   }`}
                   key={uuidv4()}
                 >
-                  <div className='member-item-container' onClick={(e) => onUserChatClick(e, chatData)}>
+                  <div className='member-item-container' onClick={(e) => onUserChatClick(chatData)}>
                     <div className="member-item">
                       <img
                         className="profile_img"

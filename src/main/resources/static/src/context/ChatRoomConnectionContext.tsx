@@ -93,7 +93,11 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
         //Si hay un error simplemente volvemos a authenticar en la app. El error mayor es si
         //la auth también falla, ahi si se cae el sist
         let err = error.toString();
-        console.log("Error conectando al wb: " + err+", se renueva el token");
+        // console.log("Error conectando al wb: " + err+", se renueva el token");
+        console.log(err);
+        lostConnection.current = true;
+        disconnectChat(false);
+        navigate('/');
     }
 
     //si la room no existe, se procede a crear una, si si existe te desconecto
@@ -552,8 +556,8 @@ export function ChatRoomConnectionContext({ children }: ChatRoomConnectionProvid
             }}
         >
             <div className={`error-connection-msg ${lostConnection.current && 'active'}`}>
-                Connection Lost!⚠️. Try uploading the page 
-                    <button onClick={()=> window.location.reload()}>🔄</button>
+                This application does not have a server to run yet, so it is not working
+                    {/*<button onClick={()=> window.location.reload()}>🔄</button>*/}
                     .
             </div>
 
