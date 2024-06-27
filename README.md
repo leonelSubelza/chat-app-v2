@@ -94,9 +94,12 @@ Da vida a tu identidad virtual eligiendo un avatar único y personalizando tu no
  ## Backend :electric_plug:
  - El sistema hace uso de la librería spring-boot-starter-websocket para la comunicación bidireccional entre el serividor y el cliente utilizando una arquitectura de tipo Rest para la organización de carpetas
  - Se hace uso del proyecto lombok para simplificar código.
+ - La aplicación utiliza jwt para la seguridad de los endpoints en el backend
+ - El backend funciona como un intermediario con los mensajes y eventos que ocurren en la aplicación, como conexiones, desconexiones, baneos, desbaneos, y además maneja un registro de qué salas están activas, qué usuarios están conectados y quiénes están baneados.
  ## Frontend :computer:
  - En el frontend se hace uso del hook useContext en gran medida para manejar la conexión con el web socket. También se usa otro context para manejar los datos del usuario durante el uso de la aplicación, tanto como para manejar los chats como sus datos de sesión.
  - Se hace uso de react-bootstrap para el uso de componentes como Modals.
+ - Se incluyen librerías como sonner para los mensajes toast, react-tooltip para agregar información sobre algunos botones en el chat, se incluye un sonido de notificación ante un mensaje recibido
  - El frontend fue creado utilizando vite para un manejo más fluido y liviano de la aplicación
  - Se hace uso de typescript para un manejo más seguro y eficiente en el frontend.
 
