@@ -111,26 +111,27 @@ const MembersList = ({showMembers}: Props) => {
             (chatData: UserChat) =>
               chatData.username !== "CHATROOM" && (
                 <li
-                  onClick={(e) => onUserChatClick(e, chatData)}
                   className={`member ${tab === chatData && "active"} ${
                     chatData.hasUnreadedMessages && "hasUnreadedMessages"
                   }`}
                   key={uuidv4()}
                 >
-                  <div className="member-item">
-                    <img
-                      className="profile_img"
-                      src={`${chatData.avatarImg}`}
-                      alt="icon"
-                    />
-                    <span className="link_name">{chatData.username}</span>
-                    <img
-                      className={`admin_img ${
-                        chatData.chatRole === ChatUserRole.ADMIN && "active"
-                      }`}
-                      src={adminImg}
-                      alt="icon"
-                    />
+                  <div className='member-item-container' onClick={(e) => onUserChatClick(e, chatData)}>
+                    <div className="member-item">
+                      <img
+                        className="profile_img"
+                        src={`${chatData.avatarImg}`}
+                        alt="icon"
+                      />
+                      <span className="link_name">{chatData.username}</span>
+                      <img
+                        className={`admin_img ${
+                          chatData.chatRole === ChatUserRole.ADMIN && "active"
+                        }`}
+                        src={adminImg}
+                        alt="icon"
+                      />
+                    </div>
                   </div>
                   <DropdownButton
                     key={"end"}

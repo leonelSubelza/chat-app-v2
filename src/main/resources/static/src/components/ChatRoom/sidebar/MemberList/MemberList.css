@@ -17,7 +17,6 @@ ol, ul {
 
 .sidebar-nav-links {
     height: 100%;
-    width: 100%;
     width: 90%;
     margin: auto;
 }
@@ -27,6 +26,12 @@ ol, ul {
     cursor: pointer;
     padding: 5px;
     border-radius: 10px;
+}
+
+.member-item-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
 }
 
 .member-item{
